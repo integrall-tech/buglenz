@@ -61,6 +61,8 @@ server {
     location /docs/      { proxy_pass $rustrak_api; }
     location = /api-docs { proxy_pass $rustrak_api; }
     location /api-docs/  { proxy_pass $rustrak_api; }
+    location = /metrics  { proxy_pass $rustrak_api; }
+    location /metrics/   { proxy_pass $rustrak_api; }
 
     # --- The application ----------------------------------------------------
 

@@ -432,7 +432,7 @@ impl StorageService {
     /// Whole-database size in bytes, reported by the backend. Best-effort: it's a
     /// headline figure, not a per-row sum.
     #[cfg(feature = "postgres")]
-    async fn db_size_bytes(pool: &DbPool) -> AppResult<i64> {
+    pub(crate) async fn db_size_bytes(pool: &DbPool) -> AppResult<i64> {
         let (size,): (i64,) = sqlx::query_as("SELECT pg_database_size(current_database())::BIGINT")
             .fetch_one(pool)
             .await?;
@@ -441,7 +441,7 @@ impl StorageService {
 
     /// SQLite has no `pg_database_size`; the file size is `page_count * page_size`.
     #[cfg(feature = "sqlite")]
-    async fn db_size_bytes(pool: &DbPool) -> AppResult<i64> {
+    pub(crate) async fn db_size_bytes(pool: &DbPool) -> AppResult<i64> {
         let page_count: i64 = sqlx::query_scalar("PRAGMA page_count")
             .fetch_one(pool)
             .await?;
