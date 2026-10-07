@@ -22,7 +22,7 @@ Row counts are exact. The database size is the figure the backend reports (`pg_d
 
 A per-project table breaks the same data down by project: events, transactions, spans, source maps, and an estimated size for each. Empty projects still appear with zeros, so you can see at a glance which project is accumulating the most.
 
-The estimated size is the length of the JSON payloads a project holds across events, transactions, spans, and logs. It is estimated from a sample of each project's newest rows, scaled by how many rows it has, so the page stays fast however much data the instance holds; the row counts next to it are exact.
+The estimated size is the length of the JSON payloads a project holds across events, transactions, spans, and logs. It is estimated from a sample of each project's newest rows (spans have no ingest time, so theirs are sampled in no particular order), scaled by how many rows it has, so the page stays fast however much data the instance holds; the row counts next to it are exact.
 
 ## Cleaning up old data
 

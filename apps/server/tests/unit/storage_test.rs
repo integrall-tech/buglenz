@@ -995,8 +995,10 @@ async fn test_by_project_breaks_down_counts_per_project_with_isolation() {
 async fn test_by_project_estimates_bytes_from_a_sample_of_recent_rows() {
     // Summing every payload read the whole database on each page load. The
     // estimate scales a sample of the project's most recent rows by its row
-    // count instead. With uniform payloads and more rows than the sample holds,
-    // the estimate must still equal the exact sum.
+    // count instead. Events are uniform, so their estimate equals the exact
+    // sum. Logs are 250 old, large rows and 200 recent, small ones: only the
+    // newest 200 may drive the estimate, so reading old rows or dropping the
+    // sample limit both miss it.
     let db = TestDb::new().await;
     let project = ProjectService::create(
         &db.pool,
@@ -1010,19 +1012,32 @@ async fn test_by_project_estimates_bytes_from_a_sample_of_recent_rows() {
     .unwrap();
 
     let at = Utc::now();
-    for _ in 0..450 {
+    let old = at - chrono::Duration::days(1);
+    for _ in 0..250 {
+        seed_log_at(&db.pool, project.id, old).await;
+    }
+    sqlx::query("UPDATE logs SET body = $1 WHERE project_id = $2")
+        .bind("x".repeat(1_000))
+        .bind(project.id)
+        .execute(&db.pool)
+        .await
+        .unwrap();
+    for _ in 0..200 {
         seed_log_at(&db.pool, project.id, at).await;
+    }
+    for _ in 0..450 {
         seed_issueless_event_at(&db.pool, project.id, "log", at).await;
     }
 
-    let (events, logs): (i64, i64) = sqlx::query_as(
+    let (events, recent_logs): (i64, i64) = sqlx::query_as(
         "SELECT \
            (SELECT COALESCE(SUM(length(CAST(data AS TEXT))), 0) FROM events WHERE project_id = $1), \
            (SELECT COALESCE(SUM(length(CAST(body AS TEXT)) + length(CAST(attributes AS TEXT))), 0) \
-              FROM logs WHERE project_id = $2)",
+              FROM logs WHERE project_id = $2 AND ingested_at > $3)",
     )
     .bind(project.id)
     .bind(project.id)
+    .bind(old)
     .fetch_one(&db.pool)
     .await
     .unwrap();
@@ -1031,7 +1046,7 @@ async fn test_by_project_estimates_bytes_from_a_sample_of_recent_rows() {
     let p = rows.iter().find(|r| r.project_id == project.id).unwrap();
     assert_eq!(p.events_count, 450);
     assert_eq!(p.logs_count, 450);
-    assert_eq!(p.estimated_bytes, events + logs);
+    assert_eq!(p.estimated_bytes, events + recent_logs * 450 / 200);
 }
 
 #[tokio::test]

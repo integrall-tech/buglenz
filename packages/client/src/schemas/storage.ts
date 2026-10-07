@@ -27,7 +27,8 @@ export const storageSummarySchema = z.object({
 /**
  * Per-project storage breakdown (one row per project, including empty ones).
  * `estimated_bytes` estimates the JSON payload length the project holds,
- * from a sample of its newest rows scaled by the row count.
+ * from a sample of its newest rows scaled by the row count (spans, which
+ * have no ingest time, are sampled in no particular order).
  */
 export const projectStorageSchema = z.object({
   project_id: z.number(),
