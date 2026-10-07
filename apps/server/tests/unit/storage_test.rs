@@ -1201,6 +1201,45 @@ async fn project_counters(pool: &rustrak::db::DbPool, project_id: i32) -> (i32, 
         .unwrap()
 }
 
+#[tokio::test(flavor = "multi_thread")]
+async fn test_cleanup_keeps_project_counters_right_after_every_batch() {
+    // A restart can cut a cleanup short between any two batches, and nothing
+    // repairs the project counters at startup: each batch has to leave them
+    // right, not only the end of the run.
+    let db = TestDb::new().await;
+    let project = ProjectService::create(
+        &db.pool,
+        CreateProject {
+            name: "per-batch-counters".to_string(),
+            slug: None,
+            platform: None,
+        },
+    )
+    .await
+    .unwrap();
+    let old = Utc::now() - chrono::Duration::days(60);
+    seed_issue_with_events_at(&db.pool, project.id, &[old, old, Utc::now()]).await;
+    sqlx::query(
+        "UPDATE projects SET stored_event_count = 3, digested_event_count = 3 WHERE id = $1",
+    )
+    .bind(project.id)
+    .execute(&db.pool)
+    .await
+    .unwrap();
+
+    let mut seen = Vec::new();
+    StorageService::execute_cleanup_in_batches(&db.pool, 30, None, CleanupFilter::all(), 1, |c| {
+        let counters = tokio::task::block_in_place(|| {
+            tokio::runtime::Handle::current().block_on(project_counters(&db.pool, project.id))
+        });
+        seen.push((c.events, counters));
+    })
+    .await
+    .unwrap();
+
+    assert_eq!(seen, vec![(1, (2, 2)), (2, (1, 1))]);
+}
+
 #[tokio::test]
 async fn test_execute_cleanup_in_small_batches_removes_everything_and_keeps_counters_exact() {
     // The cleanup deletes in short batches so it never holds one huge write

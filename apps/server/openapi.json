@@ -6609,6 +6609,42 @@
         ]
       }
     },
+    "/api/storage/cleanup/status": {
+      "get": {
+        "tags": [
+          "Storage"
+        ],
+        "summary": "GET /api/storage/cleanup/status — progress of the running cleanup, or the\noutcome of the last one.",
+        "operationId": "get_cleanup_status",
+        "responses": {
+          "200": {
+            "description": "The current or last cleanup and the rows it removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CleanupStatus"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
     "/api/storage/projects": {
       "get": {
         "tags": [
