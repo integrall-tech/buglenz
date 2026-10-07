@@ -34,6 +34,25 @@ pub struct StorageService;
 /// blocking. Revisit if cleanups of tens of millions of rows become routine.
 const CLEANUP_BATCH_SIZE: i64 = 10_000;
 
+/// Rows per project and table the storage page's size estimate reads.
+const SIZE_SAMPLE_ROWS: i64 = 200;
+
+/// The size samples: `(payload bytes, rows)` over a project's newest rows,
+/// `$1` the project and `$2` the sample size. Each walks the table's
+/// `(project_id, ingested_at)` index; spans have no `ingested_at` and take
+/// whichever rows their `project_id` index yields first.
+/// `length(CAST(.. AS TEXT))` is the character length, the same measure on
+/// both backends.
+const EVENTS_SAMPLE: &str = "SELECT COALESCE(SUM(length(CAST(data AS TEXT))), 0), COUNT(*) \
+     FROM (SELECT data FROM events WHERE project_id = $1 ORDER BY ingested_at DESC LIMIT $2) AS sample";
+const TRANSACTIONS_SAMPLE: &str = "SELECT COALESCE(SUM(length(CAST(data AS TEXT))), 0), COUNT(*) \
+     FROM (SELECT data FROM transactions WHERE project_id = $1 ORDER BY ingested_at DESC LIMIT $2) AS sample";
+const SPANS_SAMPLE: &str = "SELECT COALESCE(SUM(length(CAST(data AS TEXT))), 0), COUNT(*) \
+     FROM (SELECT data FROM spans WHERE project_id = $1 LIMIT $2) AS sample";
+const LOGS_SAMPLE: &str = "SELECT COALESCE(SUM(COALESCE(length(CAST(body AS TEXT)), 0) \
+     + COALESCE(length(CAST(attributes AS TEXT)), 0)), 0), COUNT(*) \
+     FROM (SELECT body, attributes FROM logs WHERE project_id = $1 ORDER BY ingested_at DESC LIMIT $2) AS sample";
+
 /// Gives waiting writers a turn between cleanup batches. SQLite's busy
 /// handler retries a blocked writer at intervals of up to 100ms, so a pause
 /// at least that long guarantees ingestion gets the lock between batches
@@ -611,13 +630,15 @@ impl StorageService {
 
     /// Per-project storage breakdown (one row per project, including empty ones).
     ///
-    /// Correlated `COUNT(*)` subqueries keep it dialect-portable; `estimated_bytes`
-    /// sums the JSON payload lengths the project owns across events/transactions/spans
-    /// (`length(CAST(data AS TEXT))` — char length, a stable cross-backend estimate).
+    /// Row counts are exact: correlated `COUNT(*)`s answered from each table's
+    /// `project_id` index. `estimated_bytes` is the JSON payload length the
+    /// project holds, estimated from a sample of its newest rows per table (see
+    /// [`Self::estimate_bytes`]); summing every payload meant reading the whole
+    /// database on each load of the storage page.
     pub async fn by_project(pool: &DbPool) -> AppResult<Vec<ProjectStorage>> {
-        // (id, name, events, transactions, spans, logs, source_maps, estimated_bytes)
-        type ProjectStorageRow = (i32, String, i64, i64, i64, i64, i64, i64);
-        let rows: Vec<ProjectStorageRow> = sqlx::query_as(
+        // (id, name, events, transactions, spans, logs, source_maps)
+        type ProjectCountsRow = (i32, String, i64, i64, i64, i64, i64);
+        let rows: Vec<ProjectCountsRow> = sqlx::query_as(
             r#"
             SELECT
                 p.id,
@@ -626,16 +647,7 @@ impl StorageService {
                 (SELECT COUNT(*) FROM transactions t  WHERE t.project_id = p.id) AS transactions_count,
                 (SELECT COUNT(*) FROM spans s         WHERE s.project_id = p.id) AS spans_count,
                 (SELECT COUNT(*) FROM logs lg         WHERE lg.project_id = p.id) AS logs_count,
-                (SELECT COUNT(*) FROM source_file_metadata m WHERE m.project_id = p.id) AS source_maps_count,
-                (
-                    (SELECT COALESCE(SUM(length(CAST(e.data AS TEXT))), 0) FROM events e       WHERE e.project_id = p.id)
-                  + (SELECT COALESCE(SUM(length(CAST(t.data AS TEXT))), 0) FROM transactions t WHERE t.project_id = p.id)
-                  + (SELECT COALESCE(SUM(length(CAST(s.data AS TEXT))), 0) FROM spans s         WHERE s.project_id = p.id)
-                  + (SELECT COALESCE(SUM(
-                        COALESCE(length(CAST(lg.body AS TEXT)), 0)
-                      + COALESCE(length(CAST(lg.attributes AS TEXT)), 0)
-                    ), 0) FROM logs lg WHERE lg.project_id = p.id)
-                ) AS estimated_bytes
+                (SELECT COUNT(*) FROM source_file_metadata m WHERE m.project_id = p.id) AS source_maps_count
             FROM projects p
             ORDER BY p.id
             "#,
@@ -643,32 +655,64 @@ impl StorageService {
         .fetch_all(pool)
         .await?;
 
-        Ok(rows
-            .into_iter()
-            .map(
-                |(
-                    project_id,
-                    project_name,
-                    events_count,
-                    transactions_count,
-                    spans_count,
-                    logs_count,
-                    source_maps_count,
-                    estimated_bytes,
-                )| {
-                    ProjectStorage {
+        let mut breakdown = Vec::with_capacity(rows.len());
+        for (
+            project_id,
+            project_name,
+            events_count,
+            transactions_count,
+            spans_count,
+            logs_count,
+            source_maps_count,
+        ) in rows
+        {
+            let estimated_bytes =
+                Self::estimate_bytes(pool, EVENTS_SAMPLE, project_id, events_count).await?
+                    + Self::estimate_bytes(
+                        pool,
+                        TRANSACTIONS_SAMPLE,
                         project_id,
-                        project_name,
-                        events_count,
                         transactions_count,
-                        spans_count,
-                        logs_count,
-                        source_maps_count,
-                        estimated_bytes,
-                    }
-                },
-            )
-            .collect())
+                    )
+                    .await?
+                    + Self::estimate_bytes(pool, SPANS_SAMPLE, project_id, spans_count).await?
+                    + Self::estimate_bytes(pool, LOGS_SAMPLE, project_id, logs_count).await?;
+            breakdown.push(ProjectStorage {
+                project_id,
+                project_name,
+                events_count,
+                transactions_count,
+                spans_count,
+                logs_count,
+                source_maps_count,
+                estimated_bytes,
+            });
+        }
+        Ok(breakdown)
+    }
+
+    /// Payload bytes `count` rows hold, estimated as the bytes of a sample of
+    /// the project's newest rows scaled by `count`. Exact whenever the project
+    /// has no more rows than the sample.
+    ///
+    /// ponytail: the newest rows stand in for all of them, so a project whose
+    /// payloads changed size over time is off by that drift. Store each row's
+    /// size at ingest if an exact figure is ever needed.
+    async fn estimate_bytes(
+        pool: &DbPool,
+        sample_sql: &'static str,
+        project_id: i32,
+        count: i64,
+    ) -> AppResult<i64> {
+        if count == 0 {
+            return Ok(0);
+        }
+        let (bytes, sampled): (i64, i64) = sqlx::query_as(sample_sql)
+            .bind(project_id)
+            .bind(SIZE_SAMPLE_ROWS)
+            .fetch_one(pool)
+            .await?;
+        Ok(scale_sample(bytes, sampled, count))
     }
 
     /// Instance-wide storage summary (row counts + DB size + source-map weight).
@@ -740,5 +784,35 @@ impl StorageService {
             total_bytes: chunk_bytes + source_file_bytes,
             file_count,
         })
+    }
+}
+
+/// Scales a sample's `bytes` over `sampled` rows to `count` rows.
+///
+/// A sample short of the limit already holds every row the project has, so
+/// its bytes are the exact figure. `count` was read in an earlier query, and
+/// a cleanup deleting rows in between would otherwise scale what is left by
+/// the count from before it.
+fn scale_sample(bytes: i64, sampled: i64, count: i64) -> i64 {
+    if sampled < SIZE_SAMPLE_ROWS {
+        return bytes;
+    }
+    (i128::from(bytes) * i128::from(count) / i128::from(sampled)) as i64
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn short_sample_is_exact_whatever_the_stale_count() {
+        // 100 counted, 90 deleted before the sample: the 10 left are the answer.
+        assert_eq!(scale_sample(1_000, 10, 100), 1_000);
+        assert_eq!(scale_sample(0, 0, 5), 0);
+    }
+
+    #[test]
+    fn full_sample_scales_to_the_count() {
+        assert_eq!(scale_sample(2_000, SIZE_SAMPLE_ROWS, 450), 4_500);
     }
 }

@@ -6661,7 +6661,7 @@
                   "type": "array",
                   "items": {
                     "type": "object",
-                    "description": "Per-project storage breakdown, one row per project (including empty ones).\n\nCounts are exact. `estimated_bytes` is the summed length of the JSON payloads\nthis project owns across events/transactions/spans — a real per-project weight,\nnot an apportioned guess.",
+                    "description": "Per-project storage breakdown, one row per project (including empty ones).\n\nCounts are exact. `estimated_bytes` estimates the JSON payload length this\nproject holds across events, transactions, spans and logs: a sample of its\nnewest rows per table (spans, which have no ingest time, are sampled in no\nparticular order), scaled by the row count. It is exact for a project with\nno more rows than the sample.",
                     "required": [
                       "project_id",
                       "project_name",
@@ -9963,7 +9963,7 @@
       },
       "ProjectStorage": {
         "type": "object",
-        "description": "Per-project storage breakdown, one row per project (including empty ones).\n\nCounts are exact. `estimated_bytes` is the summed length of the JSON payloads\nthis project owns across events/transactions/spans — a real per-project weight,\nnot an apportioned guess.",
+        "description": "Per-project storage breakdown, one row per project (including empty ones).\n\nCounts are exact. `estimated_bytes` estimates the JSON payload length this\nproject holds across events, transactions, spans and logs: a sample of its\nnewest rows per table (spans, which have no ingest time, are sampled in no\nparticular order), scaled by the row count. It is exact for a project with\nno more rows than the sample.",
         "required": [
           "project_id",
           "project_name",
