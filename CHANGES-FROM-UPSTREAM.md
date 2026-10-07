@@ -15,6 +15,8 @@ foi tocado.
 
 - `NOTICE.md` adicionado: origem, copyright do upstream e das modificações, oferta de
   código-fonte (GPL-3.0 §6). `LICENSE` permanece inalterado.
+- `THIRD-PARTY-LICENSES.md` adicionado: inventário das licenças das dependências (428 crates no
+  servidor, 248 nos benchmarks, 1.277 pacotes npm), gerado por script em `governance/tools/`.
 
 ## CI e publicação
 
