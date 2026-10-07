@@ -6,6 +6,40 @@ use rustrak::routes::metrics::{self, MetricsEndpoint};
 use rustrak::telemetry::Counters;
 
 #[actix_web::test]
+async fn missing_spool_gauges_remain_present_when_the_directory_is_recreated() {
+    let db = TestDb::new().await;
+    let root = tempfile::tempdir().unwrap();
+    let dir = root.path().join("ingest");
+    let counters = Box::leak(Box::new(Counters::new()));
+    let app = test::init_service(
+        App::new()
+            .app_data(web::Data::new(db.pool.clone()))
+            .app_data(web::Data::new(MetricsEndpoint::new(
+                true,
+                dir.clone(),
+                counters,
+            )))
+            .configure(metrics::configure),
+    )
+    .await;
+
+    for recreate in [false, true] {
+        if recreate {
+            std::fs::create_dir(&dir).unwrap();
+            std::fs::write(dir.join("project-1-a.pending.json"), "event").unwrap();
+        }
+        let response =
+            test::call_service(&app, test::TestRequest::get().uri("/metrics").to_request()).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = String::from_utf8(test::read_body(response).await.to_vec()).unwrap();
+        // The cached empty reading is valid until the normal gauge TTL expires.
+        for name in ["pending", "bytes", "oldest_seconds"] {
+            assert!(body.contains(&format!("\nrustrak_spool_{name} 0\n")));
+        }
+    }
+}
+
+#[actix_web::test]
 async fn metrics_are_off_by_default_and_public_only_when_enabled() {
     let db = TestDb::new().await;
     let dir = tempfile::tempdir().unwrap();

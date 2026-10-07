@@ -87,8 +87,13 @@ pub async fn scrape(state: web::Data<MetricsEndpoint>, pool: web::Data<DbPool>) 
 /// ingest directory. A vanished entry during a scrape is a normal race.
 fn pending_spool(dir: &Path) -> std::io::Result<Spool> {
     let mut spool = Spool::default();
+    let entries = match std::fs::read_dir(dir) {
+        Ok(entries) => entries,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(spool),
+        Err(e) => return Err(e),
+    };
     let now = SystemTime::now();
-    for entry in std::fs::read_dir(dir)? {
+    for entry in entries {
         let entry = entry?;
         if !entry
             .file_name()
@@ -139,5 +144,31 @@ mod tests {
         let spool = pending_spool(dir.path()).unwrap();
         assert_eq!(spool.pending, 1);
         assert_eq!(spool.bytes, 5);
+    }
+
+    #[test]
+    fn a_missing_directory_is_an_empty_spool() {
+        let root = tempfile::tempdir().unwrap();
+        let dir = root.path().join("ingest");
+        std::fs::create_dir(&dir).unwrap();
+        std::fs::remove_dir(&dir).unwrap();
+
+        let spool = pending_spool(&dir).unwrap();
+        assert_eq!(spool.pending, 0);
+        assert_eq!(spool.bytes, 0);
+        assert_eq!(spool.oldest_seconds, 0);
+        assert!(!dir.exists());
+    }
+
+    #[test]
+    fn other_directory_errors_are_not_an_empty_spool() {
+        let root = tempfile::tempdir().unwrap();
+        let file = root.path().join("ingest");
+        std::fs::write(&file, "not a directory").unwrap();
+
+        assert_eq!(
+            pending_spool(&file).err().unwrap().kind(),
+            std::io::ErrorKind::NotADirectory,
+        );
     }
 }
