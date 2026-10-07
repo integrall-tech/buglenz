@@ -499,7 +499,7 @@ pub async fn bulk_update_issues(
 pub async fn bulk_delete_issues(
     pool: web::Data<DbPool>,
     path: web::Path<i32>,
-    body: web::Json<BulkDeleteIssues>,
+    body: Result<web::Json<BulkDeleteIssues>, actix_web::Error>,
     actor: ApiActor,
 ) -> AppResult<HttpResponse> {
     let project_id = path.into_inner();
@@ -512,6 +512,16 @@ pub async fn bulk_delete_issues(
     )
     .await?;
 
+    let body = body.map_err(|error| {
+        if error.as_response_error().status_code() == actix_web::http::StatusCode::PAYLOAD_TOO_LARGE {
+            AppError::PayloadTooLarge("Bulk delete request is too large".to_string())
+        } else {
+            AppError::Validation(
+                "Specify exactly one of ids or filter (open, resolved, muted, all), with no extra fields"
+                    .to_string(),
+            )
+        }
+    })?;
     body.validate_size()?;
 
     let deleted = match &*body {

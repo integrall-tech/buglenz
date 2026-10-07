@@ -204,7 +204,9 @@ impl BulkUpdateIssues {
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 #[serde(untagged, deny_unknown_fields)]
 pub enum BulkDeleteIssues {
+    #[cfg_attr(feature = "openapi", schema(max_properties = 1))]
     Ids { ids: Vec<Uuid> },
+    #[cfg_attr(feature = "openapi", schema(max_properties = 1))]
     Filter { filter: IssueFilter },
 }
 
@@ -380,6 +382,22 @@ mod tests {
                 filter: IssueFilter::Resolved
             })
         ));
+    }
+
+    #[cfg(feature = "openapi")]
+    #[test]
+    fn test_bulk_delete_schema_limits_each_selector_to_one_property() {
+        use utoipa::PartialSchema;
+
+        let schema = serde_json::to_value(BulkDeleteIssues::schema()).unwrap();
+        let branches = schema["oneOf"].as_array().unwrap();
+        assert_eq!(branches.len(), 2);
+        for branch in branches {
+            // With one required selector, a second property (including an invalid
+            // other selector) must never validate against either branch.
+            assert_eq!(branch["required"].as_array().unwrap().len(), 1);
+            assert_eq!(branch["maxProperties"], 1);
+        }
     }
 
     #[test]

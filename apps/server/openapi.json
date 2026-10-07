@@ -8636,7 +8636,8 @@
                   "format": "uuid"
                 }
               }
-            }
+            },
+            "maxProperties": 1
           },
           {
             "type": "object",
@@ -8647,7 +8648,8 @@
               "filter": {
                 "$ref": "#/components/schemas/IssueFilter"
               }
-            }
+            },
+            "maxProperties": 1
           }
         ],
         "description": "Bulk delete request: the listed `ids`, or every issue matching `filter`.\nA body with neither or both matches no variant and is rejected, so an empty\nbody can never mean \"all\"."
