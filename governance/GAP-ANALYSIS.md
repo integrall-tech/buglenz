@@ -182,3 +182,60 @@ para os dois em retenção, organizações e maturidade, e para o Sentry em tudo
 2. G3, G7, G8, G9: são correções genéricas; a proposta é contribuí-las ao upstream (ADR-0002).
 3. G17: decidir se os apps Flutter entram na Fase 1. Se sim, o custo do fork sobe bastante.
 4. G18, G19: fora de escopo; multi-cliente se resolve com uma instância por cliente (ADR-0007).
+
+## 9. Trabalho em curso no upstream (leitura de 2026-10-07)
+
+Leitura das issues e PRs abertos de `rustrak/rustrak` pela API do GitHub (`gh api`), feita no
+pacote 001 (T12): 40 issues e 7 PRs abertos. Títulos e corpos lidos; nenhum PR foi testado.
+A relação com cada gap é [inferência] a partir do texto, salvo indicação.
+
+### Gaps com trabalho em curso
+
+| Gap | Item no upstream | Estado | Relação |
+|---|---|---|---|
+| G1 retenção | #329 "Postgres: unusable CHAR indexes, unbounded span queries, and manual-only retention" (issue, set/2026) | aberta, sem comentários | Relata a ausência de retenção automática como problema de operação; não há PR. Reforça G1 e G21 |
+| G1 retenção | #93 "source map storage retention and cleanup policy" (issue, mai/2026) | aberta | Retenção só de source maps |
+| G4 egress | #375 "derive the telemetry window from lifetime counters" (issue, out/2026, do mantenedor) | aberta | O upstream segue investindo na telemetria anônima; confirma a classificação "fork" de G4 no ADR-0002 |
+| G10 filtros | #348 "Add project-wide environment filtering" (PR, set/2026, externo) | aberto, 4 comentários, inclui migrations | Filtro de ambiente na consulta, não filtro de entrada. Toca migrations: atenção no próximo sync se for mesclado |
+| G10 filtros | #170 "Issues — Phase 6 (snooze/ignore, merge, sharing, event filters)" (issue) | aberta | Filtros de evento planejados, sem PR |
+| G11 alertas | #371 "alert rules honor a minimum issue level" (PR, out/2026, externo) e #370 (issue) | aberto, 2 comentários | Primeira condição de alerta além de "todo evento". Alerta por limiar ou frequência continua sem trabalho |
+| G11 alertas | #367 "scope cooldown per issue instead of per rule" (issue) | aberta | Refinamento do cooldown |
+| G12 OIDC → papéis | #355 "OIDC: map IdP groups to roles and allow SSO-only login" (issue, set/2026) | aberta, sem comentários | **Pedido idêntico ao G12.** Candidato natural a PR da IntegrAllTech no upstream (ADR-0002, ADR-0008) |
+| G12 OIDC | #365 "Hide or adapt password change for SSO-only accounts", #358 "Explicit admin on SSO login on an empty database", #360 "Don't abort startup when OIDC discovery fails" (issues) | abertas | Mesma frente; relevantes ao pacote de ArchGuard |
+| G13 tokens | #357 "Store API tokens hashed and then show them only once" (issue) | aberta | Segurança de token, não escopo |
+| G14 busca | #369 "look up project events by user or request ID" (PR, set/2026, externo) e #350 (issue) | aberto, 2 comentários | Busca por identidade de usuário ou request ID, não filtro por tag/release/ambiente |
+| G15 integrações | #10 "extensible integrations system (GitHub, Linear, Jira)", #310 "Forge integration" (issues) | abertas desde jan e set/2026 | Sem PR |
+| G16 itens de envelope | #164 "Sentry Crons (monitor check-in ingestion)" (PR do mantenedor, jun/2026) | aberto, 3 comentários, parado desde set | `check_in`; os demais itens de #143 seguem abertos |
+| G18 replay | #121 "Session Replay support" (issue) | aberta | Fora do escopo da Fase 1 |
+| G20 nó único | #94 "pluggable storage backends (S3, GCS, Azure Blob)", #128 "RFC: custom S3-compatible storage server" (issues) | abertas | Sem PR |
+| G21 tabela de eventos | #329 (acima), #202 "chore: postgres 18" (issue) | abertas | #329 traz medições reais de um deployment com 23 M de spans: índices `CHAR(n)` ignorados, consultas de span sem limite |
+| G22 risco de upstream | #163 "v1.0.0 — Definition of Done" (issue) | aberta | Critério de 1.0 em discussão |
+| G22 risco de upstream | #57 "fix(security): address 6 server vulnerabilities (H-1 … M-2)" (PR do mantenedor, mai/2026) | **aberto há 5 meses**, 1 comentário | Corrige oráculo de tempo no login, DoS por tamanho de senha e outros. Verificar no pacote de auditoria se as correções entraram por outro caminho; se não, é candidato a cherry-pick com ADR |
+
+### Gaps sem trabalho em curso
+
+G2 scrubbing, G3 sessão `unhandled`, G5 pt-BR, G6 criptografia e auditoria, G7 nome de função,
+G8 `in_app`, G9 tunnel, G17 symbolication, G19 multi-organização, G23 GPL. Nenhuma issue ou PR
+aberto toca esses pontos. Para G3, G7, G8 e G9 (classificados como "PR no upstream" no ADR-0002)
+o caminho está livre; para G5, idem.
+
+### Itens sem gap correspondente, relevantes aos pacotes seguintes
+
+| Item | Pacote afetado | Por quê |
+|---|---|---|
+| #359 "Default `INGEST_DIR` is outside the `/data` volume in the Docker image" (bug) | 003 implantação (ADR-0012) | Eventos aceitos e não digeridos se perdem ao recriar o container. A imagem do fork deve definir `INGEST_DIR` sob `/data` |
+| #356 "`RUSTRAK_BOOTSTRAP_TOKEN` ignores its value and prints the token to stderr" (bug) | 003 implantação | Afeta o provisionamento automatizado |
+| #366 "Revoke existing sessions when a password changes", #47 "Auth rate-limiting", #48/#55 validação de força de senha (PR externo de abr/2026 parado) | auditoria de segurança | Pontos de autenticação sem correção no upstream |
+| #362 "Setting to stop members from creating projects" | papéis (ADR-0008) | Controle de permissão que o ArchGuard não resolve sozinho |
+| #347 "perf(dashboard): adopt TanStack Query and trim route bundles" (PR do mantenedor), #335 (issue) | 007 rebrand, 010 UI | Refatoração grande do dashboard em andamento; o inventário da zona A (ADR-0006) deve ser refeito após o merge |
+| #92 "ui: allow deploying on another basePath", #36 "Standalone mode for WebView UI" | 003 implantação | Relevante se a instância for servida sob um prefixo |
+
+### Observações sobre o upstream
+
+- Dos 7 PRs abertos, 3 são do mantenedor (#347, #164, #57) e 4 são externos (#371, #369, #348,
+  #55). O PR externo mais antigo (#55, abr/2026) está parado há cinco meses; os três de set/out
+  de 2026 têm resposta do mantenedor em comentários. [confirmado pelos metadados]
+- 36 das 40 issues não têm comentário. A triagem por rótulos parou em set/2026: as 13 issues
+  mais recentes não têm rótulo. [confirmado pelos metadados]
+- Isso sustenta a regra do ADR-0002 de manter no fork, com ADR, o que ficar parado no upstream
+  por mais de 30 dias.
