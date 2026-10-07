@@ -11,7 +11,9 @@ use actix_web::{cookie::Key, test, web, App};
 use chrono::Utc;
 use rustrak::config::{Config, DashboardConfig, DatabaseConfig, RateLimitConfig, SecurityConfig};
 use rustrak::db::DbPool;
-use rustrak::models::{CreateAuthToken, CreateProject, CreateUserRequest, User, UserRole};
+use rustrak::models::{
+    CleanupFilter, CreateAuthToken, CreateProject, CreateUserRequest, User, UserRole,
+};
 use rustrak::routes;
 use rustrak::services::sourcemap_store::{LocalSourceMapStore, SourceMapStore};
 use rustrak::services::{AuthTokenService, CleanupJob, ProjectService, UsersService};
@@ -63,6 +65,9 @@ fn create_test_config() -> Config {
 
 macro_rules! build_app {
     ($pool:expr, $config:expr) => {
+        build_app!($pool, $config, web::Data::new(CleanupJob::default()))
+    };
+    ($pool:expr, $config:expr, $job:expr) => {
         test::init_service(
             App::new()
                 .app_data(web::Data::new($pool))
@@ -70,7 +75,7 @@ macro_rules! build_app {
                 .app_data(web::Data::new(Arc::new(LocalSourceMapStore::new(
                     std::env::temp_dir().join("rustrak-storage-test"),
                 )) as Arc<dyn SourceMapStore>))
-                .app_data(web::Data::new(CleanupJob::default()))
+                .app_data($job)
                 .wrap(
                     SessionMiddleware::builder(
                         CookieSessionStore::default(),
@@ -254,21 +259,31 @@ async fn execute_cleanup_refuses_a_second_run_while_one_is_running() {
     let db = TestDb::new().await;
     let admin = seed_user(&db.pool, "admin@x.com", UserRole::Admin).await;
     let admin_token = token_for(&db.pool, admin.id).await;
-    let app = build_app!(db.pool.clone(), create_test_config());
 
-    let start = || {
-        let (k, v) = bearer(&admin_token);
-        test::TestRequest::post()
-            .uri("/api/storage/cleanup")
-            .insert_header((k, v))
-            .set_json(json!({ "older_than_days": 30 }))
-            .to_request()
-    };
-    let first = test::call_service(&app, start()).await;
-    assert_eq!(first.status(), 202);
-    let second = test::call_service(&app, start()).await;
+    // The running job gets a pool whose only connection the test holds, so
+    // it cannot finish before the second request arrives, however fast the
+    // database is.
+    let blocked: DbPool = sqlx::pool::PoolOptions::new()
+        .max_connections(1)
+        .connect_with((*db.pool.connect_options()).clone())
+        .await
+        .unwrap();
+    let held = blocked.acquire().await.unwrap();
+    let job = web::Data::new(CleanupJob::default());
+    job.start(blocked.clone(), 30, None, CleanupFilter::all())
+        .unwrap();
+    let app = build_app!(db.pool.clone(), create_test_config(), job.clone());
+
+    let (k, v) = bearer(&admin_token);
+    let second = test::TestRequest::post()
+        .uri("/api/storage/cleanup")
+        .insert_header((k, v))
+        .set_json(json!({ "older_than_days": 30 }))
+        .to_request();
+    let second = test::call_service(&app, second).await;
     assert_eq!(second.status(), 409, "one cleanup at a time");
 
+    drop(held);
     let done = wait_for_cleanup(&app, &admin_token).await;
     assert_eq!(done["state"], "completed");
 }

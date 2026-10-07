@@ -302,7 +302,7 @@ impl StorageService {
                 .await?;
 
         let mut counts = CleanupCounts::default();
-        let purged = Self::purge(
+        Self::purge(
             pool,
             cutoff,
             &projects,
@@ -311,17 +311,7 @@ impl StorageService {
             &mut counts,
             &mut on_batch,
         )
-        .await;
-
-        // Rebuilt even when a batch failed: the batches that committed already
-        // changed the issue counters these are summed from.
-        let rebuilt = if filter.include_events {
-            Self::rebuild_project_counters(pool, project_id).await
-        } else {
-            Ok(())
-        };
-
-        purged.and(rebuilt)?;
+        .await?;
         Ok(counts)
     }
 
@@ -336,13 +326,9 @@ impl StorageService {
     ) -> AppResult<()> {
         for &project_id in projects {
             if filter.include_transactions {
-                loop {
-                    let (transactions, spans) =
-                        Self::delete_transaction_batch(pool, project_id, cutoff, batch_size)
-                            .await?;
-                    if transactions == 0 {
-                        break;
-                    }
+                while let Some((transactions, spans)) =
+                    Self::delete_transaction_batch(pool, project_id, cutoff, batch_size).await?
+                {
                     counts.transactions += transactions;
                     counts.spans += spans;
                     on_batch(counts);
@@ -377,12 +363,9 @@ impl StorageService {
             // a transaction- or log-only purge leaves error history, its issues
             // and the denormalized counters untouched.
             if filter.include_events {
-                loop {
-                    let (events, issues_removed) =
-                        Self::delete_event_batch(pool, project_id, cutoff, batch_size).await?;
-                    if events == 0 {
-                        break;
-                    }
+                while let Some((events, issues_removed)) =
+                    Self::delete_event_batch(pool, project_id, cutoff, batch_size).await?
+                {
                     counts.events += events;
                     counts.issues_removed += issues_removed;
                     on_batch(counts);
@@ -394,7 +377,7 @@ impl StorageService {
     }
 
     /// Deletes up to `limit` old transactions of one project with their spans.
-    /// Returns `(transactions, spans)` removed.
+    /// Returns `(transactions, spans)` removed, or `None` once none are left.
     ///
     /// The batch is pinned in a temp table so the span delete and the
     /// transaction delete act on exactly the same rows. Spans are deleted
@@ -404,7 +387,7 @@ impl StorageService {
         project_id: i32,
         cutoff: chrono::DateTime<Utc>,
         limit: i64,
-    ) -> AppResult<(i64, i64)> {
+    ) -> AppResult<Option<(i64, i64)>> {
         // Read-then-write: IMMEDIATE on SQLite (see db::begin_write).
         let mut tx = crate::db::begin_write(pool).await?;
         // `WHERE 1 = 0` copies the column types, which differ per backend.
@@ -424,7 +407,7 @@ impl StorageService {
         if picked == 0 {
             // Rolling back also drops the temp table.
             tx.rollback().await?;
-            return Ok((0, 0));
+            return Ok(None);
         }
 
         let spans =
@@ -441,12 +424,16 @@ impl StorageService {
             .execute(&mut *tx)
             .await?;
         tx.commit().await?;
-        Ok((transactions, spans))
+        Ok(Some((transactions, spans)))
     }
 
     /// Deletes up to `limit` old events of one project, keeps their issues'
     /// counters in step, and removes the issues this batch left empty.
-    /// Returns `(events, issues_removed)`.
+    /// Returns `(events, issues_removed)`, or `None` once none are left.
+    ///
+    /// `None` is decided by what the batch picked, not by what it deleted: on
+    /// Postgres a user deleting an issue mid-batch takes the picked events
+    /// with it, and a batch that deleted nothing is not the last one.
     ///
     /// Only issues this batch touched can be removed: an issue that was
     /// already empty is not the cleanup's to delete.
@@ -455,7 +442,7 @@ impl StorageService {
         project_id: i32,
         cutoff: chrono::DateTime<Utc>,
         limit: i64,
-    ) -> AppResult<(i64, i64)> {
+    ) -> AppResult<Option<(i64, i64)>> {
         // Read-then-write: IMMEDIATE on SQLite (see db::begin_write).
         let mut tx = crate::db::begin_write(pool).await?;
         sqlx::query(
@@ -475,7 +462,7 @@ impl StorageService {
         .rows_affected();
         if picked == 0 {
             tx.rollback().await?;
-            return Ok((0, 0));
+            return Ok(None);
         }
 
         // Subtract from each issue the number of its events this batch removes. Rows
@@ -510,18 +497,11 @@ impl StorageService {
         .await?
         .rows_affected() as i64;
 
-        sqlx::query("DROP TABLE cleanup_batch")
-            .execute(&mut *tx)
-            .await?;
-        tx.commit().await?;
-        Ok((events, issues_removed))
-    }
-
-    /// Rebuilds each in-scope project's counters from its issues' counters
-    /// instead of subtracting an event delta. The project counter is by
-    /// definition the sum of its issues' counts, so this is always correct,
-    /// can never underflow, and heals any pre-existing drift.
-    async fn rebuild_project_counters(pool: &DbPool, project_id: Option<i32>) -> AppResult<()> {
+        // The project's counters move in the same commit as its issues', so
+        // a run cut short between batches leaves them right. Rebuilt from the
+        // issues instead of subtracting an event delta: the project counter is
+        // by definition the sum of its issues' counts, so this is always
+        // correct, can never underflow, and heals any pre-existing drift.
         sqlx::query(
             r#"
             UPDATE projects SET
@@ -533,14 +513,18 @@ impl StorageService {
                     SELECT COALESCE(SUM(i.digested_event_count), 0)
                     FROM issues i WHERE i.project_id = projects.id
                 )
-            WHERE ($1 IS NULL OR projects.id = $2)
+            WHERE projects.id = $1
             "#,
         )
         .bind(project_id)
-        .bind(project_id)
-        .execute(pool)
+        .execute(&mut *tx)
         .await?;
-        Ok(())
+
+        sqlx::query("DROP TABLE cleanup_batch")
+            .execute(&mut *tx)
+            .await?;
+        tx.commit().await?;
+        Ok(Some((events, issues_removed)))
     }
 
     /// Counts what a cleanup at `cutoff` would remove. Retention is keyed on
