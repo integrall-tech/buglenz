@@ -6,7 +6,7 @@ use crate::db::DbPool;
 use crate::error::{AppError, AppResult};
 #[cfg(feature = "openapi")]
 use crate::models::IssueResponse;
-use crate::models::{BulkDeleteIssues, BulkUpdateIssues, UpdateIssueState};
+use crate::models::{BulkDeleteIssues, BulkDeleteTarget, BulkUpdateIssues, UpdateIssueState};
 use crate::pagination::{ListIssuesQuery, OffsetPaginatedResponse};
 use crate::services::access::{self, Action};
 use crate::services::{EventService, IssueService, IssueSocialService, ProjectService};
@@ -490,11 +490,12 @@ pub async fn bulk_update_issues(
     request_body = crate::models::BulkDeleteIssues,
     responses(
         (status = 200, description = "Number of issues deleted", body = resp::BulkDeleteResponse),
+        (status = 400, description = "Neither or both of ids and filter given", body = crate::error::ErrorResponse),
         (status = 401, description = "Unauthorized", body = crate::error::ErrorResponse),
     ),
     security(("bearer_auth" = [])),
 ))]
-/// DELETE /api/projects/{project_id}/issues  (bulk delete)
+/// DELETE /api/projects/{project_id}/issues  (bulk delete by ids or filter)
 pub async fn bulk_delete_issues(
     pool: web::Data<DbPool>,
     path: web::Path<i32>,
@@ -510,9 +511,15 @@ pub async fn bulk_delete_issues(
         Action::MutateIssue,
     )
     .await?;
-    body.validate_size()?;
 
-    let deleted = IssueService::bulk_delete(pool.get_ref(), project_id, &body.ids).await?;
+    let deleted = match body.target()? {
+        BulkDeleteTarget::Ids(ids) => {
+            IssueService::bulk_delete(pool.get_ref(), project_id, ids).await?
+        }
+        BulkDeleteTarget::Filter(filter) => {
+            IssueService::delete_by_filter(pool.get_ref(), project_id, filter).await?
+        }
+    };
     Ok(HttpResponse::Ok().json(json!({ "deleted": deleted })))
 }
 

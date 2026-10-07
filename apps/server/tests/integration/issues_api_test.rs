@@ -1282,6 +1282,88 @@ async fn test_bulk_delete_issues_via_http_scoped_to_project() {
 }
 
 #[actix_web::test]
+async fn test_bulk_delete_issues_by_filter_updates_project_counts() {
+    let db = TestDb::new().await;
+    let token = create_test_token(&db.pool).await;
+    let project = create_test_project(&db.pool, "Bulk Delete Filter Project").await;
+    let other_project = create_test_project(&db.pool, "Other Filter Project").await;
+    let config = create_test_config();
+
+    let open = create_test_issue(&db.pool, project.id, "TypeError", "open").await;
+    let resolved = create_test_issue(&db.pool, project.id, "TypeError", "resolved").await;
+    let other_resolved = create_test_issue(&db.pool, other_project.id, "TypeError", "b").await;
+    for (id, events) in [(open.id, 2), (resolved.id, 3), (other_resolved.id, 3)] {
+        sqlx::query(
+            "UPDATE issues SET stored_event_count = $1, digested_event_count = $1 WHERE id = $2",
+        )
+        .bind(events)
+        .bind(id)
+        .execute(&db.pool)
+        .await
+        .unwrap();
+    }
+    sqlx::query("UPDATE issues SET status = 'resolved' WHERE id IN ($1, $2)")
+        .bind(resolved.id)
+        .bind(other_resolved.id)
+        .execute(&db.pool)
+        .await
+        .unwrap();
+    sqlx::query(
+        "UPDATE projects SET stored_event_count = 5, digested_event_count = 5 WHERE id = $1",
+    )
+    .bind(project.id)
+    .execute(&db.pool)
+    .await
+    .unwrap();
+
+    let app = test::init_service(
+        App::new()
+            .app_data(web::Data::new(db.pool.clone()))
+            .app_data(web::Data::new(config))
+            .configure(routes::issues::configure)
+            .configure(routes::projects::configure),
+    )
+    .await;
+    let delete = |body: Value| {
+        test::TestRequest::delete()
+            .uri(&format!("/api/projects/{}/issues", project.id))
+            .insert_header(("Authorization", format!("Bearer {}", token)))
+            .set_json(body)
+            .to_request()
+    };
+
+    // An empty body must not fall through to "delete everything".
+    let resp = test::call_service(&app, delete(json!({}))).await;
+    assert_eq!(resp.status(), 400);
+
+    let resp = test::call_service(&app, delete(json!({ "filter": "resolved" }))).await;
+    assert!(resp.status().is_success());
+    let body: Value = test::read_body_json(resp).await;
+    assert_eq!(body["deleted"], 1);
+
+    assert!(IssueService::get_by_id(&db.pool, resolved.id)
+        .await
+        .is_err());
+    assert!(IssueService::get_by_id(&db.pool, open.id).await.is_ok());
+    assert!(IssueService::get_by_id(&db.pool, other_resolved.id)
+        .await
+        .is_ok());
+    let project_after = ProjectService::get_by_id(&db.pool, project.id)
+        .await
+        .unwrap();
+    assert_eq!(project_after.stored_event_count, 2);
+    assert_eq!(project_after.digested_event_count, 2);
+
+    let resp = test::call_service(&app, delete(json!({ "filter": "all" }))).await;
+    let body: Value = test::read_body_json(resp).await;
+    assert_eq!(body["deleted"], 1);
+    let project_after = ProjectService::get_by_id(&db.pool, project.id)
+        .await
+        .unwrap();
+    assert_eq!(project_after.stored_event_count, 0);
+}
+
+#[actix_web::test]
 async fn test_get_issue_tag_values_returns_bare_list_not_wrapped() {
     let db = TestDb::new().await;
     let token = create_test_token(&db.pool).await;

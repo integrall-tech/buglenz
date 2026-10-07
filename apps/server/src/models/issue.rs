@@ -1,4 +1,5 @@
 use crate::error::{AppError, AppResult};
+use crate::pagination::IssueFilter;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
@@ -196,17 +197,32 @@ impl BulkUpdateIssues {
     }
 }
 
-/// Bulk delete request: remove many issues by id.
+/// Bulk delete request: the listed `ids`, or every issue matching `filter`.
+/// Exactly one is required; an empty body is rejected, never read as "all".
 #[derive(Debug, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct BulkDeleteIssues {
-    pub ids: Vec<Uuid>,
+    pub ids: Option<Vec<Uuid>>,
+    pub filter: Option<IssueFilter>,
+}
+
+pub enum BulkDeleteTarget<'a> {
+    Ids(&'a [Uuid]),
+    Filter(IssueFilter),
 }
 
 impl BulkDeleteIssues {
-    /// Rejects the request if `ids` exceeds [`MAX_BULK_IDS`].
-    pub fn validate_size(&self) -> AppResult<()> {
-        validate_bulk_ids_size(&self.ids)
+    pub fn target(&self) -> AppResult<BulkDeleteTarget<'_>> {
+        match (&self.ids, self.filter) {
+            (Some(ids), None) => {
+                validate_bulk_ids_size(ids)?;
+                Ok(BulkDeleteTarget::Ids(ids))
+            }
+            (None, Some(filter)) => Ok(BulkDeleteTarget::Filter(filter)),
+            _ => Err(AppError::Validation(
+                "Provide either ids or filter".to_string(),
+            )),
+        }
     }
 }
 
@@ -357,8 +373,28 @@ mod tests {
     #[test]
     fn test_bulk_delete_rejects_ids_over_max() {
         let ids = (0..=MAX_BULK_IDS).map(|_| Uuid::new_v4()).collect();
-        let body = BulkDeleteIssues { ids };
-        assert!(body.validate_size().is_err());
+        let body = BulkDeleteIssues {
+            ids: Some(ids),
+            filter: None,
+        };
+        assert!(body.target().is_err());
+    }
+
+    #[test]
+    fn test_bulk_delete_needs_exactly_one_of_ids_or_filter() {
+        let empty: BulkDeleteIssues = serde_json::from_str("{}").unwrap();
+        assert!(empty.target().is_err());
+
+        let both: BulkDeleteIssues =
+            serde_json::from_value(serde_json::json!({ "ids": [], "filter": "all" })).unwrap();
+        assert!(both.target().is_err());
+
+        let filter: BulkDeleteIssues =
+            serde_json::from_value(serde_json::json!({ "filter": "resolved" })).unwrap();
+        assert!(matches!(
+            filter.target(),
+            Ok(BulkDeleteTarget::Filter(IssueFilter::Resolved))
+        ));
     }
 
     #[test]

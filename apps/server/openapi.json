@@ -3269,7 +3269,7 @@
         "tags": [
           "Issues"
         ],
-        "summary": "DELETE /api/projects/{project_id}/issues  (bulk delete)",
+        "summary": "DELETE /api/projects/{project_id}/issues  (bulk delete by ids or filter)",
         "operationId": "bulk_delete_issues",
         "parameters": [
           {
@@ -3300,6 +3300,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/BulkDeleteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Neither or both of ids and filter given",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -8613,13 +8623,23 @@
       },
       "BulkDeleteIssues": {
         "type": "object",
-        "description": "Bulk delete request: remove many issues by id.",
-        "required": [
-          "ids"
-        ],
+        "description": "Bulk delete request: the listed `ids`, or every issue matching `filter`.\nExactly one is required; an empty body is rejected, never read as \"all\".",
         "properties": {
+          "filter": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/IssueFilter"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "ids": {
-            "type": "array",
+            "type": [
+              "array",
+              "null"
+            ],
             "items": {
               "type": "string",
               "format": "uuid"
@@ -9299,6 +9319,16 @@
             "format": "int64"
           }
         }
+      },
+      "IssueFilter": {
+        "type": "string",
+        "description": "Filter for issues listing",
+        "enum": [
+          "open",
+          "resolved",
+          "muted",
+          "all"
+        ]
       },
       "IssueResponse": {
         "type": "object",
