@@ -16,6 +16,14 @@ foi tocado.
 - `NOTICE.md` adicionado: origem, copyright do upstream e das modificações, oferta de
   código-fonte (GPL-3.0 §6). `LICENSE` permanece inalterado.
 
+## CI e publicação
+
+- Removidos os workflows que publicam fora do repositório: `release.yml` (npm),
+  `docker-publish.yml` (Docker Hub) e `deploy-docs.yml` (GitHub Pages), e o `FUNDING.yml`.
+  Nenhum commit em `main` publica imagem, pacote ou site. O build de imagem para o registry
+  privado da IntegrAllTech é do pacote 003.
+- Mantidos `ci.yml`, `codeql.yml` e `rust-security.yml`, inalterados.
+
 ## Governança
 
 - `DELTA-MANIFEST.md` e este arquivo adicionados.
