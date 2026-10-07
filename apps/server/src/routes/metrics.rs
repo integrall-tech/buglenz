@@ -2,7 +2,7 @@
 //! or a proxy allowlist: when enabled, anyone who can reach this port can read it.
 
 use std::path::{Path, PathBuf};
-use std::time::SystemTime;
+use std::time::{Duration, Instant, SystemTime};
 
 use actix_web::{http::header, web, HttpResponse};
 
@@ -11,10 +11,26 @@ use crate::services::StorageService;
 use crate::telemetry::metrics::Spool;
 use crate::telemetry::Counters;
 
+/// How long a spool and database reading is reused. Collecting them scans the
+/// ingest directory, which is largest exactly when digest is behind.
+const GAUGE_TTL: Duration = Duration::from_secs(15);
+
 pub struct MetricsEndpoint {
-    pub enabled: bool,
-    pub ingest_dir: PathBuf,
-    pub counters: &'static Counters,
+    enabled: bool,
+    ingest_dir: PathBuf,
+    counters: &'static Counters,
+    gauges: tokio::sync::Mutex<Option<(Instant, Spool, Option<u64>)>>,
+}
+
+impl MetricsEndpoint {
+    pub fn new(enabled: bool, ingest_dir: PathBuf, counters: &'static Counters) -> Self {
+        Self {
+            enabled,
+            ingest_dir,
+            counters,
+            gauges: tokio::sync::Mutex::new(None),
+        }
+    }
 }
 
 /// Off unless explicitly enabled; a typo must not silently change exposure.
@@ -31,17 +47,27 @@ pub async fn scrape(state: web::Data<MetricsEndpoint>, pool: web::Data<DbPool>) 
         return HttpResponse::NotFound().finish();
     }
 
-    let dir = state.ingest_dir.clone();
-    let spool = match tokio::task::spawn_blocking(move || pending_spool(&dir)).await {
-        Ok(Ok(spool)) => spool,
-        _ => return HttpResponse::ServiceUnavailable().finish(),
+    // Held while collecting, so overlapping scrapes wait for one reading
+    // instead of each scanning the spool.
+    let mut gauges = state.gauges.lock().await;
+    let (spool, db_bytes) = match *gauges {
+        Some((read_at, spool, db_bytes)) if read_at.elapsed() < GAUGE_TTL => (spool, db_bytes),
+        _ => {
+            let dir = state.ingest_dir.clone();
+            let spool = match tokio::task::spawn_blocking(move || pending_spool(&dir)).await {
+                Ok(Ok(spool)) => spool,
+                _ => return HttpResponse::ServiceUnavailable().finish(),
+            };
+            // A failed size query must not be reported as a zero-byte database.
+            let db_bytes = StorageService::db_size_bytes(pool.get_ref())
+                .await
+                .ok()
+                .and_then(|n| u64::try_from(n).ok());
+            *gauges = Some((Instant::now(), spool, db_bytes));
+            (spool, db_bytes)
+        }
     };
-
-    // A failed size query must not be reported as a zero-byte database.
-    let db_bytes = StorageService::db_size_bytes(pool.get_ref())
-        .await
-        .ok()
-        .and_then(|n| u64::try_from(n).ok());
+    drop(gauges);
 
     HttpResponse::Ok()
         .insert_header((header::CACHE_CONTROL, "no-store"))

@@ -248,11 +248,11 @@ async fn main() -> std::io::Result<()> {
     }
     let telemetry_reporter_data = web::Data::new(telemetry_reporter);
     let telemetry_status_data = web::Data::new(telemetry_status);
-    let metrics_data = web::Data::new(routes::metrics::MetricsEndpoint {
-        enabled: metrics_enabled,
-        ingest_dir: ingest_dir.clone(),
-        counters: rustrak::telemetry::Counters::global(),
-    });
+    let metrics_data = web::Data::new(routes::metrics::MetricsEndpoint::new(
+        metrics_enabled,
+        ingest_dir.clone(),
+        rustrak::telemetry::Counters::global(),
+    ));
     if metrics_enabled {
         log::info!("Prometheus metrics enabled at /metrics");
     }

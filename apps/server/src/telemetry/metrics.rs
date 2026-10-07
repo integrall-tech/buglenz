@@ -9,7 +9,7 @@ use std::time::Duration;
 
 use super::counters::{Rejection, LATENCY_BOUNDS_MS};
 
-#[derive(Default)]
+#[derive(Clone, Copy, Default)]
 pub struct Spool {
     pub pending: u64,
     pub bytes: u64,
@@ -80,7 +80,8 @@ impl MetricsCounters {
         bump(&self.alert_failures, provider);
     }
 
-    /// Gauges are read at scrape time, not cached in the six-hour telemetry window.
+    /// `spool` and `db_bytes` come from the endpoint's short-lived reading, not
+    /// the six-hour anonymous telemetry window.
     pub fn render(&self, spool: Spool, db_bytes: Option<u64>) -> String {
         let mut out = String::new();
         out.push_str("# HELP rustrak_ingest_accepted_total Accepted ingest requests.\n# TYPE rustrak_ingest_accepted_total counter\n");

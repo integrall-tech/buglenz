@@ -13,11 +13,11 @@ async fn metrics_are_off_by_default_and_public_only_when_enabled() {
     let app = test::init_service(
         App::new()
             .app_data(web::Data::new(db.pool.clone()))
-            .app_data(web::Data::new(MetricsEndpoint {
-                enabled: false,
-                ingest_dir: dir.path().to_path_buf(),
+            .app_data(web::Data::new(MetricsEndpoint::new(
+                false,
+                dir.path().to_path_buf(),
                 counters,
-            }))
+            )))
             .wrap(RequireAuth::new(false))
             .configure(metrics::configure),
     )
@@ -31,11 +31,11 @@ async fn metrics_are_off_by_default_and_public_only_when_enabled() {
     let app = test::init_service(
         App::new()
             .app_data(web::Data::new(db.pool.clone()))
-            .app_data(web::Data::new(MetricsEndpoint {
-                enabled: true,
-                ingest_dir: dir.path().to_path_buf(),
+            .app_data(web::Data::new(MetricsEndpoint::new(
+                true,
+                dir.path().to_path_buf(),
                 counters,
-            }))
+            )))
             .wrap(RequireAuth::new(false))
             .configure(metrics::configure),
     )
@@ -68,8 +68,12 @@ async fn metrics_are_off_by_default_and_public_only_when_enabled() {
 
     // Anonymous telemetry drains its window, not Prometheus's lifetime totals.
     counters.snapshot_and_reset();
+    counters.ingest_accepted(std::time::Duration::from_millis(20));
+    // The spool reading is reused between scrapes; counters are always live.
+    std::fs::write(dir.path().join("project-1-b.pending.json"), "test").unwrap();
     let response =
         test::call_service(&app, test::TestRequest::get().uri("/metrics").to_request()).await;
     let body = String::from_utf8(test::read_body(response).await.to_vec()).unwrap();
-    assert!(body.contains("rustrak_ingest_accepted_total 1"));
+    assert!(body.contains("rustrak_ingest_accepted_total 2"));
+    assert!(body.contains("rustrak_spool_pending 1"));
 }

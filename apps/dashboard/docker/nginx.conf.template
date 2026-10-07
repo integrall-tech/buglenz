@@ -61,8 +61,12 @@ server {
     location /docs/      { proxy_pass $rustrak_api; }
     location = /api-docs { proxy_pass $rustrak_api; }
     location /api-docs/  { proxy_pass $rustrak_api; }
-    location = /metrics  { proxy_pass $rustrak_api; }
-    location /metrics/   { proxy_pass $rustrak_api; }
+
+    # The server's Prometheus scrape has no authentication, so a public
+    # dashboard must not become a way around the network that protects it.
+    # Scrape the server directly.
+    location = /metrics  { return 404; }
+    location /metrics/   { return 404; }
 
     # --- The application ----------------------------------------------------
 
