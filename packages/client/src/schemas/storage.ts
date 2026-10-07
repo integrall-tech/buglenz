@@ -52,6 +52,20 @@ export const cleanupCountsSchema = z.object({
 });
 
 /**
+ * The instance's cleanup job. A cleanup runs in the background, one at a time:
+ * `removed` holds the rows deleted so far while `running`, and the total once
+ * it is `completed` or `failed`. `idle` means none has run since the server
+ * started. Batches a failed run committed stay deleted.
+ */
+export const cleanupStatusSchema = z.object({
+  state: z.enum(['idle', 'running', 'completed', 'failed']),
+  removed: cleanupCountsSchema,
+  started_at: z.string().nullable(),
+  finished_at: z.string().nullable(),
+  error: z.string().nullable(),
+});
+
+/**
  * Outcome of a source-map garbage collection: orphaned files removed from the
  * DB and unlinked from disk, plus the exact bytes freed.
  */

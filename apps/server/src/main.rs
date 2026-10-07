@@ -258,6 +258,9 @@ async fn main() -> std::io::Result<()> {
     }
 
     let session_aggregator_data = web::Data::new(session_aggregator.clone());
+    // Built outside the worker factory so every worker shares the one job and
+    // a second cleanup is refused no matter which worker takes the request.
+    let cleanup_job_data = web::Data::new(rustrak::services::CleanupJob::default());
 
     // Processor registry — single dispatch surface for the ingest pipeline.
     // Built once; each processor owns the deps it needs.
@@ -312,6 +315,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(telemetry_reporter_data.clone())
             .app_data(telemetry_status_data.clone())
             .app_data(metrics_data.clone())
+            .app_data(cleanup_job_data.clone())
             // Middleware
             // `Logger::default()`'s format, plus the incident id a 5xx echoes
             // in `INCIDENT_ID_HEADER`. `error_response` never sees the request

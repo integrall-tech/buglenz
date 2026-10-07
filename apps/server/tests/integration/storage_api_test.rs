@@ -14,7 +14,7 @@ use rustrak::db::DbPool;
 use rustrak::models::{CreateAuthToken, CreateProject, CreateUserRequest, User, UserRole};
 use rustrak::routes;
 use rustrak::services::sourcemap_store::{LocalSourceMapStore, SourceMapStore};
-use rustrak::services::{AuthTokenService, ProjectService, UsersService};
+use rustrak::services::{AuthTokenService, CleanupJob, ProjectService, UsersService};
 use serde_json::{json, Value};
 use std::sync::Arc;
 use std::time::Duration;
@@ -70,6 +70,7 @@ macro_rules! build_app {
                 .app_data(web::Data::new(Arc::new(LocalSourceMapStore::new(
                     std::env::temp_dir().join("rustrak-storage-test"),
                 )) as Arc<dyn SourceMapStore>))
+                .app_data(web::Data::new(CleanupJob::default()))
                 .wrap(
                     SessionMiddleware::builder(
                         CookieSessionStore::default(),
@@ -208,7 +209,68 @@ async fn execute_cleanup_is_admin_only() {
         .set_json(json!({ "older_than_days": 30 }))
         .to_request();
     let resp = test::call_service(&app, req).await;
-    assert_eq!(resp.status(), 200, "admin can execute cleanup");
+    assert_eq!(resp.status(), 202, "admin can start a cleanup");
+    let body: Value = test::read_body_json(resp).await;
+    assert_eq!(body["state"], "running", "the response is the started job");
+
+    // Its progress is admin-only as well.
+    let (k, v) = bearer(&member_token);
+    let req = test::TestRequest::get()
+        .uri("/api/storage/cleanup/status")
+        .insert_header((k, v))
+        .to_request();
+    let resp = test::call_service(&app, req).await;
+    assert_eq!(resp.status(), 403, "non-admin cannot read cleanup status");
+}
+
+/// Polls `GET /api/storage/cleanup/status` until the job leaves `running`.
+async fn wait_for_cleanup<S>(app: &S, token: &str) -> Value
+where
+    S: actix_web::dev::Service<
+        actix_http::Request,
+        Response = actix_web::dev::ServiceResponse,
+        Error = actix_web::Error,
+    >,
+{
+    for _ in 0..200 {
+        let (k, v) = bearer(token);
+        let req = test::TestRequest::get()
+            .uri("/api/storage/cleanup/status")
+            .insert_header((k, v))
+            .to_request();
+        let resp = test::call_service(app, req).await;
+        assert_eq!(resp.status(), 200);
+        let body: Value = test::read_body_json(resp).await;
+        if body["state"] != "running" {
+            return body;
+        }
+        actix_web::rt::time::sleep(Duration::from_millis(50)).await;
+    }
+    panic!("cleanup did not finish");
+}
+
+#[actix_web::test]
+async fn execute_cleanup_refuses_a_second_run_while_one_is_running() {
+    let db = TestDb::new().await;
+    let admin = seed_user(&db.pool, "admin@x.com", UserRole::Admin).await;
+    let admin_token = token_for(&db.pool, admin.id).await;
+    let app = build_app!(db.pool.clone(), create_test_config());
+
+    let start = || {
+        let (k, v) = bearer(&admin_token);
+        test::TestRequest::post()
+            .uri("/api/storage/cleanup")
+            .insert_header((k, v))
+            .set_json(json!({ "older_than_days": 30 }))
+            .to_request()
+    };
+    let first = test::call_service(&app, start()).await;
+    assert_eq!(first.status(), 202);
+    let second = test::call_service(&app, start()).await;
+    assert_eq!(second.status(), 409, "one cleanup at a time");
+
+    let done = wait_for_cleanup(&app, &admin_token).await;
+    assert_eq!(done["state"], "completed");
 }
 
 #[actix_web::test]
@@ -280,8 +342,10 @@ async fn execute_cleanup_honors_data_type_filter_from_request_body() {
         }))
         .to_request();
     let resp = test::call_service(&app, req).await;
-    assert_eq!(resp.status(), 200);
-    let body: Value = test::read_body_json(resp).await;
+    assert_eq!(resp.status(), 202);
+    let body = wait_for_cleanup(&app, &admin_token).await;
+    assert_eq!(body["state"], "completed");
+    let body = &body["removed"];
     assert_eq!(body["logs"], 1, "the old log is removed");
     assert_eq!(
         body["transactions"], 0,

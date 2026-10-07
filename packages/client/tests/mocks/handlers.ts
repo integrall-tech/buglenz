@@ -2465,14 +2465,40 @@ export const handlers = [
     });
   }),
 
-  // Storage — execute cleanup
+  // Storage — start a cleanup (runs in the background)
   http.post(`${BASE_URL}/api/storage/cleanup`, () => {
+    return HttpResponse.json(
+      {
+        state: 'running',
+        removed: {
+          events: 0,
+          transactions: 0,
+          spans: 0,
+          logs: 0,
+          issues_removed: 0,
+        },
+        started_at: '2026-10-07T10:00:00Z',
+        finished_at: null,
+        error: null,
+      },
+      { status: 202 },
+    );
+  }),
+
+  // Storage — cleanup progress
+  http.get(`${BASE_URL}/api/storage/cleanup/status`, () => {
     return HttpResponse.json({
-      events: 20,
-      transactions: 10,
-      spans: 80,
-      logs: 50,
-      issues_removed: 3,
+      state: 'completed',
+      removed: {
+        events: 20,
+        transactions: 10,
+        spans: 80,
+        logs: 50,
+        issues_removed: 3,
+      },
+      started_at: '2026-10-07T10:00:00Z',
+      finished_at: '2026-10-07T10:05:00Z',
+      error: null,
     });
   }),
 
