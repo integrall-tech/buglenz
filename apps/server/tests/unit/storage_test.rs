@@ -992,6 +992,49 @@ async fn test_by_project_breaks_down_counts_per_project_with_isolation() {
 }
 
 #[tokio::test]
+async fn test_by_project_estimates_bytes_from_a_sample_of_recent_rows() {
+    // Summing every payload read the whole database on each page load. The
+    // estimate scales a sample of the project's most recent rows by its row
+    // count instead. With uniform payloads and more rows than the sample holds,
+    // the estimate must still equal the exact sum.
+    let db = TestDb::new().await;
+    let project = ProjectService::create(
+        &db.pool,
+        CreateProject {
+            name: "sampled".to_string(),
+            slug: None,
+            platform: None,
+        },
+    )
+    .await
+    .unwrap();
+
+    let at = Utc::now();
+    for _ in 0..450 {
+        seed_log_at(&db.pool, project.id, at).await;
+        seed_issueless_event_at(&db.pool, project.id, "log", at).await;
+    }
+
+    let (events, logs): (i64, i64) = sqlx::query_as(
+        "SELECT \
+           (SELECT COALESCE(SUM(length(CAST(data AS TEXT))), 0) FROM events WHERE project_id = $1), \
+           (SELECT COALESCE(SUM(length(CAST(body AS TEXT)) + length(CAST(attributes AS TEXT))), 0) \
+              FROM logs WHERE project_id = $2)",
+    )
+    .bind(project.id)
+    .bind(project.id)
+    .fetch_one(&db.pool)
+    .await
+    .unwrap();
+
+    let rows = StorageService::by_project(&db.pool).await.unwrap();
+    let p = rows.iter().find(|r| r.project_id == project.id).unwrap();
+    assert_eq!(p.events_count, 450);
+    assert_eq!(p.logs_count, 450);
+    assert_eq!(p.estimated_bytes, events + logs);
+}
+
+#[tokio::test]
 async fn test_preview_source_map_gc_counts_orphans_without_deleting() {
     // The GC dry-run reports the orphaned files + bytes a real GC would reclaim,
     // and deletes nothing — same safety contract as the time-based preview.
@@ -1386,6 +1429,19 @@ async fn test_cleanup_lookups_are_index_range_scans() {
             "SELECT COUNT(*) FROM events e WHERE e.ingested_at < $1 \
              AND e.project_id IN (SELECT id FROM projects WHERE $2 IS NULL OR id = $3)",
             "idx_events_project_ingested",
+        ),
+        // The storage page's size estimate samples each project's newest rows.
+        (
+            "SELECT data FROM events WHERE project_id = $1 ORDER BY ingested_at DESC LIMIT $2",
+            "idx_events_project_ingested",
+        ),
+        (
+            "SELECT data FROM transactions WHERE project_id = $1 ORDER BY ingested_at DESC LIMIT $2",
+            "idx_transactions_project_ingested",
+        ),
+        (
+            "SELECT body FROM logs WHERE project_id = $1 ORDER BY ingested_at DESC LIMIT $2",
+            "idx_logs_project_ingested",
         ),
         (
             "SELECT COUNT(*) FROM issues i WHERE NOT EXISTS \

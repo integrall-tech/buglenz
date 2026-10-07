@@ -139,9 +139,10 @@ pub struct SourceMapGcResult {
 
 /// Per-project storage breakdown, one row per project (including empty ones).
 ///
-/// Counts are exact. `estimated_bytes` is the summed length of the JSON payloads
-/// this project owns across events/transactions/spans — a real per-project weight,
-/// not an apportioned guess.
+/// Counts are exact. `estimated_bytes` estimates the JSON payload length this
+/// project holds across events, transactions, spans and logs: a sample of its
+/// newest rows per table, scaled by the row count. It is exact for a project
+/// with no more rows than the sample.
 #[derive(Debug, Default, Serialize, PartialEq)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ProjectStorage {
