@@ -19,3 +19,6 @@ foi tocado.
 ## Governança
 
 - `DELTA-MANIFEST.md` e este arquivo adicionados.
+- `governance/` adicionado com o corpus de governança do BugLenz (CONSTITUTION, análise de gaps,
+  ADRs, RFCs, pacotes OpenSpec). Fica fora da raiz para não colidir com arquivos que o upstream
+  venha a criar.
