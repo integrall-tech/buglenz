@@ -89,7 +89,7 @@ pub struct StorageSummary {
 /// counted directly even though they cascade from `transactions`, so the UI can
 /// show the true row impact. `issues_removed` is the number of issues that would
 /// be left with zero events and therefore deleted.
-#[derive(Debug, Default, Serialize, PartialEq)]
+#[derive(Debug, Default, Clone, Serialize, PartialEq)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct CleanupCounts {
     pub events: i64,
@@ -97,6 +97,34 @@ pub struct CleanupCounts {
     pub spans: i64,
     pub logs: i64,
     pub issues_removed: i64,
+}
+
+/// Where the instance's cleanup job is. There is at most one at a time.
+#[derive(Debug, Default, Clone, Copy, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub enum CleanupState {
+    /// No cleanup has run since the server started.
+    #[default]
+    Idle,
+    Running,
+    Completed,
+    Failed,
+}
+
+/// The cleanup job as the API reports it. Kept in memory: a restart forgets
+/// it, and a run cut short by one is simply run again, since every batch it
+/// committed is already gone.
+#[derive(Debug, Default, Clone, Serialize, PartialEq)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct CleanupStatus {
+    pub state: CleanupState,
+    /// Rows removed so far while `running`; the total once it has finished.
+    pub removed: CleanupCounts,
+    pub started_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub finished_at: Option<chrono::DateTime<chrono::Utc>>,
+    /// Why a `failed` run stopped. Batches committed before it stay deleted.
+    pub error: Option<String>,
 }
 
 /// Outcome of a source-map garbage collection: orphaned `source_file` rows
