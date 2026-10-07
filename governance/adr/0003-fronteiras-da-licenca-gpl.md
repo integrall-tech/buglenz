@@ -33,6 +33,11 @@ licença comercial alternativa. O dashboard é entregue ao navegador como JavaSc
   distribuição do código do dashboard?
 - Formato aceitável da oferta de código-fonte na entrega em cliente.
 - Compatibilidade de licença das dependências (o upstream já restringe via `deny.toml`).
+- Dependências **de desenvolvimento e build** com licença fora de MIT/Apache/BSD, levantadas no
+  `THIRD-PARTY-LICENSES.md` do pacote 001 [confirmado]: `@sentry/cli` e `sentry` (npm) sob
+  **FSL-1.1** (MIT e Apache-2.0 após dois anos); `@img/sharp-libvips` sob **LGPL-3.0-or-later**;
+  `caniuse-lite` sob CC-BY-4.0. Nenhuma entra no binário do servidor nem no bundle do dashboard
+  servido ao navegador [inferência: são ferramentas de build]. Confirmar se isso basta.
 
 ## Consequências
 

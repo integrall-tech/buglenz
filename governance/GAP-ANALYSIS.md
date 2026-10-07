@@ -1,6 +1,6 @@
 # Análise do Rustrak e gaps em relação ao mercado
 
-**Versão:** 0.1 · **Data:** 2026-10-07 · **Autor:** Edson Martins (com Claude)
+**Versão:** 0.2 · **Data:** 2026-10-07 · **Autor:** Edson Martins (com Claude)
 **Referência medida:** `rustrak/rustrak` tag `v0.15.2` (`ff75852c`, 2026-09-30); `main` em `98a1f861` (13 commits à frente)
 
 Marcação de procedência: **[confirmado]** = lido no código ou reproduzido em teste nesta análise;
@@ -30,11 +30,11 @@ O risco estrutural não é técnico: o projeto tem 9 meses, um mantenedor domina
 | Dimensão | Valor | Procedência |
 |---|---|---|
 | Servidor | Rust (Actix-web 4, SQLx, Tokio) — 37.681 linhas em `src/`, 41.685 em `tests/` | [confirmado] |
-| Testes do servidor | 1.429 funções de teste (unit, integração, e2e com Postgres via testcontainers) | [confirmado] |
+| Testes do servidor | 1.412 atributos de teste por contagem estática; **1.351 executados e aprovados, 59 ignorados, 0 falhas** com SQLite na CI do fork (Rust 1.98.1); 19 e2e com PostgreSQL 16. JavaScript: 1.127 testes. Detalhe em `governance/baseline/001.md` | [confirmado por execução, 2026-10-07] |
 | Dashboard | React 19.3, TypeScript 6, Vite 8, Tailwind 4, Base UI, TanStack Router/Table — 61.176 linhas (`apps/dashboard` + `packages/ui`) | [confirmado] |
 | Banco | SQLite (padrão) ou PostgreSQL, escolhido em tempo de compilação por feature | [confirmado] |
 | Migrations | 45 (PostgreSQL) e 32 (SQLite), em diretórios separados | [confirmado] |
-| Toolchain | Rust 1.98 fixado em `rust-toolchain.toml`; Node 22.12+, pnpm 12 | [confirmado] |
+| Toolchain | Rust 1.98 fixado em `rust-toolchain.toml`; Node 22.12+ (CI usa 24), `pnpm@12.10.1` em `packageManager` (CI instalou 12.6.0). `cargo deny check licenses` passa em `apps/server`; em `packages/benchmarks` falha só por `license-not-encountered`, e o upstream não o roda lá | [confirmado] |
 | Idiomas da UI | en, fr, ro, es, zh — 1.298 chaves em `en.json` | [confirmado] |
 | Superfície de marca | 4.303 ocorrências de `rustrak` em 527 arquivos | [confirmado] |
 | Histórico | primeiro commit em 2026-01-22; 1.144 commits; 17 autores | [confirmado] |
