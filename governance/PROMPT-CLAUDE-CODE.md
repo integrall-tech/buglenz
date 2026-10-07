@@ -18,8 +18,8 @@ fork fino: o menor delta possível em relação ao upstream, sincronizado por me
 Por isso este primeiro pacote não muda comportamento nenhum. Ele só cria o repositório governado,
 os artefatos de conformidade, o CI e uma linha de base medida.
 
-- Corpus de governança: <<CAMINHO_DO_CORPUS>>
-- Repositório privado de destino (origin): <<URL_DO_REPOSITORIO_PRIVADO>>
+- Corpus de governança: <<CAMINHO_DO_CORPUS>> (no pacote 001: `/Volumes/DevCache/desenvolvimento/buglenz/spec`)
+- Repositório privado de destino (origin): <<URL_DO_REPOSITORIO_PRIVADO>> (definido no pacote 001: `git@github.com:integrall-tech/buglenz.git`)
 - Ponto de partida: tag v0.15.2 do upstream, commit ff75852c
 
 ## Antes de qualquer comando, leia nesta ordem
@@ -94,6 +94,14 @@ Ao final, me envie um relatório curto com:
 ---
 
 ## Depois do pacote 001
+
+O pacote 001 foi executado em 2026-10-07 (PR integrall-tech/buglenz#1); os achados entraram no
+corpus 0.7. Pendente: T3 (decisão D10). Lições para os próximos prompts:
+
+- A toolchain fixada é atendida sem trocar pins: rustup ativa o 1.98 pelo `rust-toolchain.toml`
+  dentro do clone; pnpm 12 via `corepack pnpm`. O prompt pode dizer isso em vez de mandar parar.
+- Merge de PR é do Edson; o Claude Code abre o PR e para.
+- O clone local do fork fica em `buglenz-fork/`, ao lado de `spec/`.
 
 Os achados do relatório voltam para o corpus (nova versão) antes de detalhar o pacote 002
 (remoção de egress, ADR-0004). O prompt do pacote seguinte reaproveita este, trocando a seção

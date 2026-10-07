@@ -18,6 +18,9 @@ ligada por issuer e subject. Papéis não vêm do provedor: são atribuídos na 
 2. Senha local fica só para o usuário primário (contingência, invariante I9).
 3. Mapeamento de grupos do provedor para papel global e papéis de projeto é implementado e
    proposto ao upstream (ADR-0002). Até lá, papéis são atribuídos manualmente por um Admin.
+   O upstream já tem o pedido aberto: issue #355 "OIDC: map IdP groups to roles and allow
+   SSO-only login" (set/2026, sem resposta), mais #365, #358 e #360 na mesma frente
+   [confirmado em 2026-10-07]. O PR da IntegrAllTech deve responder a #355.
 
 ## Em aberto
 

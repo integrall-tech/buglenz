@@ -16,6 +16,10 @@
 | A — visível ao usuário | título, logo, favicon, textos do catálogo i18n, e-mails e mensagens de alerta, tela de login | Recebe a marca do fork |
 | B — operação | nome da imagem, nome do serviço no Swarm, rótulos de compose | Recebe o nome do fork |
 | C — identificadores | crate `rustrak`, escopo `@rustrak/*`, variáveis `RUSTRAK_*`, métricas `rustrak_*`, tabelas, caminhos de API | **Não muda** |
+| G — governança e CI | workflows, `CLAUDE.md`, manifestos, `NOTICE.md`, `governance/`: arquivos fora do produto, que não afetam o binário | Delta próprio do fork, registrado no `DELTA-MANIFEST.md` como as demais zonas |
+
+A zona G não é de marca; está aqui porque o `DELTA-MANIFEST.md` classifica toda divergência por
+zona e precisava de uma categoria para o que o pacote 001 alterou.
 
 A UI mantém em "Sobre" a origem ("baseado em Rustrak, GPL-3.0") e o link para o código-fonte.
 

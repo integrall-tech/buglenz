@@ -1,6 +1,6 @@
 # BugLenz — corpus de governança
 
-**Versão:** 0.6 · **Data:** 2026-10-07 · **Status:** proposta para revisão
+**Versão:** 0.7 · **Data:** 2026-10-07 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1))
 
 Especificação do **BugLenz**: migração do [Rustrak](https://github.com/rustrak/rustrak) `v0.15.2` para um fork
 governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes OpenSpec).
@@ -19,8 +19,11 @@ governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes 
 | `openspec/015-anexos-e-capturas-de-tela/` | Capturas de tela e hierarquia de views |
 | `openspec/016-symbolication-mobile/` | Stack trace legível para Android, iOS e Flutter ofuscado |
 | `openspec/007-rebrand-buglenz/` | Rebrand Rustrak → BugLenz por sobreposição no build |
-| `openspec/001-bootstrap-do-fork/` | Primeiro pacote, pronto para execução pelo Claude Code |
+| `openspec/001-bootstrap-do-fork/` | Primeiro pacote, **executado em 2026-10-07**; T3 pendente (D10) |
 | `PROMPT-CLAUDE-CODE.md` | Prompt de início para o Claude Code executar o pacote 001 |
+
+O repositório do fork é `integrall-tech/buglenz` (privado). Este corpus vive nele em `governance/`,
+junto com `governance/baseline/001.md` (baseline medida) e `governance/tools/` (geradores).
 
 ## Ordem de leitura
 
@@ -42,12 +45,16 @@ governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes 
 | D7 | Avaliar o Jev em sombra na instância interna, ao lado do provedor local (ADR-0015) | pacote 018 | Edson, Neimar |
 | D8 | Papel de cada domínio e host do DSN (ADR-0006) | pacote 003 | Edson |
 | D9 | Identidade visual do BugLenz: logotipo, ícones, cores | pacote 007 | Edson |
+| D10 | Plano GitHub Team/Pro para a organização `integrall-tech`, ou outra forma de proteger `main` (PR e CI obrigatórios, sem force-push). No plano Free, rulesets em repositório privado retornam 403 | T3 do pacote 001; até lá a proteção é por convenção | Edson, Neimar |
 
 ## O que não foi verificado
 
-- Issues e PRs abertos do upstream (leitura automatizada bloqueada).
-- Build com Rust 1.98 e execução da suíte de testes; o teste usou Rust 1.97 e SQLite.
+- ~~Issues e PRs abertos do upstream~~ Lidos em 2026-10-07 (pacote 001, T12): `GAP-ANALYSIS.md` §9.
+- ~~Build com Rust 1.98 e execução da suíte de testes~~ Executados na CI do fork com Rust 1.98.1,
+  SQLite e PostgreSQL 16: `governance/baseline/001.md`. 1.351 testes Rust e 1.127 JavaScript, 0 falhas.
 - Dashboard em execução, consumo de memória e latência.
+- PR #57 do upstream (6 correções de segurança no servidor, aberto desde maio de 2026): se as
+  correções entraram por outro commit ou seguem pendentes na `v0.15.2`.
 - Fluxo OIDC contra o ArchGuard.
 - `sentry-spring-boot` e `sentry_flutter` contra a instância.
 - Contrato do ArchFlow para modelos de decisão (requisitos listados no ADR-0014).
@@ -56,6 +63,12 @@ governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes 
 
 ## Mudanças
 
+- **0.7:** achados da execução do pacote 001 (A1 a A11 do relatório): zona G no ADR-0006;
+  contagem de testes corrigida para a executada; `design.md` do 001 com `checkout -B`, lista
+  completa de `governance/`, dependência de plano do GitHub (D10) e aviso sobre workflows no
+  primeiro push; ADR-0003 com licenças FSL/LGPL para o advogado; ADR-0005 com nota sobre pnpm na
+  CI; `GAP-ANALYSIS.md` §9 com issues e PRs do upstream; ROADMAP com #359 e #356 no pacote 003 e
+  #355 no 013; ADR-0008 e ADR-0012 referenciando essas issues.
 - **0.6:** mobile: ADR-0016 e 0017, pacotes 015 e 016 detalhados, pacote 022 separado para feedback.
 - **0.5:** pacote 007 de rebrand detalhado; pt-BR separado no pacote 021; decisão D9.
 - **0.4:** nome do produto definido como BugLenz; domínios registrados no ADR-0006; decisão D8.

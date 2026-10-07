@@ -16,7 +16,12 @@ escreve logs em stdout. Estado em disco: `INGEST_DIR` e `SOURCEMAP_STORAGE_PATH`
   `rust-toolchain.toml`, publicada no registry privado (I7, I11).
 - Um serviço no Swarm com **uma réplica** (G20: a fila de ingestão é local ao processo).
 - PostgreSQL dedicado ou banco dedicado em servidor existente; versão mínima a confirmar.
-- Volume persistente para `/data` (source maps) e para `INGEST_DIR`, que sai de `/tmp`.
+- Volume persistente para `/data` (source maps) e para `INGEST_DIR`, que sai de `/tmp`. O
+  upstream reconhece o problema na issue #359: a imagem declara `VOLUME /data` mas `INGEST_DIR`
+  fica em `/tmp/rustrak/ingest`, e eventos aceitos e não digeridos se perdem ao recriar o
+  container [confirmado na issue, 2026-10-07]. A issue #356 registra que
+  `RUSTRAK_BOOTSTRAP_TOKEN` ignora o valor informado e imprime um token aleatório em stderr, o
+  que afeta o provisionamento automatizado; o pacote 003 precisa contornar.
 - Traefik: TLS, `SSL_PROXY=true`, `PUBLIC_URL` definido. A rota `/metrics` **não** é publicada;
   o scrape vem pela rede interna.
 - Rotas de ingestão (`/api/{id}/envelope/`, `/api/{id}/store/`) e dashboard no mesmo host. Limite

@@ -1,6 +1,6 @@
 # Roadmap de pacotes OpenSpec
 
-**Versão:** 0.5 · **Data:** 2026-10-07
+**Versão:** 0.6 · **Data:** 2026-10-07 · Pacote 001 executado (T3 pendente, D10)
 
 Os pacotes 001, 007, 015 e 016 estão detalhados. Os demais ganham `proposal`, `design`, `tasks` e specs quando o
 anterior fechar, incorporando o que a execução revelar. Tamanho: P (dias), M (uma a duas semanas),
@@ -10,9 +10,9 @@ G (mais que isso). São ordens de grandeza, não estimativas. [inferência]
 
 | Pacote | Entrega | Gaps | ADR | Depende de | Tam. |
 |---|---|---|---|---|---|
-| 001 bootstrap-do-fork | Repositório privado, remotes, artefatos de conformidade, CI herdado verde, baseline | — | 0001, 0002, 0003, 0005 | D2 em andamento | P |
-| 002 remocao-de-egress | Telemetria e checagem de versão fora do código; teste de conformidade de rede | G4 | 0004 | 001 | P |
-| 003 build-e-implantacao | Imagem PostgreSQL no registry privado; stack Swarm + Traefik; métricas e logs; backup | G20 | 0012 | 002, D4, D8 | M |
+| 001 bootstrap-do-fork | Repositório privado, remotes, artefatos de conformidade, CI herdado verde, baseline — **feito em 2026-10-07**, exceto T3 | — | 0001, 0002, 0003, 0005 | D2 em andamento; D10 para T3 | P |
+| 002 remocao-de-egress | Telemetria e checagem de versão fora do código; teste de conformidade de rede. O upstream segue investindo na telemetria (issue #375) | G4 | 0004 | 001 | P |
+| 003 build-e-implantacao | Imagem PostgreSQL no registry privado; stack Swarm + Traefik; métricas e logs; backup; `INGEST_DIR` sob `/data` (issue #359 do upstream); contorno para `RUSTRAK_BOOTSTRAP_TOKEN` (#356); `THIRD-PARTY-LICENSES.md` gerado na CI | G20 | 0012 | 002, D4, D8 | M |
 
 ## Fase 1 — Mínimo para dados de produção
 
@@ -29,6 +29,11 @@ G (mais que isso). São ordens de grandeza, não estimativas. [inferência]
 **Critério de saída da Fase 1:** um produto piloto em produção enviando erros por 30 dias, com
 retenção e scrubbing ativos, sem evento contendo dado da lista de negação em amostragem manual.
 
+**Antes do primeiro dado de produção:** verificar o PR #57 do upstream (6 correções de segurança
+no servidor: oráculo de tempo no login, DoS por tamanho de senha e outras; aberto desde maio de
+2026 e parado). Se as correções não estiverem na base do fork, entram com ADR própria. Ver
+`GAP-ANALYSIS.md` §9.
+
 ## Fase 2 — Qualidade de triagem
 
 | Pacote | Entrega | Gaps | Tam. |
@@ -36,7 +41,7 @@ retenção e scrubbing ativos, sem evento contendo dado da lista de negação em
 | 010 symbolication-js | Nome de função pelo escopo; `in_app` falso para `node_modules`; culprit correto | G7, G8 | M |
 | 011 tunnel-e-filtros-de-entrada | Endpoint `tunnel`; origens permitidas por projeto; filtros de extensão, localhost e crawler | G9, G10 | M |
 | 012 alertas-por-limiar | Regras por frequência e por queda de crash-free; canal Telegram | G11 | M |
-| 013 grupos-oidc-para-papeis | Claim de grupos → papel global e de projeto | G12 | P |
+| 013 grupos-oidc-para-papeis | Claim de grupos → papel global e de projeto; responde à issue #355 do upstream | G12 | P |
 | 014 tokens-com-escopo-e-auditoria | Escopo por token; trilha de ações administrativas | G6, G13 | M |
 
 ## Fase 3 — Cobertura (sujeita à decisão D3)

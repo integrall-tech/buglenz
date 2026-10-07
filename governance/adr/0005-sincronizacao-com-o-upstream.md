@@ -34,6 +34,11 @@ sync/AAAA-MM-DD   branch de merge do ciclo
 
 **Exceção de segurança:** release do upstream que corrige vulnerabilidade entra em até 72 h.
 
+**A cada ciclo, também:** regenerar `THIRD-PARTY-LICENSES.md` com
+`governance/tools/third-party-licenses.py`; conferir a versão de pnpm que a CI do upstream
+instala (em 2026-10-07 o `pnpm/action-setup` instalou 12.6.0 com `packageManager` em 12.10.1
+[confirmado]); registrar a nova baseline em `governance/baseline/`.
+
 **Migrations:** o fork não edita migration do upstream. Migration própria usa timestamp e sufixo
 `_itl`, nos dois diretórios (`postgres/` e `sqlite/`), para não quebrar a suíte herdada.
 
