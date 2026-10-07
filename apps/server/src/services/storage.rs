@@ -712,10 +712,7 @@ impl StorageService {
             .bind(SIZE_SAMPLE_ROWS)
             .fetch_one(pool)
             .await?;
-        if sampled == 0 {
-            return Ok(0);
-        }
-        Ok((i128::from(bytes) * i128::from(count) / i128::from(sampled)) as i64)
+        Ok(scale_sample(bytes, sampled, count))
     }
 
     /// Instance-wide storage summary (row counts + DB size + source-map weight).
@@ -787,5 +784,35 @@ impl StorageService {
             total_bytes: chunk_bytes + source_file_bytes,
             file_count,
         })
+    }
+}
+
+/// Scales a sample's `bytes` over `sampled` rows to `count` rows.
+///
+/// A sample short of the limit already holds every row the project has, so
+/// its bytes are the exact figure. `count` was read in an earlier query, and
+/// a cleanup deleting rows in between would otherwise scale what is left by
+/// the count from before it.
+fn scale_sample(bytes: i64, sampled: i64, count: i64) -> i64 {
+    if sampled < SIZE_SAMPLE_ROWS {
+        return bytes;
+    }
+    (i128::from(bytes) * i128::from(count) / i128::from(sampled)) as i64
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn short_sample_is_exact_whatever_the_stale_count() {
+        // 100 counted, 90 deleted before the sample: the 10 left are the answer.
+        assert_eq!(scale_sample(1_000, 10, 100), 1_000);
+        assert_eq!(scale_sample(0, 0, 5), 0);
+    }
+
+    #[test]
+    fn full_sample_scales_to_the_count() {
+        assert_eq!(scale_sample(2_000, SIZE_SAMPLE_ROWS, 450), 4_500);
     }
 }
