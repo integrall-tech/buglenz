@@ -1079,13 +1079,16 @@ impl IssueService {
                            COALESCE(SUM(stored_event_count), 0) AS stored,
                            COALESCE(SUM(digested_event_count), 0) AS digested
                     FROM deleted
+                ), updated AS (
+                    UPDATE projects SET
+                        stored_event_count   = GREATEST(0, projects.stored_event_count   - totals.stored),
+                        digested_event_count = GREATEST(0, projects.digested_event_count - totals.digested)
+                    FROM totals
+                    WHERE projects.id = $1
                 )
-                UPDATE projects SET
-                    stored_event_count   = GREATEST(0, projects.stored_event_count   - totals.stored),
-                    digested_event_count = GREATEST(0, projects.digested_event_count - totals.digested)
-                FROM totals
-                WHERE projects.id = $1
-                RETURNING totals.issues"
+                -- Count from `totals`, not the UPDATE: an admin can target a
+                -- project id with no row, which must be 0 deleted, not an error.
+                SELECT issues FROM totals"
             );
             let issues: i64 = sqlx::query_scalar(sqlx::AssertSqlSafe(&*query))
                 .bind(project_id)

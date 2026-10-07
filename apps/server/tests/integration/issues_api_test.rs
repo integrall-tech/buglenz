@@ -1361,6 +1361,18 @@ async fn test_bulk_delete_issues_by_filter_updates_project_counts() {
         .await
         .unwrap();
     assert_eq!(project_after.stored_event_count, 0);
+
+    // An admin token skips the project check, so a missing project reaches the
+    // service. Nothing matches; that is 0 deleted, as with unknown ids.
+    let req = test::TestRequest::delete()
+        .uri("/api/projects/999999/issues")
+        .insert_header(("Authorization", format!("Bearer {}", token)))
+        .set_json(json!({ "filter": "all" }))
+        .to_request();
+    let resp = test::call_service(&app, req).await;
+    assert!(resp.status().is_success());
+    let body: Value = test::read_body_json(resp).await;
+    assert_eq!(body["deleted"], 0);
 }
 
 #[actix_web::test]

@@ -8622,30 +8622,35 @@
         }
       },
       "BulkDeleteIssues": {
-        "type": "object",
-        "description": "Bulk delete request: the listed `ids`, or every issue matching `filter`.\nExactly one is required; an empty body is rejected, never read as \"all\".",
-        "properties": {
-          "filter": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/IssueFilter"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "ids": {
-            "type": [
-              "array",
-              "null"
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "ids"
             ],
-            "items": {
-              "type": "string",
-              "format": "uuid"
+            "properties": {
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "filter"
+            ],
+            "properties": {
+              "filter": {
+                "$ref": "#/components/schemas/IssueFilter"
+              }
             }
           }
-        }
+        ],
+        "description": "Bulk delete request: the listed `ids`, or every issue matching `filter`.\nA body with neither or both matches no variant and is rejected, so an empty\nbody can never mean \"all\"."
       },
       "BulkDeleteResponse": {
         "type": "object",
