@@ -22,3 +22,5 @@ foi tocado.
 - `governance/` adicionado com o corpus de governança do BugLenz (CONSTITUTION, análise de gaps,
   ADRs, RFCs, pacotes OpenSpec). Fica fora da raiz para não colidir com arquivos que o upstream
   venha a criar.
+- `CLAUDE.md` da raiz: seção final apontando para `governance/`, o manifesto e o `NOTICE.md`.
+  É a única alteração em arquivo de documentação do upstream.
