@@ -10,8 +10,8 @@ licença está em [`LICENSE`](LICENSE), idêntico ao do projeto de origem.
 |---|---|
 | Projeto | Rustrak — rastreamento de erros auto-hospedado, compatível com os SDKs do Sentry |
 | Repositório | <https://github.com/rustrak/rustrak> |
-| Tag de origem | `v0.15.2` |
-| Commit de origem | `ff75852c1fefda0c1409ec26f14e9e6417810ae4` (2026-09-30) |
+| Tag de origem | `v0.16.0` (base inicial do fork: `v0.15.2`, 2026-10-07) |
+| Commit de origem | `4dbe5ce75d16b62ef507474f8a30582438aa332d` (`v0.16.0`, 2026-10-07); base inicial `ff75852c1fefda0c1409ec26f14e9e6417810ae4` (`v0.15.2`) |
 | Licença | GPL-3.0-only (`apps/server/Cargo.toml`; `@rustrak/client` e `@rustrak/mcp` declaram `GPL-3.0`) |
 | Copyright | © 2026 Abian Suarez e demais contribuidores do Rustrak ("Rustrak Team") |
 
@@ -21,7 +21,7 @@ Os dados acima foram lidos do repositório na tag indicada: `README.md`
 
 ## Modificações
 
-As modificações feitas neste repositório em relação ao Rustrak `v0.15.2` são:
+As modificações feitas neste repositório em relação ao Rustrak (tag de origem acima) são:
 
 **Copyright © 2026 IntegrAllTech.**
 
