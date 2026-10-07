@@ -8,7 +8,8 @@
 
 Infra padrão: Docker Swarm + Traefik; observabilidade em VictoriaMetrics, Grafana, Loki e Tempo.
 O Rustrak roda em um container, expõe `/metrics` sem autenticação quando `RUSTRAK_METRICS=on` e
-escreve logs em stdout. Estado em disco: `INGEST_DIR` e `SOURCEMAP_STORAGE_PATH`. [confirmado]
+escreve logs em stdout. Estado em disco: `INGEST_DIR` e `SOURCEMAP_STORAGE_PATH`. [confirmado
+na `v0.16.0`; o `/metrics` não existe na `v0.15.2`, ver ADR-0004]
 
 ## Decisão
 
