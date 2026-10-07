@@ -82,7 +82,7 @@ impl MetricsCounters {
 
     /// `spool` and `db_bytes` come from the endpoint's short-lived reading, not
     /// the six-hour anonymous telemetry window.
-    pub fn render(&self, spool: Spool, db_bytes: Option<u64>) -> String {
+    pub fn render(&self, spool: Option<Spool>, db_bytes: Option<u64>) -> String {
         let mut out = String::new();
         out.push_str("# HELP rustrak_ingest_accepted_total Accepted ingest requests.\n# TYPE rustrak_ingest_accepted_total counter\n");
         let accepted = self.accepted.load(Relaxed);
@@ -163,24 +163,23 @@ impl MetricsCounters {
             (
                 "rustrak_spool_pending",
                 "Pending ingest files.",
-                spool.pending,
+                spool.map(|s| s.pending),
             ),
             (
                 "rustrak_spool_bytes",
                 "Bytes in pending ingest files.",
-                spool.bytes,
+                spool.map(|s| s.bytes),
             ),
             (
                 "rustrak_spool_oldest_seconds",
                 "Age of oldest pending ingest file in seconds.",
-                spool.oldest_seconds,
+                spool.map(|s| s.oldest_seconds),
             ),
         ] {
-            writeln!(
-                out,
-                "# HELP {name} {help}\n# TYPE {name} gauge\n{name} {value}"
-            )
-            .unwrap();
+            writeln!(out, "# HELP {name} {help}\n# TYPE {name} gauge").unwrap();
+            if let Some(value) = value {
+                writeln!(out, "{name} {value}").unwrap();
+            }
         }
         out.push_str(
             "# HELP rustrak_db_bytes Database size in bytes.\n# TYPE rustrak_db_bytes gauge\n",
@@ -233,11 +232,11 @@ mod tests {
         counters.http_5xx("/api/issues/{id}");
         counters.alert_failed("email");
         let first = counters.render(
-            Spool {
+            Some(Spool {
                 pending: 2,
                 bytes: 512,
                 oldest_seconds: 30,
-            },
+            }),
             Some(1024),
         );
         assert!(first.contains("rustrak_ingest_accepted_total 1"));
@@ -254,7 +253,7 @@ mod tests {
     fn latency_buckets_use_exact_bounds() {
         let counters = MetricsCounters::new();
         counters.accepted(Duration::from_millis(1) + Duration::from_nanos(1));
-        let output = counters.render(Spool::default(), None);
+        let output = counters.render(Some(Spool::default()), None);
         assert!(output.contains("rustrak_ingest_duration_seconds_bucket{le=\"0.001\"} 0"));
         assert!(output.contains("rustrak_ingest_duration_seconds_bucket{le=\"0.002\"} 1"));
     }
@@ -263,8 +262,18 @@ mod tests {
     fn labels_are_escaped_and_missing_db_gauge_is_not_zero() {
         let counters = MetricsCounters::new();
         counters.http_5xx("a\"\\\nb");
-        let output = counters.render(Spool::default(), None);
+        let output = counters.render(Some(Spool::default()), None);
         assert!(output.contains("rustrak_http_5xx_total{route=\"a\\\"\\\\\\nb\"} 1"));
         assert!(!output.contains("rustrak_db_bytes 0"));
+    }
+
+    #[test]
+    fn unreadable_spool_omits_its_gauges_but_keeps_counters() {
+        let counters = MetricsCounters::new();
+        counters.digest_ok();
+        let output = counters.render(None, Some(1));
+        assert!(output.contains("rustrak_digest_total{result=\"ok\"} 1"));
+        assert!(!output.contains("rustrak_spool_pending 0"));
+        assert!(output.contains("rustrak_db_bytes 1"));
     }
 }

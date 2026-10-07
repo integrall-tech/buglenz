@@ -15,11 +15,14 @@ use crate::telemetry::Counters;
 /// ingest directory, which is largest exactly when digest is behind.
 const GAUGE_TTL: Duration = Duration::from_secs(15);
 
+/// When the gauges were read, the spool and the database size.
+type Reading = (Instant, Option<Spool>, Option<u64>);
+
 pub struct MetricsEndpoint {
     enabled: bool,
     ingest_dir: PathBuf,
     counters: &'static Counters,
-    gauges: tokio::sync::Mutex<Option<(Instant, Spool, Option<u64>)>>,
+    gauges: tokio::sync::Mutex<Option<Reading>>,
 }
 
 impl MetricsEndpoint {
@@ -54,9 +57,14 @@ pub async fn scrape(state: web::Data<MetricsEndpoint>, pool: web::Data<DbPool>) 
         Some((read_at, spool, db_bytes)) if read_at.elapsed() < GAUGE_TTL => (spool, db_bytes),
         _ => {
             let dir = state.ingest_dir.clone();
+            // An unreadable spool drops its gauges, not the whole scrape.
             let spool = match tokio::task::spawn_blocking(move || pending_spool(&dir)).await {
-                Ok(Ok(spool)) => spool,
-                _ => return HttpResponse::ServiceUnavailable().finish(),
+                Ok(Ok(spool)) => Some(spool),
+                Ok(Err(e)) => {
+                    log::warn!("metrics: could not read the ingest directory: {e}");
+                    None
+                }
+                Err(_) => None,
             };
             // A failed size query must not be reported as a zero-byte database.
             let db_bytes = StorageService::db_size_bytes(pool.get_ref())
