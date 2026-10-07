@@ -302,7 +302,7 @@ impl StorageService {
                 .await?;
 
         let mut counts = CleanupCounts::default();
-        Self::purge(
+        let purged = Self::purge(
             pool,
             cutoff,
             &projects,
@@ -311,8 +311,44 @@ impl StorageService {
             &mut counts,
             &mut on_batch,
         )
-        .await?;
+        .await;
+
+        // Each batch already kept the counters in step; this once-per-run
+        // rebuild only heals drift that predates the cleanup. Run even when a
+        // batch failed, since the batches before it committed.
+        let rebuilt = if filter.include_events {
+            Self::rebuild_project_counters(pool, project_id).await
+        } else {
+            Ok(())
+        };
+
+        purged.and(rebuilt)?;
         Ok(counts)
+    }
+
+    /// Rebuilds each in-scope project's counters from its issues' counters.
+    /// The project counter is by definition the sum of its issues' counts, so
+    /// this is always correct, can never underflow, and heals any drift.
+    async fn rebuild_project_counters(pool: &DbPool, project_id: Option<i32>) -> AppResult<()> {
+        sqlx::query(
+            r#"
+            UPDATE projects SET
+                stored_event_count = (
+                    SELECT COALESCE(SUM(i.stored_event_count), 0)
+                    FROM issues i WHERE i.project_id = projects.id
+                ),
+                digested_event_count = (
+                    SELECT COALESCE(SUM(i.digested_event_count), 0)
+                    FROM issues i WHERE i.project_id = projects.id
+                )
+            WHERE ($1 IS NULL OR projects.id = $2)
+            "#,
+        )
+        .bind(project_id)
+        .bind(project_id)
+        .execute(pool)
+        .await?;
+        Ok(())
     }
 
     async fn purge(
@@ -483,6 +519,26 @@ impl StorageService {
         .execute(&mut *tx)
         .await?;
 
+        // The project gives up exactly what its issues just gave up, in the
+        // same commit, so a run cut short between batches leaves it right. A
+        // delta costs one batch; summing the issues would scan every issue of
+        // the project on each batch, under SQLite's write lock.
+        sqlx::query(
+            r#"
+            UPDATE projects SET
+                stored_event_count = stored_event_count - b.n,
+                digested_event_count = digested_event_count - b.n
+            FROM (
+                SELECT COUNT(*) AS n FROM cleanup_batch c
+                JOIN issues i ON i.id = c.issue_id
+            ) AS b
+            WHERE projects.id = $1
+            "#,
+        )
+        .bind(project_id)
+        .execute(&mut *tx)
+        .await?;
+
         let events = sqlx::query("DELETE FROM events WHERE id IN (SELECT id FROM cleanup_batch)")
             .execute(&mut *tx)
             .await?
@@ -496,29 +552,6 @@ impl StorageService {
         .execute(&mut *tx)
         .await?
         .rows_affected() as i64;
-
-        // The project's counters move in the same commit as its issues', so
-        // a run cut short between batches leaves them right. Rebuilt from the
-        // issues instead of subtracting an event delta: the project counter is
-        // by definition the sum of its issues' counts, so this is always
-        // correct, can never underflow, and heals any pre-existing drift.
-        sqlx::query(
-            r#"
-            UPDATE projects SET
-                stored_event_count = (
-                    SELECT COALESCE(SUM(i.stored_event_count), 0)
-                    FROM issues i WHERE i.project_id = projects.id
-                ),
-                digested_event_count = (
-                    SELECT COALESCE(SUM(i.digested_event_count), 0)
-                    FROM issues i WHERE i.project_id = projects.id
-                )
-            WHERE projects.id = $1
-            "#,
-        )
-        .bind(project_id)
-        .execute(&mut *tx)
-        .await?;
 
         sqlx::query("DROP TABLE cleanup_batch")
             .execute(&mut *tx)
