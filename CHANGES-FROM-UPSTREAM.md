@@ -1,0 +1,36 @@
+# Mudanças em relação ao upstream
+
+Resumo legível do [`DELTA-MANIFEST.md`](DELTA-MANIFEST.md). O manifesto é a fonte; este
+arquivo é derivado dele e atualizado no mesmo commit.
+
+**Base:** Rustrak `v0.15.2` (`ff75852c`), 2026-09-30.
+
+## Comportamento
+
+Nenhuma mudança. O servidor, o dashboard e os pacotes `@rustrak/*` são, byte a byte, os da
+tag `v0.15.2`. Nenhum arquivo em `apps/*/src`, `packages/*/src` ou `apps/server/migrations`
+foi tocado.
+
+## Conformidade de licença
+
+- `NOTICE.md` adicionado: origem, copyright do upstream e das modificações, oferta de
+  código-fonte (GPL-3.0 §6). `LICENSE` permanece inalterado.
+- `THIRD-PARTY-LICENSES.md` adicionado: inventário das licenças das dependências (428 crates no
+  servidor, 248 nos benchmarks, 1.277 pacotes npm), gerado por script em `governance/tools/`.
+
+## CI e publicação
+
+- Removidos os workflows que publicam fora do repositório: `release.yml` (npm),
+  `docker-publish.yml` (Docker Hub) e `deploy-docs.yml` (GitHub Pages), e o `FUNDING.yml`.
+  Nenhum commit em `main` publica imagem, pacote ou site. O build de imagem para o registry
+  privado da IntegrAllTech é do pacote 003.
+- Mantidos `ci.yml`, `codeql.yml` e `rust-security.yml`, inalterados.
+
+## Governança
+
+- `DELTA-MANIFEST.md` e este arquivo adicionados.
+- `governance/` adicionado com o corpus de governança do BugLenz (CONSTITUTION, análise de gaps,
+  ADRs, RFCs, pacotes OpenSpec). Fica fora da raiz para não colidir com arquivos que o upstream
+  venha a criar. A baseline medida do upstream na tag está em `governance/baseline/001.md`.
+- `CLAUDE.md` da raiz: seção final apontando para `governance/`, o manifesto e o `NOTICE.md`.
+  É a única alteração em arquivo de documentação do upstream.

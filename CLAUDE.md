@@ -112,3 +112,22 @@ known-compatible with server `X.Y.Z` without a compatibility matrix.
   changes. A `major` would push the product to 1.0.0 as a side effect.
 - `apps/docs` sits outside the group and bumps only when a changeset names it.
 - `scripts/sync-version.sh` copies the version into `Cargo.toml` afterwards.
+
+## BugLenz fork governance
+
+This repository is **BugLenz**, IntegrAllTech's governed fork of Rustrak,
+based on tag `v0.15.2`. Everything above this section is the upstream's own
+`CLAUDE.md`, kept verbatim; this is the only section the fork adds.
+
+- Governance corpus (CONSTITUTION, ADRs, OpenSpec packages, baselines), in
+  Portuguese: [`governance/`](governance/). Start with `governance/README.md`.
+- Every divergence from upstream is listed in
+  [`DELTA-MANIFEST.md`](DELTA-MANIFEST.md) with the ADR that justifies it, in
+  the same commit that introduces it. A change without an ADR does not land.
+- Attribution and license terms: [`NOTICE.md`](NOTICE.md). `LICENSE` is the
+  upstream's, unchanged.
+- Thin fork: new code goes in new files; edits to upstream files are minimal.
+  Generic fixes are proposed upstream first (ADR-0002). Upstream is merged by
+  tag, never rebased; the `upstream` remote has push disabled (ADR-0005).
+- Work happens in `pkg/<nnn>-<name>` branches, one OpenSpec package each, with
+  PRs into `main`.
