@@ -1,4 +1,4 @@
-import { HttpResponse, http } from 'msw';
+import { HttpResponse, http } from 'msw/http';
 import type { FieldError } from '../../src/errors.js';
 
 const BASE_URL = 'http://localhost:8080';
@@ -1182,32 +1182,13 @@ export const handlers = [
     });
   }),
 
-  http.get(`${BASE_URL}/auth/me`, ({ request }) => {
-    const cookieHeader = request.headers.get('Cookie');
-
-    // Check if session cookie is present
-    if (!cookieHeader?.includes('session=mock-session-cookie')) {
-      return appErrorResponse(
-        'Unauthorized',
-        'Unauthorized: Not authenticated',
-      );
-    }
-
-    // Return current user based on session
-    return HttpResponse.json(mockUser);
-  }),
+  // msw 3 keeps no cookie store in Node, so the session cookie from login never
+  // comes back here; these handlers assume an authenticated caller.
+  http.get(`${BASE_URL}/auth/me`, () => HttpResponse.json(mockUser)),
 
   // Preferences: echoes what it was given, merged onto the current user, which
   // is what the real endpoint does after writing.
   http.patch(`${BASE_URL}/auth/me`, async ({ request }) => {
-    const cookieHeader = request.headers.get('Cookie');
-    if (!cookieHeader?.includes('session=mock-session-cookie')) {
-      return appErrorResponse(
-        'Unauthorized',
-        'Unauthorized: Not authenticated',
-      );
-    }
-
     const body = (await request.json()) as Record<string, unknown>;
     return HttpResponse.json({
       ...mockUser,
