@@ -1187,6 +1187,10 @@
     "cancel": "Cancel",
     "deleting": "Deleting…",
     "deleteAction": "Delete permanently",
+    "running": {
+      "title": "Cleanup in progress",
+      "description": "Deleting in small batches in the background, so ingestion keeps working. You can leave this page: it keeps running."
+    },
     "toasts": {
       "previewFailed": "Could not preview cleanup",
       "cleanupFailed": "Cleanup failed",
@@ -1604,6 +1608,8 @@
       },
       "title": "Integrations",
       "subtitle": "Connect Rustrak with your tools and services to automate workflows and stay on top of errors.",
+      "backToAlerts": "Back to alert settings",
+      "backToProjects": "Back to projects",
       "loadFailed": "Could not load integrations"
     },
     "storage": {

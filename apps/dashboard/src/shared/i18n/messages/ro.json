@@ -1187,6 +1187,10 @@
     "cancel": "Anulează",
     "deleting": "Se șterge…",
     "deleteAction": "Șterge definitiv",
+    "running": {
+      "title": "Curățare în curs",
+      "description": "Se șterge în loturi mici în fundal, astfel încât ingestia continuă să funcționeze. Poți părăsi această pagină: va continua să ruleze."
+    },
     "toasts": {
       "previewFailed": "Previzualizarea curățării nu a putut fi realizată",
       "cleanupFailed": "Curățarea a eșuat",
@@ -1604,6 +1608,8 @@
       },
       "title": "Integrări",
       "subtitle": "Conectează Rustrak cu uneltele și serviciile tale pentru a automatiza fluxurile de lucru și a fi la curent cu erorile.",
+      "backToAlerts": "Înapoi la setările alertelor",
+      "backToProjects": "Înapoi la proiecte",
       "loadFailed": "Integrările nu au putut fi încărcate"
     },
     "storage": {
