@@ -1,8 +1,8 @@
 # DELTA-MANIFEST
 
 Relação de **toda** divergência deste repositório em relação ao upstream
-[rustrak/rustrak](https://github.com/rustrak/rustrak). Base atual: tag `v0.15.2`,
-commit `ff75852c1fefda0c1409ec26f14e9e6417810ae4`.
+[rustrak/rustrak](https://github.com/rustrak/rustrak). Base atual: tag `v0.16.0`,
+commit `4dbe5ce7` (sincronizada em 2026-10-07; base inicial `v0.15.2`, `ff75852c`).
 
 Regras (CONSTITUTION I1, ADR-0002, ADR-0005):
 
@@ -13,7 +13,7 @@ Regras (CONSTITUTION I1, ADR-0002, ADR-0005):
 - Em cada sincronização com o upstream, conflito fora dos arquivos listados aqui é erro do
   manifesto e é corrigido no mesmo PR.
 
-Verificação: `git diff --name-only v0.15.2 main` deve ser um subconjunto da coluna
+Verificação: `git diff --name-only <tag-base> main` deve ser um subconjunto da coluna
 "Arquivo" (expandindo `governance/**`).
 
 ## Zonas
@@ -47,3 +47,4 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | Data | Base do upstream | Pacote |
 |---|---|---|
 | 2026-10-07 | `v0.15.2` (`ff75852c`) | 001 bootstrap |
+| 2026-10-07 | `v0.16.0` (`4dbe5ce7`) | sync/2026-10-07, primeiro ciclo do ADR-0005; merge sem conflito |

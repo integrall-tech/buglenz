@@ -1,6 +1,6 @@
 # BugLenz — corpus de governança
 
-**Versão:** 0.7 · **Data:** 2026-10-07 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1))
+**Versão:** 0.8 · **Data:** 2026-10-07 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1)) · **Base sincronizada para `v0.16.0`** (PR #3) · **Pacote 002 detalhado**
 
 Especificação do **BugLenz**: migração do [Rustrak](https://github.com/rustrak/rustrak) `v0.15.2` para um fork
 governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes OpenSpec).
@@ -20,6 +20,7 @@ governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes 
 | `openspec/016-symbolication-mobile/` | Stack trace legível para Android, iOS e Flutter ofuscado |
 | `openspec/007-rebrand-buglenz/` | Rebrand Rustrak → BugLenz por sobreposição no build |
 | `openspec/001-bootstrap-do-fork/` | Primeiro pacote, **executado em 2026-10-07**; T3 pendente (D10) |
+| `openspec/002-remocao-de-egress/` | Remoção da telemetria e da checagem de versão; teste de conformidade de rede. Detalhado sobre a `v0.16.0`, pronto para execução |
 | `PROMPT-CLAUDE-CODE.md` | Prompt de início para o Claude Code executar o pacote 001 |
 
 O repositório do fork é `integrall-tech/buglenz` (privado). Este corpus vive nele em `governance/`,
@@ -40,7 +41,7 @@ junto com `governance/baseline/001.md` (baseline medida) e `governance/tools/` (
 | D2 | Revisão jurídica da leitura da GPL-3.0 (ADR-0003) | qualquer entrega em infraestrutura de cliente | advogado |
 | D3 | Apps Flutter entram na Fase 1? Se sim, os pacotes 016 (pelo menos etapas 1 e 2) e 015 sobem de prioridade | escopo da Fase 1 | Edson |
 | D4 | Localização da instância interna (I12) | pacote 003 | Edson, Neimar |
-| D5 | Responsável e substituto pela sincronização quinzenal (ADR-0005) | primeiro ciclo após o pacote 001 | Edson |
+| D5 | ~~Responsável e substituto pela sincronização quinzenal (ADR-0005)~~ **Fechada (2026-10-07): responsável Edson Martins, substituto Neimar Chagas.** Primeiro ciclo: `sync/2026-10-07` → `v0.16.0` | — | Edson |
 | D6 | Prazos padrão de retenção (ADR-0009) | pacote 004 | responsável por LGPD |
 | D7 | Avaliar o Jev em sombra na instância interna, ao lado do provedor local (ADR-0015) | pacote 018 | Edson, Neimar |
 | D8 | Papel de cada domínio e host do DSN (ADR-0006) | pacote 003 | Edson |
@@ -63,6 +64,10 @@ junto com `governance/baseline/001.md` (baseline medida) e `governance/tools/` (
 
 ## Mudanças
 
+- **0.8:** D5 fechada; primeiro ciclo do ADR-0005 (`v0.15.2` → `v0.16.0`, sem conflito); pacote
+  002 detalhado sobre a `v0.16.0`; ADR-0004 e ADR-0012 corrigidos quanto à procedência do
+  `/metrics` (existe a partir da `v0.16.0`, não na `v0.15.2`); **correção do achado A5 da 0.7**:
+  a `v0.15.2` fixava `pnpm@12.6.0` e a CI instalou exatamente isso; o 12.10.1 é da `v0.16.0`.
 - **0.7:** achados da execução do pacote 001 (A1 a A11 do relatório): zona G no ADR-0006;
   contagem de testes corrigida para a executada; `design.md` do 001 com `checkout -B`, lista
   completa de `governance/`, dependência de plano do GitHub (D10) e aviso sobre workflows no

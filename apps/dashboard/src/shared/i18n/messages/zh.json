@@ -1187,6 +1187,10 @@
     "cancel": "取消",
     "deleting": "正在删除…",
     "deleteAction": "永久删除",
+    "running": {
+      "title": "正在清理",
+      "description": "正在后台分小批删除，数据接收不受影响。你可以离开此页面，清理会继续进行。"
+    },
     "toasts": {
       "previewFailed": "无法预览清理",
       "cleanupFailed": "清理失败",
@@ -1604,6 +1608,8 @@
       },
       "title": "集成",
       "subtitle": "将 Rustrak 与您的工具和服务集成，以自动化工作流并及时掌握错误动态。",
+      "backToAlerts": "返回告警设置",
+      "backToProjects": "返回项目列表",
       "loadFailed": "无法加载集成"
     },
     "storage": {

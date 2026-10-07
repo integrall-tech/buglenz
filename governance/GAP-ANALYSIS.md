@@ -34,7 +34,7 @@ O risco estrutural não é técnico: o projeto tem 9 meses, um mantenedor domina
 | Dashboard | React 19.3, TypeScript 6, Vite 8, Tailwind 4, Base UI, TanStack Router/Table — 61.176 linhas (`apps/dashboard` + `packages/ui`) | [confirmado] |
 | Banco | SQLite (padrão) ou PostgreSQL, escolhido em tempo de compilação por feature | [confirmado] |
 | Migrations | 45 (PostgreSQL) e 32 (SQLite), em diretórios separados | [confirmado] |
-| Toolchain | Rust 1.98 fixado em `rust-toolchain.toml`; Node 22.12+ (CI usa 24), `pnpm@12.10.1` em `packageManager` (CI instalou 12.6.0). `cargo deny check licenses` passa em `apps/server`; em `packages/benchmarks` falha só por `license-not-encountered`, e o upstream não o roda lá | [confirmado] |
+| Toolchain | Rust 1.98 fixado em `rust-toolchain.toml`; Node 22.12+ (CI usa 24); `pnpm@12.6.0` em `packageManager` na `v0.15.2`, `pnpm@12.10.1` na `v0.16.0`. `cargo deny check licenses` passa em `apps/server`; em `packages/benchmarks` falha só por `license-not-encountered`, e o upstream não o roda lá | [confirmado] |
 | Idiomas da UI | en, fr, ro, es, zh — 1.298 chaves em `en.json` | [confirmado] |
 | Superfície de marca | 4.303 ocorrências de `rustrak` em 527 arquivos | [confirmado] |
 | Histórico | primeiro commit em 2026-01-22; 1.144 commits; 17 autores | [confirmado] |

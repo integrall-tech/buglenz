@@ -15,6 +15,17 @@ compilação; um build do fork sem essa chave registra "Telemetry is off" no boo
 O módulo `telemetry` mistura duas coisas: o repórter externo e os contadores que alimentam
 `/metrics`. `Counters` é usado pelo digest e pelo middleware.
 
+**Procedência corrigida (2026-10-07):** o `/metrics` e o `telemetry/metrics.rs` **não existem na
+`v0.15.2`**; entraram na `v0.16.0` (commit `89ce88b4`, "add opt-in Prometheus metrics endpoint
+(#361)"). A leitura original foi feita no `main` do upstream. Por isso o fork sincronizou para a
+`v0.16.0` antes do pacote 002 (ADR-0005, ciclo `sync/2026-10-07`): sobre a `v0.15.2`, remover o
+repórter deixaria `Counters` sem consumidor e garantiria conflito em `main.rs` e
+`telemetry/mod.rs` no primeiro sync. Na `v0.16.0`, `Counters` embute `MetricsCounters` e
+`routes/metrics.rs` lê por `Counters::metrics()`; `counters.rs` não precisa mudar. [confirmado]
+
+O upstream pretende refatorar a duplicação entre `Counters` e `MetricsCounters` (issue #375);
+quando isso chegar, `telemetry/mod.rs` e `counters.rs` podem conflitar com o delta deste ADR.
+
 ## Decisão
 
 Remover o caminho de envio, não desligá-lo:

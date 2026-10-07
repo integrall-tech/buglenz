@@ -3,12 +3,12 @@
 Resumo legível do [`DELTA-MANIFEST.md`](DELTA-MANIFEST.md). O manifesto é a fonte; este
 arquivo é derivado dele e atualizado no mesmo commit.
 
-**Base:** Rustrak `v0.15.2` (`ff75852c`), 2026-09-30.
+**Base:** Rustrak `v0.16.0` (`4dbe5ce7`), 2026-10-07. Base inicial do fork: `v0.15.2`.
 
 ## Comportamento
 
 Nenhuma mudança. O servidor, o dashboard e os pacotes `@rustrak/*` são, byte a byte, os da
-tag `v0.15.2`. Nenhum arquivo em `apps/*/src`, `packages/*/src` ou `apps/server/migrations`
+tag base. Nenhum arquivo em `apps/*/src`, `packages/*/src` ou `apps/server/migrations`
 foi tocado.
 
 ## Conformidade de licença
