@@ -302,7 +302,7 @@ impl StorageService {
                 .await?;
 
         let mut counts = CleanupCounts::default();
-        let purged = Self::purge(
+        Self::purge(
             pool,
             cutoff,
             &projects,
@@ -311,44 +311,8 @@ impl StorageService {
             &mut counts,
             &mut on_batch,
         )
-        .await;
-
-        // Each batch already kept the counters in step; this once-per-run
-        // rebuild only heals drift that predates the cleanup. Run even when a
-        // batch failed, since the batches before it committed.
-        let rebuilt = if filter.include_events {
-            Self::rebuild_project_counters(pool, project_id).await
-        } else {
-            Ok(())
-        };
-
-        purged.and(rebuilt)?;
-        Ok(counts)
-    }
-
-    /// Rebuilds each in-scope project's counters from its issues' counters.
-    /// The project counter is by definition the sum of its issues' counts, so
-    /// this is always correct, can never underflow, and heals any drift.
-    async fn rebuild_project_counters(pool: &DbPool, project_id: Option<i32>) -> AppResult<()> {
-        sqlx::query(
-            r#"
-            UPDATE projects SET
-                stored_event_count = (
-                    SELECT COALESCE(SUM(i.stored_event_count), 0)
-                    FROM issues i WHERE i.project_id = projects.id
-                ),
-                digested_event_count = (
-                    SELECT COALESCE(SUM(i.digested_event_count), 0)
-                    FROM issues i WHERE i.project_id = projects.id
-                )
-            WHERE ($1 IS NULL OR projects.id = $2)
-            "#,
-        )
-        .bind(project_id)
-        .bind(project_id)
-        .execute(pool)
         .await?;
-        Ok(())
+        Ok(counts)
     }
 
     async fn purge(
@@ -521,8 +485,11 @@ impl StorageService {
 
         // The project gives up exactly what its issues just gave up, in the
         // same commit, so a run cut short between batches leaves it right. A
-        // delta costs one batch; summing the issues would scan every issue of
-        // the project on each batch, under SQLite's write lock.
+        // delta costs one batch, where summing the issues would scan every
+        // issue of the project under SQLite's write lock. It is also safe
+        // against ingestion: on Postgres a sum read from the statement's
+        // snapshot misses an in-flight `+ 1` and writes over it once the row
+        // lock is released, while `count - n` re-reads the committed value.
         sqlx::query(
             r#"
             UPDATE projects SET
