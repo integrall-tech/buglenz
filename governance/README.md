@@ -1,6 +1,6 @@
 # BugLenz — corpus de governança
 
-**Versão:** 0.19 · **Data:** 2026-10-08 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1)) · **Base sincronizada para `v0.16.0`** (PR #3) · **Pacote 002 executado**
+**Versão:** 0.22 · **Data:** 2026-10-08 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1)) · **Base sincronizada para `v0.16.0`** (PR #3) · **Pacote 002 executado**
 
 Especificação do **BugLenz**: migração do [Rustrak](https://github.com/rustrak/rustrak) `v0.15.2` para um fork
 governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes OpenSpec).
@@ -72,6 +72,9 @@ junto com `governance/baseline/001.md` (baseline medida) e `governance/tools/` (
 
 ## Mudanças
 
+- **0.22:** G24 corrigido: sessões reportadas mais de uma vez (SDK Java) contadas uma vez; verificado com o `sentry-spring-boot` 8.60.0 real (`total 1, crashed 1, healthy 0`, antes `crashed 2, healthy -1`). O wrapper Spring Boot continua sem ligar sessões por escolha, mas deixa de haver risco de release health corrompido se um app ligar.
+- **0.21:** tela de retenção no dashboard (`/settings/retention`, só administradores), cliente `@rustrak/client` com `retention.get()` e `retention.updateProject()`, textos nos cinco catálogos.
+- **0.20:** pacote 004 (retenção) implementado no servidor: worker, prazos por projeto e tipo, `GET /api/retention` e `PUT /api/projects/{id}/retention`. **Defeito do pacote 005 encontrado e corrigido:** a rota de exclusão por titular respondia 404 na imagem publicada, escondida pelo escopo genérico de projetos; os testes de integração não viam porque montam o módulo sozinho. Passou a haver uma guarda no `e2e-react`.
 - **0.19:** PR #57 do upstream verificado contra a base `v0.16.0`: H-1, H-2, H-4 e M-2 **presentes** no fork; H-3 já corrigido; M-1 a conferir. ADR-0018 (proposta) e pacote 023. Decisão do Edson: aprovar a abordagem (trazer ao fork e oferecer ao upstream).
 - **0.18:** T1 do 009 executado: `sentry-spring-boot` 8.60.0 verificado contra a instância (item sai de "não
   verificado"); novo gap **G24** (terminais repetidos da mesma sessão são contados em duplicidade).
