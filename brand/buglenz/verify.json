@@ -1,0 +1,14 @@
+{
+  "attributionKey": "about.attribution",
+  "attributionKeys": ["settings.about.attribution"],
+  "overrides": [
+    {
+      "file": "apps/dashboard/src/shared/ui/components/rustrak-wordmark.tsx",
+      "exports": ["RustrakWordmark"]
+    },
+    {
+      "file": "packages/ui/src/components/brand/wordmark.tsx",
+      "exports": ["Wordmark"]
+    }
+  ]
+}

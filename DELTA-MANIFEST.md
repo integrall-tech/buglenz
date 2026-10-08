@@ -66,6 +66,9 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `e2e/react-app/**` | G | 0005, 0011 | Novo (006). App React 19 + `@sentry/react` 11.5.0 fora do workspace pnpm (lockfile próprio), para o teste de ponta a ponta |
 | `scripts/e2e-react-assert.sh`, `.github/workflows/e2e-react.yml` | G | 0005, 0011 | Novos (006). Job `e2e-react`: servidor do PR, source maps, Chromium, asserções pela API; passo 6 do ADR-0005 |
 | `brand/lib.mjs`, `brand/apply.mjs`, `brand/verify.mjs`, `brand/test/brand.test.mjs` | A | 0006 | Novos (007). Motor da sobreposição de marca: aplica regras declarativas com contagem esperada a uma cópia da árvore; `verify` guarda a zona C e a atribuição; 17 testes |
+| `brand/buglenz/rules.json`, `brand/buglenz/verify.json` | A | 0006 | Novos (007). 26 regras: catálogos (68 ocorrências por idioma), título, rodapés, modelos de webhook, `actor` e rodapé dos alertas, título da API, mensagem de SSO, tela "Sobre" (atribuição, link de código-fonte, sem link ao rastreador do upstream) |
+| `brand/buglenz/overrides/apps/dashboard/src/shared/ui/components/rustrak-wordmark.tsx`, `brand/buglenz/overrides/packages/ui/src/components/brand/wordmark.tsx` | A | 0006 | Novos (007). Logotipo tipográfico provisório (D9 aberta); substituem por inteiro, em tempo de build, os dois componentes do upstream, com o mesmo nome e a mesma assinatura |
+| `brand/buglenz/assets/icon.png`, `brand/buglenz/assets/apple-icon.png` | A | 0006 | Novos (007). Ícones provisórios gerados (D9 aberta) |
 | `governance/**` | G | 0001, 0002 | Novo. Corpus de governança: CONSTITUTION, GAP-ANALYSIS, `adr/`, `rfc/`, `openspec/`, `baseline/`, `tools/` |
 
 ## Histórico de bases
