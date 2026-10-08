@@ -32,32 +32,30 @@ function PageHeader() {
   );
 }
 
-function RetentionPage() {
+function NotAuthorized() {
   const t = useTranslations('settings');
+
+  return (
+    <Card className="border-dashed">
+      <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+        <ShieldX className="size-12 text-muted-foreground/50 mb-4" />
+        <p className="font-semibold">{t('notAuthorized')}</p>
+        <p className="text-muted-foreground mt-1 text-sm max-w-sm">
+          {t('retention.notAuthorizedDescription')}
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function RetentionPage() {
   const user = useSessionUser();
 
   // Retention periods decide what the instance deletes: administrators only.
-  if (user.role !== 'admin') {
-    return (
-      <>
-        <PageHeader />
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <ShieldX className="size-12 text-muted-foreground/50 mb-4" />
-            <p className="font-semibold">{t('notAuthorized')}</p>
-            <p className="text-muted-foreground mt-1 text-sm max-w-sm">
-              {t('retention.notAuthorizedDescription')}
-            </p>
-          </CardContent>
-        </Card>
-      </>
-    );
-  }
-
   return (
     <>
       <PageHeader />
-      <RetentionPanel />
+      {user.role === 'admin' ? <RetentionPanel /> : <NotAuthorized />}
     </>
   );
 }
