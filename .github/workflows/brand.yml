@@ -10,9 +10,12 @@
 name: Brand
 
 on:
+  # ADR-0019: not for governance, deploy notes or changesets only.
   pull_request:
+    paths-ignore: ["governance/**", "deploy/**", ".changeset/**"]
   push:
     branches: [main, next, "sync/**"]
+    paths-ignore: ["governance/**", "deploy/**", ".changeset/**"]
   workflow_dispatch:
 
 concurrency:

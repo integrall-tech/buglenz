@@ -1,6 +1,6 @@
 # BugLenz — corpus de governança
 
-**Versão:** 0.23 · **Data:** 2026-10-08 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1)) · **Base sincronizada para `v0.16.0`** (PR #3) · **Pacote 002 executado**
+**Versão:** 0.24 · **Data:** 2026-10-08 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1)) · **Base sincronizada para `v0.16.0`** (PR #3) · **Pacote 002 executado**
 
 Especificação do **BugLenz**: migração do [Rustrak](https://github.com/rustrak/rustrak) `v0.15.2` para um fork
 governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes OpenSpec).
@@ -72,6 +72,7 @@ junto com `governance/baseline/001.md` (baseline medida) e `governance/tools/` (
 
 ## Mudanças
 
+- **0.24:** ADR-0019 (economia de minutos de CI): filtros por caminho nos workflows, CodeQL só à mão, janela de 15 min de rede à mão antes de cada tag. Motivo: a cota gratuita do GitHub Actions acabou.
 - **0.23:** pacote 021 feito: dashboard em português do Brasil (idioma `pt`, 1 328 chaves), sem revisão por falante nativo ainda. Glossário em `governance/baseline/021.md`.
 - **0.22:** G24 corrigido: sessões reportadas mais de uma vez (SDK Java) contadas uma vez; verificado com o `sentry-spring-boot` 8.60.0 real (`total 1, crashed 1, healthy 0`, antes `crashed 2, healthy -1`). O wrapper Spring Boot continua sem ligar sessões por escolha, mas deixa de haver risco de release health corrompido se um app ligar.
 - **0.21:** tela de retenção no dashboard (`/settings/retention`, só administradores), cliente `@rustrak/client` com `retention.get()` e `retention.updateProject()`, textos nos cinco catálogos.

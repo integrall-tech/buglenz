@@ -25,11 +25,15 @@ on:
   # stacked PR or one onto a long-lived feature branch merged with no checks at
   # all. The work is the same work regardless of where it lands.
   pull_request:
+    # BugLenz (ADR-0019): a change that touches only governance, deploy notes or
+    # Markdown has nothing for this pipeline to build or test.
+    paths-ignore: ["governance/**", "deploy/**", ".changeset/**", "**.md"]
   # Also the two branches releases are cut from. `main` reaches `next` by a
   # plain merge (see release.yml), not a PR, and the merge commit itself is
   # otherwise never checked.
   push:
     branches: [main, next]
+    paths-ignore: ["governance/**", "deploy/**", ".changeset/**", "**.md"]
   # By hand, for a branch: the same jobs as a push, `rust-release` included.
   workflow_dispatch:
 
