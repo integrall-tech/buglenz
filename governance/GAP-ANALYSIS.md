@@ -97,7 +97,7 @@ Todos [confirmado] por código ou documentação do repositório.
 |---|---|---|---|
 | G1 | **Sem retenção automática.** A limpeza é manual, por API ou tela de Storage. | Só há workers de sessão, montagem de source map, retentativa de alerta e recuperação de ingestão; o FAQ diz "There is no automatic retention yet". O README afirma o contrário. | [confirmado] |
 | G2 | **Sem scrubbing de dados pessoais no servidor.** O IP de origem é gravado em `events.remote_addr` e o payload do SDK é persistido como chegou. | `routes/ingest.rs`, `services/event.rs`; o próprio código cita scrubbing de PII como "Relay-only concern". | [confirmado] |
-| G3 | **Status de sessão `unhandled` rejeitado.** `unhandled` é status do protocolo de sessões desde a 1.6.0 ("erro não tratado, processo não terminou"), também como contador nos agregados; o SDK JS 11.x o envia em vez de `crashed` (getsentry/sentry-javascript#22475). O servidor só aceita `ok`, `exited`, `crashed`, `abnormal` e `errored` e descarta o item. Release health fica errado. Pacote 006. | `models/session.rs:63`; log `session item: bad JSON ... unknown variant unhandled`. develop.sentry.dev/sdk/telemetry/sessions; `@sentry/core` 11.5.0 `session.d.ts:28`. | [confirmado] |
+| G3 | **Status de sessão `unhandled` rejeitado.** `unhandled` é status do protocolo de sessões desde a 1.6.0 ("erro não tratado, processo não terminou"), também como contador nos agregados; o SDK JS 11.x o envia em vez de `crashed` (getsentry/sentry-javascript#22475). O servidor só aceita `ok`, `exited`, `crashed`, `abnormal` e `errored` e descarta o item. Release health fica errado. **Corrigido no fork pelo pacote 006** (classificado como errored) e proposto ao upstream em rustrak/rustrak#383. | `models/session.rs:63`; log `session item: bad JSON ... unknown variant unhandled`. develop.sentry.dev/sdk/telemetry/sessions; `@sentry/core` 11.5.0 `session.d.ts:28`. | [confirmado] |
 | G4 | **Saída de rede herdada.** Relatório anônimo a cada 6 h para `us.i.posthog.com`; o dashboard consulta `rustrak.github.io/rustrak/versions.json` a partir do navegador de cada usuário. | `telemetry/posthog.rs:10`; `shared/api/version-check.ts:8`. A telemetria fica inativa em build sem `RUSTRAK_TELEMETRY_KEY`, que é o caso de um fork. | [confirmado] |
 | G5 | **Sem pt-BR.** | `shared/i18n/messages/`. | [confirmado] |
 | G6 | **Sem criptografia em repouso e sem trilha de auditoria.** | FAQ ("Rustrak doesn't add additional encryption"); nenhuma tabela ou serviço de auditoria. | [confirmado] |
@@ -183,7 +183,7 @@ para os dois em retenção, organizações e maturidade, e para o Sentry em tudo
 3. G17: decidir se os apps Flutter entram na Fase 1. Se sim, o custo do fork sobe bastante.
 4. G18, G19: fora de escopo; multi-cliente se resolve com uma instância por cliente (ADR-0007).
 
-## 9. Trabalho em curso no upstream (leitura de 2026-10-07)
+## 9. Trabalho em curso no upstream (leitura de 2026-10-07; PR da IntegrAllTech em 2026-10-08)
 
 Leitura das issues e PRs abertos de `rustrak/rustrak` pela API do GitHub (`gh api`), feita no
 pacote 001 (T12): 40 issues e 7 PRs abertos. Títulos e corpos lidos; nenhum PR foi testado.
@@ -214,7 +214,10 @@ A relação com cada gap é [inferência] a partir do texto, salvo indicação.
 
 ### Gaps sem trabalho em curso
 
-G2 scrubbing, G3 sessão `unhandled`, G5 pt-BR, G6 criptografia e auditoria, G7 nome de função,
+G3: **PR da IntegrAllTech aberto em 2026-10-08** (rustrak/rustrak#383, pacote 006).
+
+
+G2 scrubbing, G5 pt-BR, G6 criptografia e auditoria, G7 nome de função,
 G8 `in_app`, G9 tunnel, G17 symbolication, G19 multi-organização, G23 GPL. Nenhuma issue ou PR
 aberto toca esses pontos. Para G3, G7, G8 e G9 (classificados como "PR no upstream" no ADR-0002)
 o caminho está livre; para G5, idem.

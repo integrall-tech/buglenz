@@ -123,3 +123,24 @@ job, que roda no push para `sync/**`. A tarefa T-final atualiza o ADR-0005 com o
 - Pinagem do `@sentry/react` no app e2e: 11.5.0 agora; a atualização segue o ADR-0011 (só após o
   e2e passar com a versão nova — este mesmo job, com o pin trocado).
 - D2 não afeta: o fork público do upstream é código do upstream.
+
+## 7. O que a execução revelou (2026-10-08) [confirmado]
+
+- O SDK browser tem a integração **Dedupe** ligada por padrão: dois erros idênticos seguidos viram
+  um envelope só. O app e2e a desliga para provar o agrupamento do servidor (`event_count 2`).
+- `vite preview` escuta só em `::1`; o script usa `--host 127.0.0.1`.
+- `sendDefaultPii` não existe mais em `BrowserOptions` do SDK 11; `process` não é tipado em
+  `vite.config.ts` sem `@types/node` — o `tsc` do app cobre só `src/`.
+- **pnpm 12 lê configurações do `pnpm-workspace.yaml`, não do `.npmrc`**: `ignore-workspace=true`
+  foi ignorado e o app herdou o `allowBuilds: '@sentry/cli': false` da raiz, que em CI (estrito)
+  vira `ERR_PNPM_IGNORED_BUILDS`. Solução: `pnpm-workspace.yaml` próprio no diretório do app, que
+  também é o que o isola do lockfile do upstream. `packageManager` fixado em `pnpm@12.10.1`.
+- A rota de detalhe do evento recebe o `id` interno, não o `event_id` do SDK.
+- Um `python3 - <<'EOF'` consome o stdin que levaria o JSON por pipe; o script passa arquivos.
+- `upstream/main` estava 12 commits à frente da `v0.16.0`, mas os três arquivos tocados eram
+  idênticos: o PR aplica limpo sobre `main` do upstream.
+- Tempo do job `e2e-react`: 4 min 20 s, dos quais 3 min 27 s são o build do servidor (cache de PR
+  lido da `main`).
+- Desvio do `tasks.md` T3: o teste "de integração" ficou nos testes inline do aggregator (contagem)
+  e no teste do parser; a leitura das estatísticas após um envelope `unhandled` é coberta pelo job
+  `e2e-react`, não por um teste HTTP em `tests/integration/`.

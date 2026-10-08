@@ -10,7 +10,7 @@ do upstream entra em `DELTA-MANIFEST.md` no mesmo commit.
 - [x] T1. `Dockerfile`: `ENV INGEST_DIR=/data/ingest`; build local da imagem `postgres` com dashboard embutido; medir tamanho; registrar no manifesto
 - [x] T2. `licenses.yml`: regenerar `THIRD-PARTY-LICENSES.md` em Linux (container ou CI) e commitar como canônico; workflow com drift check verde no PR
 - [x] T3. `release-image.yml`: build + push para `ghcr.io/integrall-tech/buglenz-server` por tag `v*-itl.*` e `workflow_dispatch`; ações pinadas por SHA; prune mantendo 10 versões
-- [ ] T4. Primeira publicação: tag `v0.16.0-itl.3` após o merge (o `push: tags` dispara o workflow da própria tag); conferir que o pacote ficou **privado** e vinculado ao repositório; digest na baseline
+- [x] T4. Primeira publicação: tag `v0.16.0-itl.3` após o merge (o `push: tags` dispara o workflow da própria tag); conferir que o pacote ficou **privado** e vinculado ao repositório; digest na baseline
 - [x] T5. `deploy/swarm/buglenz.stack.yml` + `README.md` + `provision.sh` + `backup.sh`, parametrizados; nenhum valor real
 - [x] T6. Subir a stack em Swarm local de um nó com a imagem publicada (login no GHCR com token de leitura), Traefik de teste ou acesso direto na overlay: `/health` 200, `/metrics` só interno, evento ingerido via `@rustrak/test-sentry`, `provision.sh` cria admin e token sem `RUSTRAK_BOOTSTRAP_TOKEN`
 - [x] T7. `backup.sh` + restauração em banco limpo; issue reaparece após restaurar
