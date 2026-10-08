@@ -7,5 +7,5 @@
 - [x] T5. Ligar o worker em `main.rs`; stack Swarm exige as três variáveis; documentação do operador
 - [x] T6. `DELTA-MANIFEST.md`, baseline `governance/baseline/004.md`
 - [ ] T7. Revisão humana (§5: retenção)
-- [ ] T8. Tela de configuração no dashboard (cinco catálogos) — depois da API
+- [x] T8. Tela de configuração no dashboard (cinco catálogos; zh, ro, fr e es sem revisão por falante nativo) — feita em 2026-10-08
 - [ ] T9. **(decisão D6)** Prazos padrão validados por quem responde por LGPD; configurar a instância do piloto

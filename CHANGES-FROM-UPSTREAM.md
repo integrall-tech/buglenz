@@ -18,6 +18,8 @@ O upstream só limpa dados por ação manual. Aqui um worker aplica os prazos, a
   `GET /api/retention` o lista como desprotegido.
 - A stack Swarm do BugLenz exige as três variáveis.
 - A limpeza manual e a tela de Storage continuam como estavam.
+- O dashboard ganha **Configurações → Retention** (só administradores): padrões da instância, última
+  passada e os prazos de cada projeto, editáveis.
 
 ### Endurecimento do servidor (pacote 023, ADR-0018)
 
