@@ -27,8 +27,11 @@ sync/AAAA-MM-DD   branch de merge do ciclo
 4. Ler `apps/docs/content/upgrading/` e o changelog entre as duas tags antes de resolver conflito
 5. Conflito só é esperado em arquivo do `DELTA-MANIFEST.md`; conflito fora dele corrige o manifesto
    no mesmo PR
-6. CI completa: suítes do upstream (SQLite e PostgreSQL), teste de conformidade de rede (ADR-0004),
-   teste de ponta a ponta com app React minificado e source map (roteiro do `GAP-ANALYSIS.md` §3)
+6. CI completa: suítes do upstream (SQLite e PostgreSQL), teste de conformidade de rede (ADR-0004,
+   job `network-conformance`, pacote 002), teste de ponta a ponta com app React minificado e
+   source map (job `e2e-react`, pacote 006; roteiro original no `GAP-ANALYSIS.md` §3), inventário
+   de licenças (job `licenses`, pacote 003). `network-conformance` e `e2e-react` rodam em `push`
+   para `sync/**` e em todo PR; `licenses` em todo PR e em `push` para `main`.
 7. Revisão humana em arquivo que toque autenticação, scrubbing ou retenção
 8. Merge em `main`, tag `vX.Y.Z-itl.N`, imagem com a mesma tag no registry privado
 

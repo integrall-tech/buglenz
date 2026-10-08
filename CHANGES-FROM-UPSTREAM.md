@@ -32,6 +32,17 @@ editada (a marca e os textos são do pacote 007).
 Fora disso, o servidor, o dashboard e os pacotes `@rustrak/*` são os da tag base. Nenhuma
 migration foi tocada.
 
+### Status de sessão `unhandled` (pacote 006, ADR-0011) — proposto ao upstream
+
+- Sessões com status `unhandled` (protocolo 1.6.0; o SDK JavaScript 11.x o envia em vez de
+  `crashed` para erros não tratados) são aceitas e contadas como **errored**, e o contador
+  `unhandled` dos agregados também. Na `v0.16.0` o item era descartado e o release health de um app
+  React que lançou erros mostrava crash-free 100% e zero sessões com erro.
+- Mudança idêntica proposta ao upstream em rustrak/rustrak#383; quando entrar, este item sai
+  daqui e do manifesto.
+- Novo job `e2e-react` na CI: app React 19 minificado com `@sentry/react` 11.5.0 e source maps
+  contra o servidor do PR; é o teste de ponta a ponta do ADR-0005.
+
 ### Build e implantação (pacote 003, ADR-0012)
 
 - A imagem do servidor é `ghcr.io/integrall-tech/buglenz-server:<vX.Y.Z-itl.N>` (privada,
