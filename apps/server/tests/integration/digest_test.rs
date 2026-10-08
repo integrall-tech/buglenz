@@ -2815,7 +2815,13 @@ async fn test_list_stats_counts_by_email_when_id_is_absent() {
         .await
         .unwrap();
     let entry = stats.get(&issue_id).expect("stats for the issue");
-    assert_eq!(entry.user_count, 2, "a@example.com and b@example.com");
+    // BugLenz (ADR-0009): e-mail addresses are masked to `[email]` before the
+    // digest, so events without `user.id` collapse into one affected user.
+    // Affected-user counts need `user.id`, which the SDK wrapper sets.
+    assert_eq!(
+        entry.user_count, 1,
+        "both masked addresses read as one user"
+    );
 }
 
 #[actix_web::test]

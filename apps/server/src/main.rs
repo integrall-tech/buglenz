@@ -340,6 +340,8 @@ async fn main() -> std::io::Result<()> {
             .configure(routes::sourcemaps::configure)
             // Storage usage + retention/cleanup (admin only)
             .configure(routes::storage::configure)
+            // Erasure for one data subject (admin only; BugLenz, ADR-0009)
+            .configure(routes::privacy::configure)
             // Ingest routes (Sentry SDK auth)
             .configure(routes::ingest::configure);
 

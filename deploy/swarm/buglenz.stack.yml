@@ -34,6 +34,8 @@ services:
       INGEST_DIR: /data/ingest
       SOURCEMAP_STORAGE_PATH: /data/sourcemaps
       RUST_LOG: ${RUST_LOG:-info}
+      # Extra denied keys for the personal-data scrub (ADR-0009), comma-separated.
+      RUSTRAK_SCRUB_EXTRA_KEYS: ${RUSTRAK_SCRUB_EXTRA_KEYS:-}
     volumes:
       - buglenz_data:/data
     networks:

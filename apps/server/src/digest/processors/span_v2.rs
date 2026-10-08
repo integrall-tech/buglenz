@@ -47,6 +47,8 @@ impl Processor for SpanV2Processor {
             }
 
             let mut flat = entry.flat_attributes();
+            // Personal data never reaches the database (ADR-0009).
+            crate::scrub::scrub_value(&mut flat);
             let op = SpanV2Entry::op(&flat);
 
             // gen_ai.* normalization — same shared entry point as the legacy
@@ -116,7 +118,12 @@ impl Processor for SpanV2Processor {
             .bind(&entry.trace_id)
             .bind(entry.parent_span_id.clone())
             .bind(op)
-            .bind(entry.name.clone())
+            .bind(
+                entry
+                    .name
+                    .as_deref()
+                    .map(|n| crate::scrub::scrub_text(n).into_owned()),
+            )
             .bind(entry.status.clone())
             .bind(start_timestamp)
             .bind(timestamp)

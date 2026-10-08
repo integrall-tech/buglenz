@@ -13,6 +13,7 @@ pub mod issue_social;
 pub mod log;
 pub mod message_normalization;
 pub mod notification;
+pub mod privacy;
 pub mod project;
 pub mod project_member;
 pub mod rate_limit;

@@ -64,11 +64,10 @@ pub async fn ingest_envelope(
     }
 
     let ingested_at = Utc::now();
-    // 1. Get client IP
-    let remote_addr = req
-        .connection_info()
-        .realip_remote_addr()
-        .map(|s| s.to_string());
+    // 1. The client IP is not read: it is never stored (ADR-0009, invariant
+    //    I4). The upstream keeps it in events.remote_addr and
+    //    transactions.remote_addr; both stay NULL here.
+    let remote_addr: Option<String> = None;
 
     // 2. Decompress if needed
     let content_encoding = get_content_encoding(&req)?;

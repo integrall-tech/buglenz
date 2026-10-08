@@ -140,6 +140,8 @@ impl ErrorProcessor {
         // 2. Parse event from filesystem
         let mut event_data: serde_json::Value = serde_json::from_slice(&event_bytes)
             .map_err(|e| AppError::Internal(format!("{INVALID_EVENT_JSON_PREFIX}: {e}")))?;
+        // Personal data never reaches grouping or the database (ADR-0009).
+        crate::scrub::scrub_value(&mut event_data);
 
         // 2b. Rewrite stack frames using source maps (non-fatal)
         if let Err(e) = crate::services::sourcemap::rewrite_frames(
@@ -155,6 +157,10 @@ impl ErrorProcessor {
                 e
             );
         }
+        // The rewrite puts source code back into the frames (context_line,
+        // pre_context, post_context): literals in the code can be personal
+        // data too, so the tree is scrubbed again before grouping and storage.
+        crate::scrub::scrub_value(&mut event_data);
 
         // 2c. Trim oversized fields (deep context windows, frame vars, huge
         // breadcrumb trails) for events whose raw payload came in above the
@@ -253,7 +259,8 @@ impl ErrorProcessor {
                 level: event_data.get("level").and_then(|l| l.as_str()),
                 platform: event_data.get("platform").and_then(|p| p.as_str()),
                 event_data: &event_data,
-                remote_addr: metadata.remote_addr.as_deref(),
+                // Never stored (ADR-0009), whatever an older spool entry carries.
+                remote_addr: None,
                 rate_limit_config: &self.rate_limit_config,
                 project: &project,
             },

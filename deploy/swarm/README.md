@@ -54,6 +54,14 @@ Imprime `BUGLENZ_API_TOKEN`, `PROJECT_ID` e `DSN` uma única vez. Fale sempre co
 recebe `401` no passo seguinte ao login. Depois disso, remova
 `CREATE_SUPERUSER` do `buglenz.env` e reimplante: a variável só serve ao primeiro boot.
 
+## Dados pessoais
+
+O servidor remove dados pessoais antes de gravar (ADR-0009): chaves negadas viram `[Filtered]`,
+CPF/CNPJ/cartão/e-mail em texto viram marcadores, e o IP do cliente não é gravado. Para
+acrescentar chaves negadas nesta instância (nomes de campo dos seus apps), defina
+`RUSTRAK_SCRUB_EXTRA_KEYS=documento,telefone` no ambiente do serviço. Exclusão por titular:
+`DELETE /api/projects/{id}/privacy/users/{user_id}` com token de admin.
+
 ## Métricas e logs
 
 - `/metrics` está ligado (`RUSTRAK_METRICS=on`) e **não** é publicado pelo Traefik: o router
