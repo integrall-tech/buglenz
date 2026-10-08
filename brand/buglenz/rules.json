@@ -30,7 +30,7 @@
       "en": "BugLenz is a fork of Rustrak (github.com/rustrak/rustrak), released under the GNU GPL-3.0. The source code of this version and the licence notice are available through the link below.",
       "es": "BugLenz es una bifurcación de Rustrak (github.com/rustrak/rustrak), publicada bajo la licencia GNU GPL-3.0. El código fuente de esta versión y el aviso de licencia están disponibles en el enlace de abajo.",
       "fr": "BugLenz est un fork de Rustrak (github.com/rustrak/rustrak), publié sous licence GNU GPL-3.0. Le code source de cette version et l'avis de licence sont disponibles via le lien ci-dessous.",
-      "ro": "BugLenz este un fork al Rustrak (github.com/rustrak/rustrak), publicat sub licența GNU GPL-3.0. Codul sursă al acestei versiuni și avizul de licență sunt disponibile prin linkul de mai jos.",
+      "ro": "BugLenz este un fork al Rustrak (github.com/rustrak/rustrak), publicat sub licența GNU GPL-3.0. Codul sursă al acestei versiuni și avizul de licență sunt disponibile prin linkul de mai jos.", "pt": "BugLenz é um fork do Rustrak (github.com/rustrak/rustrak), publicado sob a licença GNU GPL-3.0. O código-fonte desta versão e o aviso de licença estão disponíveis no link abaixo.",
       "zh": "BugLenz 是 Rustrak (github.com/rustrak/rustrak) 的衍生项目，依据 GNU GPL-3.0 许可证发布。本版本的源代码和许可声明可通过下方链接获取。"
     }
   },
@@ -45,7 +45,7 @@
       "en": "Source code and notice",
       "es": "Código fuente y aviso",
       "fr": "Code source et mentions légales",
-      "ro": "Cod sursă și aviz",
+      "ro": "Cod sursă și aviz", "pt": "Código-fonte e aviso",
       "zh": "源代码与声明"
     }
   },

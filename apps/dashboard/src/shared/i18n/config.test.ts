@@ -31,6 +31,13 @@ describe('resolveLocale', () => {
     }
   });
 
+  it('matches on the base tag, so pt-BR and pt-PT reach pt', () => {
+    for (const tag of ['pt-BR', 'pt-PT', 'PT']) {
+      expect(resolveLocale(null, [tag])).toBe('pt');
+    }
+    expect(resolveLocale('pt', [])).toBe('pt');
+  });
+
   it('takes the browser list in the order it is given', () => {
     expect(resolveLocale(null, ['ro', 'fr'])).toBe('ro');
     expect(resolveLocale(null, ['fr', 'ro'])).toBe('fr');
