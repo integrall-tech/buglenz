@@ -5,6 +5,7 @@
 //! through a common trait.
 
 pub mod custom_webhook;
+pub mod destination;
 pub mod email;
 pub mod json_template;
 pub mod slack;
@@ -88,6 +89,9 @@ pub(crate) fn shared_http_client() -> &'static reqwest::Client {
     CLIENT.get_or_init(|| {
         reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(30))
+            // A public endpoint could answer with a redirect to an internal address and slip past
+            // the destination check (ADR-0018, H-4): a webhook that redirects is a failed webhook.
+            .redirect(reqwest::redirect::Policy::none())
             .build()
             .unwrap_or_else(|_| reqwest::Client::new())
     })

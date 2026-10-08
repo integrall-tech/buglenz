@@ -198,6 +198,8 @@ pub async fn accept_invitation(
 ) -> AppResult<impl Responder> {
     let user = InvitationService::accept(pool.get_ref(), &req.token, &req.password).await?;
 
+    session.clear();
+    session.renew();
     auth::set_user_session(&session, user.id)?;
 
     Ok(HttpResponse::Created().json(AuthResponse { user: user.into() }))
@@ -257,10 +259,19 @@ pub async fn login(
     session: Session,
     req: web::Json<LoginRequest>,
 ) -> AppResult<impl Responder> {
+    // An oversized password is refused before any database or Argon2 work (ADR-0018, H-2).
+    User::check_password_length(&req.password)?;
+
     // Not normalized: the exact casing picks between legacy case-variant accounts
-    let user = UsersService::get_by_email(pool.get_ref(), req.email.trim())
-        .await?
-        .ok_or_else(|| AppError::Unauthorized("Invalid credentials".to_string()))?;
+    let user = match UsersService::get_by_email(pool.get_ref(), req.email.trim()).await? {
+        Some(user) => user,
+        None => {
+            // Same Argon2 cost as a wrong password, so timing does not reveal which emails
+            // exist (ADR-0018, H-1).
+            User::run_dummy_password_verify(&req.password);
+            return Err(AppError::Unauthorized("Invalid credentials".to_string()));
+        }
+    };
 
     // Check if user is active
     if !user.is_active {
@@ -275,7 +286,10 @@ pub async fn login(
     // Update last login
     UsersService::update_last_login(pool.get_ref(), user.id).await?;
 
-    // Set session
+    // Drop whatever the session held before the login (SSO state, anything planted) and renew
+    // it (ADR-0018, M-2).
+    session.clear();
+    session.renew();
     auth::set_user_session(&session, user.id)?;
 
     Ok(HttpResponse::Ok().json(AuthResponse { user: user.into() }))

@@ -12,8 +12,9 @@ de produção**.
 
 1. Login: executa uma verificação Argon2 contra um hash fixo quando o e-mail não existe, para
    igualar o tempo (H-1).
-2. Senha: limite de 8 a 1024 caracteres no registro/aceite de convite e rejeição acima de 1024 no
-   login antes de qualquer consulta ou Argon2 (H-2/M-3).
+2. Senha: limite superior de 1024 bytes no login, no aceite de convite, na troca de senha e no
+   vínculo SSO, antes de qualquer consulta ou Argon2 (H-2/M-3). **Sem mínimo**: o upstream decidiu
+   assim e o mínimo é política (ver ADR-0018).
 3. Webhook: `validate_config` recusa destinos de loopback, redes privadas (RFC 1918), link-local
    (169.254.0.0/16) e nomes como `localhost`, `*.local`, `*.internal` (H-4). Atenção: a validação
    de configuração não impede DNS que resolve para IP interno; avaliar a checagem também no envio.

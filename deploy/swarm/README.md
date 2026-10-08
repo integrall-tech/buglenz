@@ -62,6 +62,10 @@ acrescentar chaves negadas nesta instância (nomes de campo dos seus apps), defi
 `RUSTRAK_SCRUB_EXTRA_KEYS=documento,telefone` no ambiente do serviço. Exclusão por titular:
 `DELETE /api/projects/{id}/privacy/users/{user_id}` com token de admin.
 
+Destinos de webhook internos (um servidor de chat ou o agente de triagem na mesma rede) são
+bloqueados por padrão; liste os hosts permitidos, como aparecem na URL, em
+`RUSTRAK_WEBHOOK_ALLOWED_HOSTS=archflow.internal,10.1.2.3` (ADR-0018).
+
 ## Métricas e logs
 
 - `/metrics` está ligado (`RUSTRAK_METRICS=on`) e **não** é publicado pelo Traefik: o router
