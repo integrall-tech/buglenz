@@ -1,6 +1,6 @@
 # BugLenz — corpus de governança
 
-**Versão:** 0.18 · **Data:** 2026-10-08 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1)) · **Base sincronizada para `v0.16.0`** (PR #3) · **Pacote 002 executado**
+**Versão:** 0.19 · **Data:** 2026-10-08 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1)) · **Base sincronizada para `v0.16.0`** (PR #3) · **Pacote 002 executado**
 
 Especificação do **BugLenz**: migração do [Rustrak](https://github.com/rustrak/rustrak) `v0.15.2` para um fork
 governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes OpenSpec).
@@ -72,6 +72,7 @@ junto com `governance/baseline/001.md` (baseline medida) e `governance/tools/` (
 
 ## Mudanças
 
+- **0.19:** PR #57 do upstream verificado contra a base `v0.16.0`: H-1, H-2, H-4 e M-2 **presentes** no fork; H-3 já corrigido; M-1 a conferir. ADR-0018 (proposta) e pacote 023. Decisão do Edson: aprovar a abordagem (trazer ao fork e oferecer ao upstream).
 - **0.18:** T1 do 009 executado: `sentry-spring-boot` 8.60.0 verificado contra a instância (item sai de "não
   verificado"); novo gap **G24** (terminais repetidos da mesma sessão são contados em duplicidade).
 - **0.17:** pacote 009 detalhado em três blocos (A: já; B: decisão; C: com a instância). Registrado que o

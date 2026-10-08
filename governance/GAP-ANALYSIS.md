@@ -210,7 +210,7 @@ A relação com cada gap é [inferência] a partir do texto, salvo indicação.
 | G18 replay | #121 "Session Replay support" (issue) | aberta | Fora do escopo da Fase 1 |
 | G20 nó único | #94 "pluggable storage backends (S3, GCS, Azure Blob)", #128 "RFC: custom S3-compatible storage server" (issues) | abertas | Sem PR |
 | G21 tabela de eventos | #329 (acima), #202 "chore: postgres 18" (issue) | abertas | #329 traz medições reais de um deployment com 23 M de spans: índices `CHAR(n)` ignorados, consultas de span sem limite |
-| G22 risco de upstream | #163 "v1.0.0 — Definition of Done" (issue) | aberta | Critério de 1.0 em discussão |
+| G22 risco de upstream (**verificado em 2026-10-08: H-1, H-2, H-4 e M-2 presentes no fork; H-3 já corrigido; M-1 a conferir; ver ADR-0018 e pacote 023**) | #163 "v1.0.0 — Definition of Done" (issue) | aberta | Critério de 1.0 em discussão |
 | G22 risco de upstream | #57 "fix(security): address 6 server vulnerabilities (H-1 … M-2)" (PR do mantenedor, mai/2026) | **aberto há 5 meses**, 1 comentário | Corrige oráculo de tempo no login, DoS por tamanho de senha e outros. Verificar no pacote de auditoria se as correções entraram por outro caminho; se não, é candidato a cherry-pick com ADR |
 
 ### Gaps sem trabalho em curso
