@@ -1,6 +1,6 @@
 # BugLenz — corpus de governança
 
-**Versão:** 0.16 · **Data:** 2026-10-08 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1)) · **Base sincronizada para `v0.16.0`** (PR #3) · **Pacote 002 executado**
+**Versão:** 0.18 · **Data:** 2026-10-08 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1)) · **Base sincronizada para `v0.16.0`** (PR #3) · **Pacote 002 executado**
 
 Especificação do **BugLenz**: migração do [Rustrak](https://github.com/rustrak/rustrak) `v0.15.2` para um fork
 governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes OpenSpec).
@@ -18,6 +18,7 @@ governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes 
 | `openspec/ROADMAP.md` | 22 pacotes em cinco fases |
 | `openspec/015-anexos-e-capturas-de-tela/` | Capturas de tela e hierarquia de views |
 | `openspec/016-symbolication-mobile/` | Stack trace legível para Android, iOS e Flutter ofuscado |
+| `openspec/009-wrappers-e-onboarding/` | Wrappers React e Spring Boot, testes de contrato, onboarding e primeiro piloto. Detalhado; bloqueado por decisões do Edson |
 | `openspec/007-rebrand-buglenz/` | Rebrand Rustrak → BugLenz por sobreposição no build |
 | `openspec/001-bootstrap-do-fork/` | Primeiro pacote, **executado em 2026-10-07**; T3 pendente (D10) |
 | `openspec/007-rebrand-buglenz/` | Marca BugLenz por sobreposição no build; atribuição ao Rustrak preservada. **Executado em 2026-10-08**; logotipo provisório (D9); proposta ao upstream: rustrak/rustrak#387 |
@@ -51,6 +52,9 @@ junto com `governance/baseline/001.md` (baseline medida) e `governance/tools/` (
 | D8 | ~~Papel de cada domínio e host do DSN (ADR-0006)~~ **Parcialmente fechada (2026-10-08): `buglenz.dev` é o domínio de tudo.** Proposta `errors.buglenz.dev` (instância e host do DSN), `docs.buglenz.dev`, `alerts@buglenz.dev`; falta confirmar o host do DSN antes do primeiro app piloto | primeiro app piloto | Edson |
 | D9 | Identidade visual do BugLenz: logotipo, ícones, cores. **Provisórios no pacote 007** (logotipo tipográfico e ícones gerados) | versão final do 007 | Edson |
 | D10 | Plano GitHub Team/Pro para a organização `integrall-tech`, ou outra forma de proteger `main` (PR e CI obrigatórios, sem force-push). No plano Free, rulesets em repositório privado retornam 403 | T3 do pacote 001; até lá a proteção é por convenção | Edson, Neimar |
+| D11 | Repositório, licença e registry dos wrappers de SDK (ADR-0011); como o wrapper React se publica junto do Archbase | pacote 009, bloco B | Edson |
+| D12 | Produto piloto (web React + backend Spring Boot) e seus projetos na instância | pacote 009, bloco B | Edson |
+| D13 | Posição sobre retenção na entrada em produção do piloto: pacote 004 antes, ou limpeza manual agendada como exceção aprovada | início do relógio de 30 dias | Edson, Neimar |
 
 ## O que não foi verificado
 
@@ -61,13 +65,18 @@ junto com `governance/baseline/001.md` (baseline medida) e `governance/tools/` (
 - PR #57 do upstream (6 correções de segurança no servidor, aberto desde maio de 2026): se as
   correções entraram por outro commit ou seguem pendentes na `v0.15.2`.
 - Fluxo OIDC contra o ArchGuard.
-- `sentry-spring-boot` e `sentry_flutter` contra a instância.
+- ~~`sentry-spring-boot` contra a instância~~ Verificado em 2026-10-08 (`governance/baseline/009-t1.md`). `sentry_flutter` segue não verificado.
 - Contrato do ArchFlow para modelos de decisão (requisitos listados no ADR-0014).
 - Fluxo webhook → agente → API de issue; as rotas foram lidas, não exercitadas.
 - Formato exato dos eventos mobile e do upload de símbolos pelo `sentry-cli`: descritos de memória; a tarefa T1 dos pacotes 015 e 016 grava o tráfego real antes de implementar.
 
 ## Mudanças
 
+- **0.18:** T1 do 009 executado: `sentry-spring-boot` 8.60.0 verificado contra a instância (item sai de "não
+  verificado"); novo gap **G24** (terminais repetidos da mesma sessão são contados em duplicidade).
+- **0.17:** pacote 009 detalhado em três blocos (A: já; B: decisão; C: com a instância). Registrado que o
+  critério de saída da Fase 1 não fecha sem o 004 (retenção), bloqueado por D6, e que o 009 não é
+  independente como se afirmou antes.
 - **0.16:** pacote 007 executado (sobreposição de marca em `brand/`, 26 regras, `brand.yml`); D8
   fechada para `buglenz.dev`; D9 segue aberta (logotipo e ícones provisórios).
 - **0.15:** pacote 005 executado; G2 corrigido no fork; achado: o scrub precisa rodar também depois da
