@@ -8,4 +8,4 @@
 - [x] T6. (falhou: 413 em texto puro; corrigido) M-1: teste de corpo acima do limite no ingest; corrigir só se falhar
 - [x] T7. `DELTA-MANIFEST.md` com ADR-0018; baseline `governance/baseline/023.md`
 - [ ] T8. **Revisão humana linha a linha (§5)** antes de implantar
-- [ ] T9. Comentar no PR #57 do upstream oferecendo a versão rebaseada; abrir PR novo se o mantenedor responder
+- [x] T9. (comentário publicado em 2026-10-08: [rustrak/rustrak#57](https://github.com/rustrak/rustrak/pull/57#issuecomment-6069104780); o PR rebaseado sai se o mantenedor responder) Comentar no PR #57 do upstream oferecendo a versão rebaseada; abrir PR novo se o mantenedor responder
