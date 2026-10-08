@@ -46,10 +46,6 @@ fn create_test_config(rate_limit: RateLimitConfig) -> Config {
             enabled: true,
             url: None,
         },
-        telemetry: rustrak::config::TelemetryConfig {
-            enabled: false,
-            do_not_track: false,
-        },
     }
 }
 

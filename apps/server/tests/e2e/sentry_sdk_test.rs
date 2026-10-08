@@ -58,10 +58,6 @@ fn create_test_config(ingest_dir: &str) -> Config {
             enabled: true,
             url: None,
         },
-        telemetry: rustrak::config::TelemetryConfig {
-            enabled: false,
-            do_not_track: false,
-        },
     }
 }
 
