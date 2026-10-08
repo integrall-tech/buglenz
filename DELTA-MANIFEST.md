@@ -63,6 +63,8 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `apps/server/src/models/session.rs`, `apps/server/src/workers/session_aggregator.rs` | G | 0011, 0002 | Alterados (006). Status de sessão `unhandled` (protocolo 1.6.0) aceito e contado como errored; campo `unhandled` dos agregados. **Temporário**: proposto ao upstream; sai do manifesto quando entrar por sync |
 | `apps/server/tests/unit/envelope_parser_test.rs` | G | 0011 | Alterado (006). Teste do parser para o status `unhandled`. Temporário, idem |
 | `.changeset/sessions-unhandled-status.md` | G | 0002 | Novo (006). Changeset `patch` de `@rustrak/server` que acompanha o PR ao upstream. Temporário, idem |
+| `e2e/react-app/**` | G | 0005, 0011 | Novo (006). App React 19 + `@sentry/react` 11.5.0 fora do workspace pnpm (lockfile próprio), para o teste de ponta a ponta |
+| `scripts/e2e-react-assert.sh`, `.github/workflows/e2e-react.yml` | G | 0005, 0011 | Novos (006). Job `e2e-react`: servidor do PR, source maps, Chromium, asserções pela API; passo 6 do ADR-0005 |
 | `governance/**` | G | 0001, 0002 | Novo. Corpus de governança: CONSTITUTION, GAP-ANALYSIS, `adr/`, `rfc/`, `openspec/`, `baseline/`, `tools/` |
 
 ## Histórico de bases
