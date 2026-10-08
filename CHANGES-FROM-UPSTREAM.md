@@ -7,6 +7,12 @@ arquivo é derivado dele e atualizado no mesmo commit.
 
 ## Comportamento
 
+### Dashboard em português do Brasil (pacote 021)
+
+Novo idioma `pt` (1 328 textos), escolhido sozinho para navegadores `pt-BR` e `pt-PT` e disponível em
+**Conta → Idioma** ("Português (Brasil)"). Escrito sem revisão por falante nativo ainda. Os e-mails de
+alerta gerados pelo servidor continuam em inglês.
+
 ### Retenção automática (pacote 004, ADR-0009)
 
 O upstream só limpa dados por ação manual. Aqui um worker aplica os prazos, a cada 24 h:
