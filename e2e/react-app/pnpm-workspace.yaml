@@ -1,0 +1,8 @@
+# This directory is its own pnpm workspace root, on purpose: the end-to-end
+# app must never touch the repository's pnpm-lock.yaml, and pnpm 12 reads
+# settings from this file (not from .npmrc). The nearest pnpm-workspace.yaml
+# up the tree is the root pnpm stops at, so this one shields the app from the
+# repository's, whose allowBuilds forbids @sentry/cli.
+allowBuilds:
+  "@sentry/cli": true
+  esbuild: true
