@@ -76,12 +76,25 @@ pub enum SessionStatus {
 }
 
 /// Derived classification used by the aggregator for a single session update.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SessionOutcome {
     Crashed,
     Abnormal,
     Errored,
     Healthy,
+}
+
+impl SessionOutcome {
+    /// How bad the outcome is. A session reported more than once keeps the worst
+    /// outcome it was reported with.
+    pub fn severity(self) -> u8 {
+        match self {
+            SessionOutcome::Healthy => 0,
+            SessionOutcome::Errored => 1,
+            SessionOutcome::Abnormal => 2,
+            SessionOutcome::Crashed => 3,
+        }
+    }
 }
 
 impl SessionStatus {

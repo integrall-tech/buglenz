@@ -25,6 +25,7 @@ mod rate_limit_test;
 mod releases_api_test;
 mod scrub_test;
 mod security_test;
+mod session_dedupe_test;
 mod sessions_api_test;
 mod sourcemap_cache_test;
 mod sourcemaps_api_test;

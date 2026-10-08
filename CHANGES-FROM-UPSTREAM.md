@@ -7,6 +7,13 @@ arquivo é derivado dele e atualizado no mesmo commit.
 
 ## Comportamento
 
+### Sessões repetidas contadas uma vez (G24)
+
+Um SDK que repete o estado final da mesma sessão (o Java, com sessão explícita) fazia o servidor contar
+duas quedas e `healthy` negativo. O agregador agora lembra, por `sid`, o que já contou (até 100 000 ids
+e 24 h): o primeiro `init` e o primeiro resultado contam; repetições não; um resultado pior depois move
+a sessão de contador.
+
 ### Endurecimento do servidor (pacote 023, ADR-0018)
 
 Correções de segurança que o upstream ainda não aceitou ([rustrak/rustrak#57](https://github.com/rustrak/rustrak/pull/57)):
