@@ -48,6 +48,10 @@ fn long_markers_deny_by_substring_short_ones_only_exactly() {
     assert!(denied("session"));
     // Ordinary words that merely contain a short marker stay.
     assert!(!denied("author"));
+    // Token counts are numbers about usage, not credentials.
+    assert!(!denied("gen_ai.usage.input_tokens"));
+    assert!(!denied("max_tokens"));
+    assert!(!denied("gen_ai.usage.total_tokens"));
     assert!(!denied("session_replay_id"));
     assert!(!denied("authors"));
     assert!(!denied("message"));
@@ -175,6 +179,25 @@ fn denied_keys_are_filtered_at_every_depth_and_text_is_masked() {
         v["request"]["url"],
         "https://app.example.com/pedidos?token=abc"
     );
+}
+
+#[test]
+fn identifiers_and_timestamps_are_never_masked() {
+    // 4111111111111111 passes Luhn; as a span id it must stay a span id.
+    let mut v = json!({
+        "span_id": "4111111111111111", "trace_id": "52998224725", "event_id": "ab",
+        "user": { "id": "52998224725" }, "sid": "4111111111111111",
+        "timestamp": "4111111111111111", "release": "4111111111111111",
+        "message": "cartao 4111111111111111"
+    });
+    scrub_with(&mut v, &denied);
+    assert_eq!(v["span_id"], "4111111111111111");
+    assert_eq!(v["trace_id"], "52998224725");
+    assert_eq!(v["user"]["id"], "52998224725");
+    assert_eq!(v["sid"], "4111111111111111");
+    assert_eq!(v["timestamp"], "4111111111111111");
+    assert_eq!(v["release"], "4111111111111111");
+    assert_eq!(v["message"], "cartao [cartao]");
 }
 
 #[test]

@@ -31,6 +31,8 @@ pub fn scrub_with(value: &mut Value, denied: &dyn Fn(&str) -> bool) {
             for (key, child) in map.iter_mut() {
                 if denied(key) {
                     *child = Value::String(FILTERED.to_string());
+                } else if child.is_string() && keys::is_identifier(key) {
+                    // Identifiers and timestamps are not free text: no mask.
                 } else {
                     scrub_with(child, denied);
                 }

@@ -64,6 +64,20 @@ const CONTAINS: &[&str] = &[
     "cardnumber",
 ];
 
+/// Keys whose string values are identifiers or timestamps, never free text:
+/// the masks skip them, or a span id made of digits that happens to pass
+/// Luhn would turn into `[cartao]` and collide with its siblings. Compared on
+/// the normalised key: anything ending in `id`, plus the time and version
+/// fields of the protocol.
+pub fn is_identifier(key: &str) -> bool {
+    let key = normalise(key);
+    key.ends_with("id")
+        || matches!(
+            key.as_str(),
+            "timestamp" | "starttimestamp" | "endtimestamp" | "sentat" | "release" | "dist"
+        )
+}
+
 /// The environment variable that extends the exact list per instance.
 pub const EXTRA_KEYS_VAR: &str = "RUSTRAK_SCRUB_EXTRA_KEYS";
 
