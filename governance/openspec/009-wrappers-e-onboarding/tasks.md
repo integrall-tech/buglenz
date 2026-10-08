@@ -10,7 +10,7 @@ acontece com a instância em produção (C). Nada em C é iniciado antes de B es
 
 ## B. Depende de decisão
 
-- [ ] T3. **(decisão)** Repositório e licença dos wrappers; registry privado para npm e Maven; criar o repositório
+- [x] T3. **(decidido em 2026-10-08)** Um repositório `integrall-tech/buglenz-sdk`, licença MIT; criado privado. Falta definir o registry (npm e Maven) e se o repositório passa a público
 - [ ] T4. Wrapper React: `initBugLenz`, `ErrorBoundary`, `identify`, `brandSourceMaps`; testes unitários; confirmar o nome atual da opção de PII no SDK 11.x
 - [ ] T5. Wrapper Spring Boot: auto-configuração `buglenz.*`, `beforeSend`, falha na partida sem DSN em produção; testes
 - [ ] T6. Testes de contrato na CI contra a imagem `buglenz-server` publicada (React e Spring Boot) e a matriz de homologação com o primeiro par verde

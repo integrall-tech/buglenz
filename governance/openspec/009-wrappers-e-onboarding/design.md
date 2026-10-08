@@ -3,16 +3,17 @@
 Marcação: [confirmado] = visto no código ou em execução neste projeto; [inferência] = proposta;
 [a confirmar] = depende de resposta do Edson.
 
-## 1. Onde vivem os wrappers [a confirmar]
+## 1. Onde vivem os wrappers [decidido em 2026-10-08: um repositório, MIT]
 
 ADR-0011: "fora do repositório do fork e fora do alcance da GPL". Proposta [inferência]: **um
 repositório privado `integrall-tech/buglenz-sdk`** com dois pacotes (`react/` e `spring-boot/`) e
-a matriz de homologação, licença proprietária da IntegrAllTech, publicados em registry privado
-(npm e Maven). Alternativa: um repositório por plataforma. Em qualquer caso:
+a matriz de homologação, **licença MIT** (decidido em 2026-10-08), copyright IntegrAllTech. Registry
+(npm e Maven) ainda a definir. Em qualquer caso:
 
 - nenhum `package.json`, `pom.xml` ou `build.gradle` referencia `@rustrak/*` nem copia código de
   `apps/dashboard` ou `packages/ui` (ADR-0003, item 4); o job de CI do repositório falha se
   encontrar `rustrak` em dependências;
+- o repositório **não menciona o fork** nem o Rustrak: descreve apenas a instância compatível com o protocolo do Sentry (README, código, testes, mensagens). Os testes de contrato recebem a imagem por variável de ambiente;
 - o contrato com a instância é o protocolo do Sentry e, quando preciso, o `openapi.json` publicado
   pela própria instância (cliente gerado, não copiado de `@rustrak/client`).
 
