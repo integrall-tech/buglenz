@@ -13,7 +13,7 @@ acontece com a instância em produção (C). Nada em C é iniciado antes de B es
 - [x] T3. **(decidido em 2026-10-08)** Um repositório `integrall-tech/buglenz-sdk`, licença MIT; criado privado. Falta definir o registry (npm e Maven) e se o repositório passa a público
 - [x] T4. (feito em 2026-10-08, `buglenz-sdk/react`, 58 testes; sem integração de roteador ainda) Wrapper React: `initBugLenz`, `ErrorBoundary`, `identify`, `brandSourceMaps`; testes unitários; confirmar o nome atual da opção de PII no SDK 11.x
 - [x] T5. (feito em 2026-10-08, `buglenz-sdk/spring-boot`, 59 testes; conferido ponta a ponta: nenhum valor original no envelope que sai da JVM) Wrapper Spring Boot: auto-configuração `buglenz.*`, `beforeSend`, falha na partida sem DSN em produção; testes
-- [ ] T6. Testes de contrato na CI contra a imagem `buglenz-server` publicada (React e Spring Boot) e a matriz de homologação com o primeiro par verde
+- [x] T6. (feito em 2026-10-08: `buglenz-sdk/contract`, `docs/matriz.md`, CI `unit`; o job `contract` na CI depende do segredo `GHCR_READ_TOKEN`) Testes de contrato na CI contra a imagem `buglenz-server` publicada (React e Spring Boot) e a matriz de homologação com o primeiro par verde
 - [x] T7. **(decidido em 2026-10-08: letra b)** Pacote irmão do Archbase, com versão e repositório próprios, anunciado junto; sem dependência do Archbase nem de Mantine no wrapper. Como o wrapper React é publicado "junto do Archbase" (ADR-0011): mesmo pacote, pacote irmão ou dependência opcional; sem copiar código GPL e sem importar `@rustrak/*`
 - [ ] T8. `docs/onboarding.md` em português e `docs/matriz.md`
 - [ ] T9. **(decisão)** Nomear o produto piloto e os projetos na instância (um por app implantável)

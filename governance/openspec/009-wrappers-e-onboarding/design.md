@@ -123,3 +123,11 @@ ativos**, sem evento contendo dado da lista de negação em amostragem manual". 
 pronto (005). A **retenção** é o pacote 004, bloqueado pela decisão D6 (prazos). Sem ela, a
 instância do piloto acumularia dados sem prazo, o que o invariante I5 proíbe: ou o 004 entra antes
 da produção, ou a produção começa com limpeza manual agendada e registrada como exceção.
+
+## 9. Contrato executado (2026-10-08, T6)
+
+`contract/run.sh` no `buglenz-sdk` sobe a imagem `buglenz-server:v0.16.0-itl.5` (PostgreSQL, sob emulação `amd64` nesta máquina), constrói um app com cada wrapper e confere pela API e nos envelopes brutos. Resultado: React 14 verificações e Spring Boot 16, todas verdes (matriz em `docs/matriz.md`). Achados:
+
+- **Defeito do pacote React, corrigido:** o auxiliar `/vite` é carregado pelo Node (config do Vite) e o build com imports sem extensão não resolvia. Agora há extensões `.js` explícitas e `releaseOf` independente. Só o contrato real pegou isso; os testes unitários não.
+- **`PUBLIC_URL` é obrigatório na instância** para o upload de source maps: sem ele a instância anuncia `http://0.0.0.0:<porta>` como endereço de upload e o `sentry-cli` falha (no teste, bateu em outro serviço local e recebeu 401). Entra no guia de onboarding (T8) e na verificação de implantação (pacote 003).
+- A imagem publicada roda **só com PostgreSQL**, como previsto pelo invariante I7.
