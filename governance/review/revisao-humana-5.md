@@ -99,7 +99,7 @@ e irreversível.
 
 **Conferir**
 
-1. `parse_days`: `0`, negativo, texto, vazio e acima de 3650 **não** viram padrão (teste unitário).
+1. `parse_days`: `0`, `1`, `6`, negativo, texto, vazio e acima de 3650 **não** viram padrão (teste unitário); 7 vale.
 2. `run_once`: para cada tipo com prazo, uma chamada `execute_cleanup(projeto, dias, filtro só desse tipo)`.
    Um tipo sem prazo **não** é chamado. Confirme que `CleanupFilter` de cada passo marca só um tipo.
 3. `execute_cleanup` (já existente, `services/storage.rs`) também apaga as **issues que ficaram sem
@@ -108,10 +108,11 @@ e irreversível.
 
 **[decisão]** Sem valor embutido: sem as variáveis, nada é apagado e os projetos aparecem como
 desprotegidos. A stack Swarm do BugLenz **exige** as três variáveis.
-**[decisão]** A passada roda 60 s depois de **cada** partida. Uma variável digitada com valor pequeno
-demais (por exemplo `1`) apaga quase tudo na primeira partida, sem prévia. O mínimo é 1 dia. **Quer
-um modo "só relatar" na primeira passada depois de mudar um prazo, ou um piso por tipo (por exemplo
-7 dias)?** É a decisão que eu mais gostaria de ver sua.
+**[decisão]** A passada roda 60 s depois de **cada** partida. Para um prazo digitado pequeno demais
+(`1`) não apagar quase tudo sem prévia, os prazos têm **piso de 7 dias** por tipo: abaixo disso a API
+responde 400 e a variável é ignorada com erro no log (a limpeza manual mantém o mínimo de 1 dia, porque
+tem prévia e confirmação). **Conferir:** `MIN_DAYS` em `services/retention.rs`; 7 é o valor certo para
+logs e transações, ou você quer pisos diferentes por tipo?
 
 **[limite]**
 - O relatório da última passada vive em memória (some ao reiniciar).
