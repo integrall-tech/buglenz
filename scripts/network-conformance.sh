@@ -159,7 +159,9 @@ runtime_check() {
     RUST_LOG=info \
     "$CT_DIR/rustrak" >"$CT_DIR/server.log" 2>&1 &
   local server_pid=$!
-  trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+  # Expanded now: the EXIT trap runs outside this function, where the local
+  # is gone and `set -u` would abort a run that had already passed.
+  trap "kill $server_pid 2>/dev/null || true" EXIT
 
   local i
   for i in $(seq 1 60); do
