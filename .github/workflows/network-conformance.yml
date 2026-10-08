@@ -8,9 +8,18 @@
 name: Network conformance
 
 on:
+  # ADR-0019: only changes that can open a connection. The 15-minute window runs by
+  # hand before a tag, and on sync branches, not on every push to main.
   pull_request:
+    paths:
+      - "apps/server/**"
+      - "apps/dashboard/**"
+      - "packages/**"
+      - "scripts/network-conformance.sh"
+      - "scripts/egress-denylist.txt"
+      - ".github/workflows/network-conformance.yml"
   push:
-    branches: [main, next, "sync/**"]
+    branches: ["sync/**"]
   workflow_dispatch:
     inputs:
       window_minutes:
