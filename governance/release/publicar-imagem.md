@@ -1,8 +1,8 @@
 # Roteiro: publicar uma imagem do BugLenz (`vX.Y.Z-itl.N`)
 
 Próxima tag prevista: **`v0.16.0-itl.6`** (a `itl.5` é de antes do 023, da retenção, do G24 e do pt-BR).
-A publicação roda no GitHub Actions (`release-image.yml`); **enquanto a cota gratuita estiver
-esgotada, a tag não constrói** (ver ADR-0019). Não crie a tag antes de a cobrança ou o ciclo voltarem.
+A publicação roda no GitHub Actions (`release-image.yml`); o repositório é público (ADR-0020), então os
+minutos de Actions não são mais um limite.
 
 ## 1. Antes da tag
 
@@ -19,8 +19,8 @@ esgotada, a tag não constrói** (ver ADR-0019). Não crie a tag antes de a cobr
   ```
   (O teste `test_trigger_alert_does_not_block_on_slow_webhook_delivery` falha no PostgreSQL por defeito do
   upstream, usa `datetime()` do SQLite; não rode `integration_tests` no PostgreSQL esperando verde.)
-- [ ] **`Network conformance` por `workflow_dispatch`, janela de 15 minutos** (ADR-0019: deixou de rodar
-  a cada push em `main`). Verde ou não há tag.
+- [ ] **`Network conformance` verde no commit de `main` que vai receber a tag** (a janela de 15 minutos roda a
+  cada push em `main`, ADR-0021). Verde ou não há tag.
 - [ ] `DELTA-MANIFEST.md` cobre `git diff --name-status v0.16.0 HEAD` (cada arquivo, com ADR).
 - [ ] As três variáveis de retenção decididas (D6) para a instância que vai receber a imagem.
 

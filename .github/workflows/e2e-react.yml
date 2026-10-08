@@ -11,24 +11,9 @@
 name: E2E React
 
 on:
-  # ADR-0019: only changes the check can see.
   pull_request:
-    paths:
-      - "apps/server/**"
-      - "apps/dashboard/**"
-      - "packages/client/**"
-      - "e2e/**"
-      - "scripts/e2e-react-assert.sh"
-      - ".github/workflows/e2e-react.yml"
   push:
     branches: [main, next, "sync/**"]
-    paths:
-      - "apps/server/**"
-      - "apps/dashboard/**"
-      - "packages/client/**"
-      - "e2e/**"
-      - "scripts/e2e-react-assert.sh"
-      - ".github/workflows/e2e-react.yml"
   workflow_dispatch:
 
 concurrency:

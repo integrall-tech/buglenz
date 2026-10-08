@@ -51,7 +51,7 @@ junto com `governance/baseline/001.md` (baseline medida) e `governance/tools/` (
 | D7 | Avaliar o Jev em sombra na instância interna, ao lado do provedor local (ADR-0015) | pacote 018 | Edson, Neimar |
 | D8 | ~~Papel de cada domínio e host do DSN (ADR-0006)~~ **Parcialmente fechada (2026-10-08): `buglenz.dev` é o domínio de tudo.** Proposta `errors.buglenz.dev` (instância e host do DSN), `docs.buglenz.dev`, `alerts@buglenz.dev`; falta confirmar o host do DSN antes do primeiro app piloto | primeiro app piloto | Edson |
 | D9 | Identidade visual do BugLenz: logotipo, ícones, cores. **Provisórios no pacote 007** (logotipo tipográfico e ícones gerados) | versão final do 007 | Edson |
-| D10 | ~~Plano GitHub Team/Pro para proteger `main`~~ **Destravada (ADR-0020):** o repositório é público e rulesets existem no plano Free. **ADR-0021 (proposta) e os rulesets em `.github/rulesets/` aguardam o Edson aplicar** (opção A: PR obrigatório, sem force-push, tags de release protegidas; sem checks obrigatórios, por causa dos filtros por caminho da ADR-0019) | T3 do pacote 001 | Edson |
+| D10 | ~~Plano GitHub Team/Pro para proteger `main`~~ **Destravada (ADR-0020) e decidida: opção B da ADR-0021** (PR obrigatório, sem force-push, oito checks obrigatórios, tags de release protegidas). Os rulesets estão em `.github/rulesets/` e **aguardam o Edson aplicar** | T3 do pacote 001 | Edson |
 | D11 | ~~Repositório, licença e registry dos wrappers~~ **Parcialmente fechada (2026-10-08):** wrapper React é pacote irmão do Archbase; um repositório `integrall-tech/buglenz-sdk` sob MIT, sem referência ao fork. Falta: registry npm/Maven e visibilidade do repositório | pacote 009, bloco B | Edson |
 | D12 | Produto piloto (web React + backend Spring Boot) e seus projetos na instância | pacote 009, bloco B | Edson |
 | D13 | Posição sobre retenção na entrada em produção do piloto: pacote 004 antes, ou limpeza manual agendada como exceção aprovada | início do relógio de 30 dias | Edson, Neimar |
@@ -72,7 +72,7 @@ junto com `governance/baseline/001.md` (baseline medida) e `governance/tools/` (
 
 ## Mudanças
 
-- **0.26:** ADR-0021 (proposta) e rulesets para `main` e para as tags de release, prontos para o Edson aplicar (D10).
+- **0.26:** ADR-0021 (opção B) e rulesets para `main` (com checks obrigatórios) e para as tags de release, prontos para o Edson aplicar (D10). A ADR-0019 fica substituída: os workflows voltam a rodar em todo PR.
 - **0.25:** ADR-0020: o repositório do fork é público. I11 (imagens em registry privado) não muda. Destrava a D10 e simplifica a D2; o CodeQL volta.
 - **0.24:** ADR-0019 (economia de minutos de CI): filtros por caminho nos workflows, CodeQL só à mão, janela de 15 min de rede à mão antes de cada tag. Motivo: a cota gratuita do GitHub Actions acabou.
 - **0.23:** pacote 021 feito: dashboard em português do Brasil (idioma `pt`, 1 328 chaves), sem revisão por falante nativo ainda. Glossário em `governance/baseline/021.md`.

@@ -6,11 +6,13 @@ rollback is one command.
 
 | File | Protects | Rules |
 |---|---|---|
-| `protect-main.json` | `main` | no deletion, no force-push, every change through a pull request (0 required approvals) |
+| `protect-main.json` | `main` | no deletion, no force-push, every change through a pull request (0 required approvals), and these checks passing: `web`, `rust-lint`, `rust-test`, `postgres-e2e`, `brand`, `e2e-react`, `network-conformance`, `licenses` |
 | `protect-release-tags.json` | tags `v*-itl.*` | a published release tag cannot be deleted or moved (creating one stays free) |
 
-There are deliberately **no required status checks** and **no bypass actors**. Why, and what changes
-that, is in `governance/adr/0021-protecao-de-main.md`.
+There are **no bypass actors**. The required checks are **job names** (from GitHub Actions, app id 15368):
+renaming one of those jobs in a workflow makes every pull request wait for a check that never reports,
+so a rename must update `protect-main.json` and the ruleset in the same change. Why these checks, and
+why the workflows run on every pull request, is in `governance/adr/0021-protecao-de-main.md`.
 
 ## Apply
 
