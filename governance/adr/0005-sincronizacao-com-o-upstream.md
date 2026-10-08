@@ -14,7 +14,7 @@ mudança incompatível. Há guia de migração por versão em `apps/docs/content
 Merge periódico em tag, nunca rebase. Cadência quinzenal.
 
 ```
-origin     → repositório privado da IntegrAllTech
+origin     → repositório da IntegrAllTech (público desde 2026-10-08, ADR-0020)
 upstream   → github.com/rustrak/rustrak (push desabilitado)
 
 main              linha estável do fork

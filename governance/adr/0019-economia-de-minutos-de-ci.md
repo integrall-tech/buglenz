@@ -1,6 +1,6 @@
 # ADR-0019 — Economia de minutos de CI
 
-**Estado:** aceita (2026-10-08) · **Depende de:** ADR-0002, ADR-0005
+**Estado:** aceita (2026-10-08); a parte do CodeQL foi revertida pela ADR-0020 (repositório público) · **Depende de:** ADR-0002, ADR-0005
 
 ## Contexto
 
