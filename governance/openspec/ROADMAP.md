@@ -25,6 +25,7 @@ G (mais que isso). São ordens de grandeza, não estimativas. [inferência]
 | 021 catalogo-pt-br | Catálogo `pt-BR` (1.298 chaves), proposto ao upstream | G5 | 0002, 0010 | 001 | P |
 | 008 sso-archguard | Instância interna atrás do ArchGuard; teste do fluxo OIDC | — | 0008 | 003 | P |
 | 009 wrappers-e-onboarding | Wrapper React (com Archbase) e Spring Boot; source maps no CI; primeiro produto piloto. **Detalhado em 2026-10-08**; precisa de decisões (repositório, piloto, Archbase) e da instância implantada; o critério de saída da Fase 1 também exige o 004 | — | 0011, 0009, 0003 | 005, 006; **decisões do Edson**; 003 implantado; 004 para o critério de saída | M |
+| 023 correcoes-de-seguranca-do-upstream | H-1, H-2/M-3, H-4 e M-2 do PR #57 do upstream, ausentes na base do fork (ADR-0018); **antes do primeiro dado de produção** | G22 | 0018 | 003 | P |
 
 **Critério de saída da Fase 1:** um produto piloto em produção enviando erros por 30 dias, com
 retenção e scrubbing ativos, sem evento contendo dado da lista de negação em amostragem manual.
