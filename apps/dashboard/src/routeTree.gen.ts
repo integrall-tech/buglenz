@@ -23,6 +23,7 @@ import { Route as AuthenticatedSettingsAboutRouteImport } from './routes/_authen
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account';
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance';
 import { Route as AuthenticatedSettingsIntegrationsRouteImport } from './routes/_authenticated/settings/integrations';
+import { Route as AuthenticatedSettingsRetentionRouteImport } from './routes/_authenticated/settings/retention';
 import { Route as AuthenticatedSettingsStorageRouteImport } from './routes/_authenticated/settings/storage';
 import { Route as AuthenticatedSettingsTeamRouteImport } from './routes/_authenticated/settings/team';
 import { Route as AuthenticatedSettingsTokensRouteImport } from './routes/_authenticated/settings/tokens';
@@ -120,6 +121,12 @@ const AuthenticatedSettingsIntegrationsRoute =
   AuthenticatedSettingsIntegrationsRouteImport.update({
     id: '/integrations',
     path: '/integrations',
+    getParentRoute: () => AuthenticatedSettingsRoute,
+  } as any);
+const AuthenticatedSettingsRetentionRoute =
+  AuthenticatedSettingsRetentionRouteImport.update({
+    id: '/retention',
+    path: '/retention',
     getParentRoute: () => AuthenticatedSettingsRoute,
   } as any);
 const AuthenticatedSettingsStorageRoute =
@@ -267,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/settings/account': typeof AuthenticatedSettingsAccountRoute;
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute;
   '/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute;
+  '/settings/retention': typeof AuthenticatedSettingsRetentionRoute;
   '/settings/storage': typeof AuthenticatedSettingsStorageRoute;
   '/settings/team': typeof AuthenticatedSettingsTeamRoute;
   '/settings/tokens': typeof AuthenticatedSettingsTokensRoute;
@@ -302,6 +310,7 @@ export interface FileRoutesByTo {
   '/settings/account': typeof AuthenticatedSettingsAccountRoute;
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute;
   '/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute;
+  '/settings/retention': typeof AuthenticatedSettingsRetentionRoute;
   '/settings/storage': typeof AuthenticatedSettingsStorageRoute;
   '/settings/team': typeof AuthenticatedSettingsTeamRoute;
   '/settings/tokens': typeof AuthenticatedSettingsTokensRoute;
@@ -340,6 +349,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute;
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute;
   '/_authenticated/settings/integrations': typeof AuthenticatedSettingsIntegrationsRoute;
+  '/_authenticated/settings/retention': typeof AuthenticatedSettingsRetentionRoute;
   '/_authenticated/settings/storage': typeof AuthenticatedSettingsStorageRoute;
   '/_authenticated/settings/team': typeof AuthenticatedSettingsTeamRoute;
   '/_authenticated/settings/tokens': typeof AuthenticatedSettingsTokensRoute;
@@ -379,6 +389,7 @@ export interface FileRouteTypes {
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/integrations'
+    | '/settings/retention'
     | '/settings/storage'
     | '/settings/team'
     | '/settings/tokens'
@@ -414,6 +425,7 @@ export interface FileRouteTypes {
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/integrations'
+    | '/settings/retention'
     | '/settings/storage'
     | '/settings/team'
     | '/settings/tokens'
@@ -451,6 +463,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/integrations'
+    | '/_authenticated/settings/retention'
     | '/_authenticated/settings/storage'
     | '/_authenticated/settings/team'
     | '/_authenticated/settings/tokens'
@@ -583,6 +596,13 @@ declare module '@tanstack/react-router' {
       path: '/integrations';
       fullPath: '/settings/integrations';
       preLoaderRoute: typeof AuthenticatedSettingsIntegrationsRouteImport;
+      parentRoute: typeof AuthenticatedSettingsRoute;
+    };
+    '/_authenticated/settings/retention': {
+      id: '/_authenticated/settings/retention';
+      path: '/retention';
+      fullPath: '/settings/retention';
+      preLoaderRoute: typeof AuthenticatedSettingsRetentionRouteImport;
       parentRoute: typeof AuthenticatedSettingsRoute;
     };
     '/_authenticated/settings/storage': {
@@ -747,6 +767,7 @@ interface AuthenticatedSettingsRouteChildren {
   AuthenticatedSettingsAccountRoute: typeof AuthenticatedSettingsAccountRoute;
   AuthenticatedSettingsAppearanceRoute: typeof AuthenticatedSettingsAppearanceRoute;
   AuthenticatedSettingsIntegrationsRoute: typeof AuthenticatedSettingsIntegrationsRoute;
+  AuthenticatedSettingsRetentionRoute: typeof AuthenticatedSettingsRetentionRoute;
   AuthenticatedSettingsStorageRoute: typeof AuthenticatedSettingsStorageRoute;
   AuthenticatedSettingsTeamRoute: typeof AuthenticatedSettingsTeamRoute;
   AuthenticatedSettingsTokensRoute: typeof AuthenticatedSettingsTokensRoute;
@@ -759,6 +780,7 @@ const AuthenticatedSettingsRouteChildren: AuthenticatedSettingsRouteChildren = {
   AuthenticatedSettingsAppearanceRoute: AuthenticatedSettingsAppearanceRoute,
   AuthenticatedSettingsIntegrationsRoute:
     AuthenticatedSettingsIntegrationsRoute,
+  AuthenticatedSettingsRetentionRoute: AuthenticatedSettingsRetentionRoute,
   AuthenticatedSettingsStorageRoute: AuthenticatedSettingsStorageRoute,
   AuthenticatedSettingsTeamRoute: AuthenticatedSettingsTeamRoute,
   AuthenticatedSettingsTokensRoute: AuthenticatedSettingsTokensRoute,

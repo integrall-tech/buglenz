@@ -7,7 +7,7 @@
     ],
     "find": "Rustrak",
     "replace": "BugLenz",
-    "expect": 68
+    "expect": 69
   },
   {
     "id": "catalog-email-placeholder",

@@ -1549,7 +1549,8 @@
       "openProjectSettingsMenu": "Ouvrir le menu des paramètres du projet",
       "projectSettingsTitle": "Paramètres du projet",
       "openSettingsMenu": "Ouvrir le menu des paramètres",
-      "settingsTitle": "Paramètres"
+      "settingsTitle": "Paramètres",
+      "retention": "Rétention"
     },
     "loadProjectFailed": "Impossible de charger le projet",
     "loadProjectsFailed": "Impossible de charger les projets",
@@ -1697,6 +1698,39 @@
       "githubRepository": "Dépôt GitHub",
       "reportAnIssue": "Signaler un problème",
       "sentryDocs": "Documentation des SDK Sentry"
+    },
+    "retention": {
+      "meta": {
+        "title": "Rétention | Rustrak",
+        "description": "Durées de rétention des événements, transactions et journaux"
+      },
+      "title": "Rétention",
+      "subtitle": "Les données sont supprimées automatiquement une fois leur durée dépassée",
+      "notAuthorizedDescription": "Seuls les administrateurs de l'instance peuvent consulter et modifier les durées de rétention. Contactez un administrateur si vous avez besoin d'un accès.",
+      "loadFailed": "Impossible de lire les durées de rétention",
+      "defaultsTitle": "Valeurs par défaut de l'instance",
+      "defaultsDescription": "Définies par l'opérateur via des variables d'environnement. Un projet sans durée propre utilise celles-ci.",
+      "types": {
+        "events": "Événements",
+        "transactions": "Transactions et spans",
+        "logs": "Journaux"
+      },
+      "notSet": "Non défini",
+      "days": "{count, plural, one {# jour} other {# jours}}",
+      "lastRun": "Dernier passage : {when}. {events} événements, {transactions} transactions et {logs} journaux supprimés.",
+      "noRun": "Aucun passage depuis le démarrage du serveur. Le premier a lieu environ une minute après le démarrage, puis toutes les {hours} heures.",
+      "byProject": "Par projet",
+      "byProjectDescription": "Laissez une case vide pour utiliser la valeur par défaut de l'instance.",
+      "noProjects": "Aucun projet pour le moment.",
+      "protected": "Protégé",
+      "unprotectedMissing": "Pas de durée pour {types}",
+      "warningUnprotected": "{count, plural, one {# projet n'a} other {# projets n'ont}} pas de durée de rétention pour certaines données. Ces données ne sont jamais supprimées.",
+      "placeholderNone": "Aucune",
+      "placeholderDefault": "Par défaut : {days}",
+      "invalidRange": "Saisissez un nombre entier de jours entre {min} et {max}, ou laissez vide.",
+      "save": "Enregistrer",
+      "saved": "Rétention mise à jour pour {project}",
+      "saveFailed": "Impossible d'enregistrer les durées de rétention"
     }
   }
 }

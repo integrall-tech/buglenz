@@ -1549,7 +1549,8 @@
       "openProjectSettingsMenu": "Open project settings menu",
       "projectSettingsTitle": "Project Settings",
       "openSettingsMenu": "Open settings menu",
-      "settingsTitle": "Settings"
+      "settingsTitle": "Settings",
+      "retention": "Retention"
     },
     "loadProjectFailed": "Could not load project",
     "loadProjectsFailed": "Could not load projects",
@@ -1697,6 +1698,39 @@
       "githubRepository": "GitHub Repository",
       "reportAnIssue": "Report an Issue",
       "sentryDocs": "Sentry SDK Documentation"
+    },
+    "retention": {
+      "meta": {
+        "title": "Retention | Rustrak",
+        "description": "Retention periods for events, transactions and logs"
+      },
+      "title": "Retention",
+      "subtitle": "Data is removed automatically once it is older than its period",
+      "notAuthorizedDescription": "Only instance administrators can view and change retention periods. Contact an admin if you need access.",
+      "loadFailed": "Could not read the retention periods",
+      "defaultsTitle": "Instance defaults",
+      "defaultsDescription": "Set by the operator through environment variables. A project without its own period uses these.",
+      "types": {
+        "events": "Events",
+        "transactions": "Transactions and spans",
+        "logs": "Logs"
+      },
+      "notSet": "Not set",
+      "days": "{count, plural, one {# day} other {# days}}",
+      "lastRun": "Last pass: {when}. Removed {events} events, {transactions} transactions and {logs} logs.",
+      "noRun": "No pass since the server started. The first one runs about a minute after startup, then every {hours} hours.",
+      "byProject": "By project",
+      "byProjectDescription": "Leave a box empty to use the instance default.",
+      "noProjects": "No projects yet.",
+      "protected": "Protected",
+      "unprotectedMissing": "No period for {types}",
+      "warningUnprotected": "{count, plural, one {# project has} other {# projects have}} no retention period for some data. That data is never removed.",
+      "placeholderNone": "None",
+      "placeholderDefault": "Default: {days}",
+      "invalidRange": "Enter a whole number of days from {min} to {max}, or leave empty.",
+      "save": "Save",
+      "saved": "Retention updated for {project}",
+      "saveFailed": "Could not save the retention periods"
     }
   }
 }
