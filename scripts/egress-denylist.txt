@@ -1,0 +1,15 @@
+# Tokens that must not appear in the BugLenz server, dashboard or packages.
+# Read by scripts/network-conformance.sh (static layer). One token per line,
+# matched as a fixed string, case-sensitive; lines starting with # are ignored.
+#
+# Each entry names an outbound connection the upstream initiates on its own
+# (CONSTITUTION I3, ADR-0004) or the switch that used to control it. Extend
+# this list at every upstream sync when a new one appears.
+us.i.posthog.com
+posthog
+rustrak.github.io/rustrak/versions.json
+versions.json
+RUSTRAK_TELEMETRY
+DO_NOT_TRACK
+VITE_RUSTRAK_VERSION_CHECK_ENABLED
+/api/telemetry

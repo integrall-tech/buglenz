@@ -30,15 +30,10 @@ ARG FEATURES
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --locked --no-default-features --features ${FEATURES} --recipe-path recipe.json
 
-# Build the application binary.
-#
-# The anonymous telemetry key is a BuildKit secret rather than a build arg so
-# it never lands in the image metadata. A build without it (a local build, a
-# fork) compiles a binary whose telemetry is off and says so at startup.
+# Build the application binary. No telemetry key: the BugLenz fork removed
+# the anonymous usage report (ADR-0004), so nothing is baked in at build time.
 COPY . .
-RUN --mount=type=secret,id=rustrak_telemetry_key \
-    RUSTRAK_TELEMETRY_KEY="$(cat /run/secrets/rustrak_telemetry_key 2>/dev/null || true)" \
-    cargo build --release --locked --no-default-features --features ${FEATURES}
+RUN cargo build --release --locked --no-default-features --features ${FEATURES}
 
 # Create /data directories for SQLite storage and source map storage
 RUN mkdir -p /data /data/sourcemaps && chown -R 65532:65532 /data

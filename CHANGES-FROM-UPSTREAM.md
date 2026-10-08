@@ -7,9 +7,30 @@ arquivo é derivado dele e atualizado no mesmo commit.
 
 ## Comportamento
 
-Nenhuma mudança. O servidor, o dashboard e os pacotes `@rustrak/*` são, byte a byte, os da
-tag base. Nenhum arquivo em `apps/*/src`, `packages/*/src` ou `apps/server/migrations`
-foi tocado.
+### Telemetria e checagem de versão removidas (pacote 002, ADR-0004)
+
+A instância não inicia nenhuma conexão por conta própria (CONSTITUTION I3). O que mudou em
+relação ao upstream, visível para quem opera:
+
+- O relatório anônimo para `us.i.posthog.com` **não existe mais no código**. Não há chave a
+  compilar, nem switch: `RUSTRAK_TELEMETRY` e `DO_NOT_TRACK` são ignoradas se estiverem no
+  ambiente. O log de boot não fala em telemetria.
+- `GET /api/telemetry/preview` responde `404`, como qualquer rota inexistente sob `/api`.
+- O dashboard não consulta `rustrak.github.io/rustrak/versions.json` e não mostra aviso de nova
+  versão. O switch de build `VITE_RUSTRAK_VERSION_CHECK_ENABLED` não é lido.
+- `/metrics` (Prometheus, `RUSTRAK_METRICS=on`) e os contadores que o alimentam continuam
+  iguais aos da `v0.16.0`.
+- A coluna `installation.telemetry_id` continua no schema, sem uso; migrations não mudam.
+- O workflow `network-conformance.yml` verifica, a cada PR e push, que nenhum token de
+  `scripts/egress-denylist.txt` aparece no código, no binário ou no bundle, e que o servidor,
+  rodando sob bloqueio de saída, não tenta nenhuma conexão.
+
+A documentação do upstream (`README.md` §Telemetry, `apps/docs/content/configuration/telemetry.mdx`,
+`upgrading/0-15.mdx`) continua descrevendo o recurso; ela não se aplica a este fork e não foi
+editada (a marca e os textos são do pacote 007).
+
+Fora disso, o servidor, o dashboard e os pacotes `@rustrak/*` são os da tag base. Nenhuma
+migration foi tocada.
 
 ## Conformidade de licença
 

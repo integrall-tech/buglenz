@@ -307,10 +307,6 @@ mod tests {
                 enabled: true,
                 url: None,
             },
-            telemetry: crate::config::TelemetryConfig {
-                enabled: false,
-                do_not_track: false,
-            },
         }
     }
 

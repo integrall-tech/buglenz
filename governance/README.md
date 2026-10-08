@@ -1,6 +1,6 @@
 # BugLenz — corpus de governança
 
-**Versão:** 0.8 · **Data:** 2026-10-07 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1)) · **Base sincronizada para `v0.16.0`** (PR #3) · **Pacote 002 detalhado**
+**Versão:** 0.9 · **Data:** 2026-10-08 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1)) · **Base sincronizada para `v0.16.0`** (PR #3) · **Pacote 002 executado**
 
 Especificação do **BugLenz**: migração do [Rustrak](https://github.com/rustrak/rustrak) `v0.15.2` para um fork
 governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes OpenSpec).
@@ -20,7 +20,7 @@ governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes 
 | `openspec/016-symbolication-mobile/` | Stack trace legível para Android, iOS e Flutter ofuscado |
 | `openspec/007-rebrand-buglenz/` | Rebrand Rustrak → BugLenz por sobreposição no build |
 | `openspec/001-bootstrap-do-fork/` | Primeiro pacote, **executado em 2026-10-07**; T3 pendente (D10) |
-| `openspec/002-remocao-de-egress/` | Remoção da telemetria e da checagem de versão; teste de conformidade de rede. Detalhado sobre a `v0.16.0`, pronto para execução |
+| `openspec/002-remocao-de-egress/` | Remoção da telemetria e da checagem de versão; teste de conformidade de rede. **Executado em 2026-10-08** sobre a `v0.16.0` (PR #4) |
 | `PROMPT-CLAUDE-CODE.md` | Prompt de início para o Claude Code executar o pacote 001 |
 
 O repositório do fork é `integrall-tech/buglenz` (privado). Este corpus vive nele em `governance/`,
@@ -64,6 +64,8 @@ junto com `governance/baseline/001.md` (baseline medida) e `governance/tools/` (
 
 ## Mudanças
 
+- **0.9:** pacote 002 executado; `design.md` do 002 ganha a seção 9 com o que a execução revelou;
+  spec do 002 ajustada (corpo do 404). Baseline em `governance/baseline/002.md`.
 - **0.8:** D5 fechada; primeiro ciclo do ADR-0005 (`v0.15.2` → `v0.16.0`, sem conflito); pacote
   002 detalhado sobre a `v0.16.0`; ADR-0004 e ADR-0012 corrigidos quanto à procedência do
   `/metrics` (existe a partir da `v0.16.0`, não na `v0.15.2`); **correção do achado A5 da 0.7**:

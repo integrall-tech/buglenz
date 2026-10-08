@@ -25,7 +25,7 @@
 **THEN** ele inicia normalmente e o log de boot não contém a palavra `telemetry` em nenhuma grafia
 
 **WHEN** um administrador autenticado chama `GET /api/telemetry/preview`
-**THEN** a resposta é `404` com corpo JSON de erro, como qualquer rota inexistente sob `/api`
+**THEN** a resposta é `404`, como qualquer rota inexistente: com corpo JSON de erro quando o dashboard está montado (fallback de `API_PREFIXES`), vazia na API pura
 
 **WHEN** o servidor sobe com `RUSTRAK_METRICS=on` e recebe um envelope de evento válido
 **THEN** `GET /metrics` responde `200` e contém `rustrak_ingest_accepted_total` com valor ≥ 1

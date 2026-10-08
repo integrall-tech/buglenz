@@ -13,8 +13,9 @@ Regras (CONSTITUTION I1, ADR-0002, ADR-0005):
 - Em cada sincronização com o upstream, conflito fora dos arquivos listados aqui é erro do
   manifesto e é corrigido no mesmo PR.
 
-Verificação: `git diff --name-only <tag-base> main` deve ser um subconjunto da coluna
-"Arquivo" (expandindo `governance/**`).
+Verificação: cada arquivo de `git diff --name-only <tag-base> main` deve aparecer, com caminho
+completo ou pelo diretório pai nomeado na linha, na coluna "Arquivo" (expandindo `governance/**`).
+Arquivos de um mesmo diretório podem ser agrupados em uma linha desde que o diretório esteja escrito.
 
 ## Zonas
 
@@ -40,6 +41,21 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `.github/workflows/deploy-docs.yml` | G | 0002 | Removido. Publicava o site de documentação do upstream no GitHub Pages |
 | `.github/FUNDING.yml` | G | 0002 | Removido. Patrocínio do autor original (GitHub Sponsors) não se aplica ao repositório privado |
 | `THIRD-PARTY-LICENSES.md` | G | 0003 | Novo. Inventário de licenças das dependências Rust e JavaScript; gerado por `governance/tools/third-party-licenses.py` |
+| `apps/server/src/telemetry/posthog.rs`, `apps/server/src/telemetry/reporter.rs`, `apps/server/src/telemetry/report.rs`, `apps/server/src/telemetry/identity.rs`, `apps/server/src/telemetry/volume.rs`, `apps/server/src/telemetry/resources.rs` | G | 0004 | Removidos. Repórter de telemetria anônima: sink PostHog, agendador, relatório, identidade da instância, volume, amostragem de recursos |
+| `apps/server/src/telemetry/mod.rs` | G | 0004 | Alterado. Só declara `counters` e `metrics`; mantém `install_panic_hook`, `own_location`, `major_minor` |
+| `apps/server/src/routes/telemetry.rs` | G | 0004 | Removido. `GET /api/telemetry/preview` |
+| `apps/server/src/routes/mod.rs`, `apps/server/src/openapi.rs`, `apps/server/src/main.rs` | G | 0004 | Alterados. Pontos de ligação do repórter e da rota removidos |
+| `apps/server/src/config.rs` | G | 0004 | Alterado. `TelemetryConfig` (`RUSTRAK_TELEMETRY`, `DO_NOT_TRACK`) e `ConfigError::InvalidTelemetrySwitch` removidos |
+| `apps/server/src/routes/projects.rs` | G | 0004 | Alterado. Só o módulo `#[cfg(test)]`: fixture de `Config` sem o campo `telemetry` |
+| `apps/server/openapi.json` | G | 0004 | Regenerado com `gen_openapi`; perde `/api/telemetry/preview` e `TelemetryPreview` |
+| `apps/server/Dockerfile` | B | 0004 | Alterado. Sem o segredo de build `rustrak_telemetry_key` |
+| `apps/server/.env.example`, `docker-compose.yml`, `docker-compose.postgres.yml` | B | 0004 | Alterados. Linhas de `RUSTRAK_TELEMETRY`/`DO_NOT_TRACK` removidas |
+| `apps/server/tests/common/telemetry.rs` | G | 0004 | Removido. Fixture do relatório |
+| `apps/server/tests/common/mod.rs`, `apps/server/tests/unit/telemetry_test.rs`, `apps/server/tests/unit/config_test.rs`, `apps/server/tests/integration/telemetry_test.rs` | G | 0004 | Alterados. Testes do repórter, do sink, da identidade, do volume, da prévia e das variáveis removidos; testes de `Counters` mantidos |
+| `apps/server/tests/e2e/sentry_sdk_test.rs` e, em `apps/server/tests/integration/`: `agents_api_test.rs`, `alerts_api_test.rs`, `auth_test.rs`, `envelope_v2_test.rs`, `events_api_test.rs`, `field_errors_test.rs`, `ingest_test.rs`, `issues_api_test.rs`, `logs_api_test.rs`, `projects_api_test.rs`, `rate_limit_test.rs`, `releases_api_test.rs`, `sourcemaps_api_test.rs`, `span_v2_ingest_test.rs`, `spans_api_test.rs`, `storage_api_test.rs`, `team_rbac_test.rs`, `tokens_api_test.rs`, `transactions_api_test.rs` | G | 0004 | Alterados. Fixture de `Config` sem o campo `telemetry` (4 linhas cada) |
+| `apps/dashboard/src/shared/api/version-check.ts`, `apps/dashboard/src/shared/ui/components/update-banner-slot.tsx` | A | 0004 | Removidos. Checagem de versão em `rustrak.github.io` e o aviso de atualização |
+| `apps/dashboard/src/routes/_authenticated.tsx` | A | 0004 | Alterado. Sem o `<UpdateBannerSlot />` (2 linhas) |
+| `.github/workflows/network-conformance.yml`, `scripts/network-conformance.sh`, `scripts/egress-denylist.txt` | G | 0004 | Novos. Teste de conformidade de rede: camada estática e servidor sob bloqueio de saída |
 | `governance/**` | G | 0001, 0002 | Novo. Corpus de governança: CONSTITUTION, GAP-ANALYSIS, `adr/`, `rfc/`, `openspec/`, `baseline/`, `tools/` |
 
 ## Histórico de bases
@@ -48,3 +64,4 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 |---|---|---|
 | 2026-10-07 | `v0.15.2` (`ff75852c`) | 001 bootstrap |
 | 2026-10-07 | `v0.16.0` (`4dbe5ce7`) | sync/2026-10-07, primeiro ciclo do ADR-0005; merge sem conflito |
+| 2026-10-07 | `v0.16.0` (`4dbe5ce7`) | 002 remoção de egress |

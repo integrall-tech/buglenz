@@ -9,7 +9,6 @@ import { session } from '@/shared/api/session';
 import { Link } from '@/shared/ui/components/link';
 import { OutageScreen } from '@/shared/ui/components/outage-screen';
 import { Button } from '@/shared/ui/components/shadcn/button';
-import { UpdateBannerSlot } from '@/shared/ui/components/update-banner-slot';
 import { CommandBarSlot } from './_authenticated/-components/command-bar-slot';
 
 /**
@@ -68,8 +67,6 @@ function AuthenticatedLayout() {
       <main className="flex-1">
         <Outlet />
       </main>
-      {/* Fixed-positioned, so arriving late shifts nothing. */}
-      <UpdateBannerSlot />
     </div>
   );
 }

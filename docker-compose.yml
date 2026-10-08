@@ -20,8 +20,6 @@ services:
       # The address people and SDKs reach, e.g. https://rustrak.example.com.
       # Without it the DSN carries the bind address, which nothing can reach.
       - PUBLIC_URL=${PUBLIC_URL:-}
-      # Anonymous telemetry is on by default. Uncomment to turn it off.
-      # - RUSTRAK_TELEMETRY=off
       # /metrics is unauthenticated. Restrict access before setting this to on.
       - RUSTRAK_METRICS=${RUSTRAK_METRICS:-off}
       - OIDC_ISSUER_URL=${OIDC_ISSUER_URL:-}
