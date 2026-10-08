@@ -1,0 +1,115 @@
+# End-to-end check with a real browser SDK (BugLenz fork; ADR-0005 step 6,
+# ADR-0011, OpenSpec 006).
+#
+# The server under test receives, from headless Chromium, what a minified
+# React 19 app with the official @sentry/react SDK sends: four errors, source
+# maps uploaded by @sentry/vite-plugin, and the session updates. The
+# assertions read the server's API: three issues, source-mapped frames and a
+# release health that counts the `unhandled` session. It fails the moment a
+# sync loses the session-status fix, and it is how an SDK version gets
+# homologated (ADR-0011). Script: scripts/e2e-react-assert.sh.
+name: E2E React
+
+on:
+  pull_request:
+  push:
+    branches: [main, next, "sync/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-react-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: "0"
+  CARGO_PROFILE_DEV_DEBUG: "line-tables-only"
+  BASE: http://127.0.0.1:8080
+  ADMIN_EMAIL: e2e-admin@example.com
+  ADMIN_PASSWORD: e2e-password-123456
+
+jobs:
+  e2e-react:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions-rust-lang/setup-rust-toolchain@ecabd13d1c56bd1345c230e542e9144811ad706f # v2.0.0
+        with:
+          cache-save-if: ${{ github.event_name == 'push' }}
+
+      - name: Build the server (SQLite, debug)
+        working-directory: apps/server
+        run: cargo build --locked
+
+      - name: Start the server
+        run: |
+          mkdir -p "$RUNNER_TEMP/e2e/ingest" "$RUNNER_TEMP/e2e/sourcemaps"
+          HOST=127.0.0.1 PORT=8080 \
+          DATABASE_URL="sqlite://$RUNNER_TEMP/e2e/rustrak.db?mode=rwc" \
+          INGEST_DIR="$RUNNER_TEMP/e2e/ingest" SOURCEMAP_STORAGE_PATH="$RUNNER_TEMP/e2e/sourcemaps" \
+          SESSION_SECRET_KEY="$(openssl rand -hex 32)" CREATE_SUPERUSER="$ADMIN_EMAIL:$ADMIN_PASSWORD" \
+          RUSTRAK_DASHBOARD=off SESSION_FLUSH_INTERVAL_SECS=2 RUST_LOG=info \
+          nohup apps/server/target/debug/rustrak > "$RUNNER_TEMP/e2e/server.log" 2>&1 &
+          for i in $(seq 1 60); do curl -sf -o /dev/null "$BASE/health" && break; sleep 1; done
+          curl -sf -o /dev/null "$BASE/health" || { cat "$RUNNER_TEMP/e2e/server.log"; exit 1; }
+
+      - name: Provision a project and an API token
+        id: provision
+        run: |
+          jar=$(mktemp)
+          curl -sSf -c "$jar" -H 'Content-Type: application/json' \
+            -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\"}" "$BASE/auth/login" > /dev/null
+          project=$(curl -sSf -b "$jar" -H 'Content-Type: application/json' \
+            -d '{"name":"e2e-react","platform":"javascript-react"}' "$BASE/api/projects")
+          token=$(curl -sSf -b "$jar" -H 'Content-Type: application/json' \
+            -d '{"description":"e2e-react"}' "$BASE/api/tokens" | python3 -c 'import json,sys; print(json.load(sys.stdin)["token"])')
+          echo "::add-mask::$token"
+          {
+            echo "project_id=$(printf '%s' "$project" | python3 -c 'import json,sys; print(json.load(sys.stdin)["id"])')"
+            echo "project_slug=$(printf '%s' "$project" | python3 -c 'import json,sys; print(json.load(sys.stdin)["slug"])')"
+            echo "dsn=$(printf '%s' "$project" | python3 -c 'import json,sys; print(json.load(sys.stdin)["dsn"])')"
+            echo "token=$token"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Install the app (standalone, outside the workspace)
+        working-directory: e2e/react-app
+        run: pnpm install --frozen-lockfile
+
+      - name: Build the app and upload its source maps to the server
+        working-directory: e2e/react-app
+        env:
+          VITE_SENTRY_DSN: ${{ steps.provision.outputs.dsn }}
+          SENTRY_URL: ${{ env.BASE }}
+          SENTRY_AUTH_TOKEN: ${{ steps.provision.outputs.token }}
+          SENTRY_PROJECT: ${{ steps.provision.outputs.project_slug }}
+        run: pnpm build
+
+      - name: Fire the errors from headless Chromium
+        working-directory: e2e/react-app
+        run: |
+          pnpm exec playwright install --with-deps chromium
+          pnpm preview > "$RUNNER_TEMP/e2e/preview.log" 2>&1 &
+          for i in $(seq 1 30); do curl -sf -o /dev/null http://127.0.0.1:4173/ && break; sleep 1; done
+          node run.mjs http://127.0.0.1:4173/
+
+      - name: Assert through the API
+        env:
+          TOKEN: ${{ steps.provision.outputs.token }}
+          PROJECT_ID: ${{ steps.provision.outputs.project_id }}
+        run: scripts/e2e-react-assert.sh
+
+      - name: Server log
+        if: always()
+        run: cat "$RUNNER_TEMP/e2e/server.log" | tail -80
