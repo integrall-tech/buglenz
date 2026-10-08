@@ -28,7 +28,7 @@ acontece com a instância em produção (C). Nada em C é iniciado antes de B es
 
 ## Flutter (consequência do piloto)
 
-- [x] T15. Gravar o SDK Dart contra a instância (`governance/baseline/009-dart.md`): aceito, frames legíveis, scrub ok. **`sentry_flutter` em dispositivo: não feito** (licenças do Android SDK, Xcode incompleto)
-- [ ] T16. Wrapper Flutter no `buglenz-sdk` (`buglenz_flutter`): `release` `<app>@<versão>`, sem PII por padrão, `beforeSend` e `beforeBreadcrumb` com a lista compartilhada de chaves e as máscaras de texto (vetores compartilhados), testes
+- [x] T15. Gravar o SDK Dart e o `sentry_flutter` contra a instância: `governance/baseline/009-dart.md` (Dart) e `009-flutter.md` (Android real: debug, release, release ofuscado, crash). iOS não verificado
+- [x] T16. (feito em 2026-10-08, `buglenz-sdk/flutter`, 55 testes) Wrapper Flutter no `buglenz-sdk` (`buglenz_flutter`): `release` `<app>@<versão>`, sem PII por padrão, `beforeSend` e `beforeBreadcrumb` com a lista compartilhada de chaves e as máscaras de texto (vetores compartilhados), testes
 - [ ] T17. Teste de contrato do Flutter (Dart contra a imagem publicada) e linha na `docs/matriz.md`; o `recorder.py` do contrato precisa ler requisições *chunked*
-- [ ] T18. **(decisão D3/G17)** Ofuscação e crashes nativos no piloto: se sim, pacote 016
+- [ ] T18. **(decisão D3/G17)** O app é ofuscado e crash nativo importa (respondido). Escolher: release do piloto sem `--obfuscate`/`--split-debug-info` (opção 1, recomendada) ou construir a symbolication (opção 2, pacote 016). Evidência em `baseline/009-flutter.md`
