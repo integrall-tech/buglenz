@@ -5,7 +5,7 @@ use actix_web::{web, HttpResponse};
 use crate::auth::ApiActor;
 use crate::db::DbPool;
 use crate::error::{AppError, AppResult};
-use crate::services::privacy::{Erasure, PrivacyService};
+use crate::services::privacy::PrivacyService;
 
 #[cfg_attr(feature = "openapi", utoipa::path(
     delete,
@@ -16,7 +16,7 @@ use crate::services::privacy::{Erasure, PrivacyService};
         ("user_id" = String, Path, description = "The SDK's `user.id`, compared as an exact string"),
     ),
     responses(
-        (status = 200, description = "How many events and transactions were erased", body = Erasure),
+        (status = 200, description = "How many events and transactions were erased", body = crate::services::privacy::Erasure),
         (status = 401, description = "Unauthorized", body = crate::error::ErrorResponse),
         (status = 403, description = "Forbidden", body = crate::error::ErrorResponse),
         (status = 404, description = "Project not found", body = crate::error::ErrorResponse),
