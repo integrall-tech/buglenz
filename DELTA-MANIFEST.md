@@ -72,6 +72,9 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `apps/server/src/digest/processors/event.rs`, `apps/server/src/digest/processors/transaction.rs`, `apps/server/src/digest/processors/logs.rs`, `apps/server/src/digest/processors/span.rs`, `apps/server/src/digest/processors/span_v2.rs` | G | 0009 | Alterados (005). Chamada ao `scrub` antes de agrupar e persistir; `events.remote_addr` nunca gravado |
 | `apps/server/tests/integration/scrub_test.rs`, `apps/server/tests/integration/mod.rs` | G | 0009 | Novo / registro (005) |
 | `apps/server/tests/integration/digest_test.rs` | G | 0009 | Alterado (005). Expectativa de `test_list_stats_counts_by_email_when_id_is_absent`: com e-mails mascarados, eventos sem `user.id` contam como um usuário |
+| `apps/server/src/services/privacy.rs`, `apps/server/src/routes/privacy.rs` | G | 0009 | Novos (005). Exclusão por titular: `DELETE /api/projects/{id}/privacy/users/{user_id}` (admin), contadores de issue e projeto ajustados |
+| `apps/server/src/services/mod.rs`, `apps/server/src/routes/mod.rs`, `apps/server/src/main.rs`, `apps/server/src/openapi.rs`, `apps/server/openapi.json` | G | 0009 | Registro da rota e do schema (005); `openapi.json` regenerado |
+| `apps/server/tests/integration/privacy_test.rs` | G | 0009 | Novo (005) |
 | `governance/**` | G | 0001, 0002 | Novo. Corpus de governança: CONSTITUTION, GAP-ANALYSIS, `adr/`, `rfc/`, `openspec/`, `baseline/`, `tools/` |
 
 ## Histórico de bases

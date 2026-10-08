@@ -11,6 +11,7 @@ pub mod logs;
 pub mod members;
 pub mod metrics;
 pub mod period;
+pub mod privacy;
 pub mod projects;
 pub mod releases;
 pub mod sessions;

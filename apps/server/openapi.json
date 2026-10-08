@@ -4911,6 +4911,83 @@
         ]
       }
     },
+    "/api/projects/{project_id}/privacy/users/{user_id}": {
+      "delete": {
+        "tags": [
+          "Privacy"
+        ],
+        "summary": "DELETE /api/projects/{project_id}/privacy/users/{user_id}",
+        "operationId": "erase_user",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "Project ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "The SDK's `user.id`, compared as an exact string",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "How many events and transactions were erased",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Erasure"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
     "/api/projects/{project_id}/releases/{release}/new-issues": {
       "get": {
         "tags": [
@@ -9013,6 +9090,24 @@
           },
           "password": {
             "type": "string"
+          }
+        }
+      },
+      "Erasure": {
+        "type": "object",
+        "description": "What one erasure removed.",
+        "required": [
+          "events",
+          "transactions"
+        ],
+        "properties": {
+          "events": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "transactions": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
