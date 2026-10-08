@@ -43,6 +43,11 @@ impl UserRole {
     }
 }
 
+/// Argon2id hash of a password nobody knows, made with the default parameters: the work an
+/// unknown email must still do. Regenerate it if the default parameters ever change.
+const DUMMY_PASSWORD_HASH: &str =
+    "$argon2id$v=19$m=19456,t=2,p=1$fF/gO3dd87wmFEj8MXsq0g$4dtVVEvzoHiNt5tzZ/GunF/hzqXlvcqJQH9BRyk5P1E";
+
 #[derive(Debug, Clone, FromRow, Serialize)]
 pub struct User {
     pub id: i32,
@@ -99,6 +104,32 @@ impl User {
             .hash_password(password.as_bytes())
             .map_err(|e| AppError::Internal(format!("Password hashing failed: {}", e)))?;
         Ok(hash.to_string())
+    }
+
+    /// Upper bound on a password, in bytes. Argon2 reads all of it: without a cap a single
+    /// request can make the server hash megabytes (ADR-0018). There is deliberately no lower
+    /// bound here; that is a policy choice, not a protection against abuse.
+    pub const MAX_PASSWORD_BYTES: usize = 1024;
+
+    /// Rejects a password above [`Self::MAX_PASSWORD_BYTES`] before any database or Argon2 work.
+    pub fn check_password_length(password: &str) -> Result<(), AppError> {
+        if password.len() > Self::MAX_PASSWORD_BYTES {
+            return Err(AppError::Validation(format!(
+                "Password must not exceed {} characters",
+                Self::MAX_PASSWORD_BYTES
+            )));
+        }
+        Ok(())
+    }
+
+    /// Runs the same Argon2 verification a real account would cost, against a fixed hash made
+    /// with the default parameters, so that an unknown email answers as slowly as a wrong
+    /// password (ADR-0018, H-1). Always `false`; it never grants access.
+    pub fn run_dummy_password_verify(password: &str) -> bool {
+        if let Ok(parsed) = PasswordHash::new(DUMMY_PASSWORD_HASH) {
+            let _ = Argon2::default().verify_password(password.as_bytes(), &parsed);
+        }
+        false
     }
 
     /// Verify a password against the stored hash

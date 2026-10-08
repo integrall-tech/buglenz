@@ -258,6 +258,9 @@ impl UsersService {
         password: &str,
     ) -> AppResult<User> {
         let invalid = || AppError::Unauthorized("Invalid credentials".to_string());
+        if password.len() > User::MAX_PASSWORD_BYTES {
+            return Err(invalid());
+        }
         let user = Self::get_by_id(pool, user_id).await?.ok_or_else(invalid)?;
         if !user.is_active {
             return Err(AppError::Unauthorized("Account is disabled".to_string()));
@@ -484,11 +487,16 @@ impl UsersService {
         current_password: &str,
         new_password: &str,
     ) -> AppResult<()> {
-        // Same rule as accepting an invitation: required, no length policy.
+        // Same rule as accepting an invitation: required, no minimum, and an upper bound
+        // (ADR-0018, H-2).
         if new_password.is_empty() {
             return Err(AppError::Validation("New password is required".to_string())
                 .with_field("new_password", FieldErrorCode::Required));
         }
+        User::check_password_length(new_password)
+            .map_err(|e| e.with_field("new_password", FieldErrorCode::TooLong))?;
+        User::check_password_length(current_password)
+            .map_err(|e| e.with_field("current_password", FieldErrorCode::TooLong))?;
 
         let user_id = user.id;
         let verified_hash = user.password_hash.clone();

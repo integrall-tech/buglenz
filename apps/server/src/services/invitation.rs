@@ -120,11 +120,13 @@ impl InvitationService {
             ));
         }
 
-        // No length policy — accounts created via invitation use the same rule as
-        // login (password is simply required, not length-restricted).
+        // No minimum length — accounts created via invitation use the same rule as login
+        // (password is simply required). The upper bound is the protection against hashing
+        // megabytes (ADR-0018, H-2).
         if password.is_empty() {
             return Err(AppError::Validation("Password is required".to_string()));
         }
+        User::check_password_length(password)?;
 
         // An invitation from before email normalization can name a case
         // variant of an existing account.

@@ -1,6 +1,7 @@
 use actix_web::{web, HttpRequest, HttpResponse};
-use bytes::Bytes;
+use bytes::{Bytes, BytesMut};
 use chrono::Utc;
+use futures_util::StreamExt as _;
 use sha2::{Digest as _, Sha256};
 
 use crate::auth::SentryAuth;
@@ -35,6 +36,23 @@ fn validate_event_json(payload: &[u8]) -> AppResult<()> {
     Ok(())
 }
 
+/// Collects a request body up to [`MAX_COMPRESSED_SIZE`] bytes.
+async fn read_limited(mut payload: web::Payload) -> AppResult<Bytes> {
+    let mut buf = BytesMut::new();
+    while let Some(chunk) = payload.next().await {
+        let chunk = chunk
+            .map_err(|e| AppError::Validation(format!("Could not read the request body: {e}")))?;
+        if buf.len() + chunk.len() > MAX_COMPRESSED_SIZE {
+            return Err(AppError::PayloadTooLarge(format!(
+                "Request body exceeds the {} byte limit",
+                MAX_COMPRESSED_SIZE
+            )));
+        }
+        buf.extend_from_slice(&chunk);
+    }
+    Ok(buf.freeze())
+}
+
 /// POST /api/{project_id}/envelope/
 /// Main ingestion endpoint compatible with Sentry SDK
 pub async fn ingest_envelope(
@@ -42,9 +60,13 @@ pub async fn ingest_envelope(
     config: web::Data<Config>,
     req: HttpRequest,
     auth: SentryAuth,
-    body: Bytes,
+    payload: web::Payload,
     processors: web::Data<Processors>,
 ) -> AppResult<HttpResponse> {
+    // Read the body here, with the cap, so an oversized one is a JSON 413 like every other
+    // error instead of the framework's plain-text answer (ADR-0018, M-1).
+    let body = read_limited(payload).await?;
+
     // 0. Check rate limits (fail fast before processing)
     if let Some(exceeded) =
         RateLimitService::check_quota(pool.get_ref(), &auth.project, &config.rate_limit).await?
