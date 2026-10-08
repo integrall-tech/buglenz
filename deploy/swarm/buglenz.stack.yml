@@ -1,0 +1,111 @@
+# BugLenz on Docker Swarm, behind Traefik (ADR-0012).
+#
+# One server replica (the ingest spool is local to the process), PostgreSQL
+# alongside it, the dashboard served by the server itself. Nothing in this
+# file is specific to an instance: hosts, passwords and keys come from the
+# operator's environment at `docker stack deploy` time. See README.md.
+#
+#   set -a; source buglenz.env; set +a
+#   docker stack deploy -c buglenz.stack.yml buglenz
+#
+# Required variables (the `:?` forms fail the deploy when unset; keep their
+# messages free of `-`, which Compose misparses): BUGLENZ_TAG (e.g.
+# v0.16.0-itl.2), BUGLENZ_HOST, POSTGRES_PASSWORD (openssl rand -hex 16),
+# SESSION_SECRET_KEY (openssl rand -hex 32). Optional: CREATE_SUPERUSER (first deploy only),
+# TRAEFIK_NETWORK (default traefik), TRAEFIK_CERTRESOLVER (default letsencrypt),
+# RUST_LOG (default info).
+
+services:
+  server:
+    image: ghcr.io/integrall-tech/buglenz-server:${BUGLENZ_TAG:?BUGLENZ_TAG}
+    environment:
+      DATABASE_URL: postgres://buglenz:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD}@postgres:5432/buglenz
+      SESSION_SECRET_KEY: ${SESSION_SECRET_KEY:?SESSION_SECRET_KEY}
+      # Only for the first deploy; remove from the environment afterwards.
+      CREATE_SUPERUSER: ${CREATE_SUPERUSER:-}
+      # The address SDKs and people reach: it goes into every DSN.
+      PUBLIC_URL: https://${BUGLENZ_HOST:?BUGLENZ_HOST}
+      SSL_PROXY: "true"
+      # Prometheus on /metrics, reachable only on the internal network (see
+      # the Traefik router below, which never publishes it).
+      RUSTRAK_METRICS: "on"
+      # Inside the /data volume, so accepted-but-undigested events survive a
+      # container recreation (the image sets the same default).
+      INGEST_DIR: /data/ingest
+      SOURCEMAP_STORAGE_PATH: /data/sourcemaps
+      RUST_LOG: ${RUST_LOG:-info}
+    volumes:
+      - buglenz_data:/data
+    networks:
+      - internal
+      - traefik
+    deploy:
+      replicas: 1
+      # Two replicas never run at once: each has its own spool under /data,
+      # and the old one must drain before the new one takes over.
+      update_config:
+        order: stop-first
+        failure_action: rollback
+      rollback_config:
+        order: stop-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
+      labels:
+        traefik.enable: "true"
+        traefik.docker.network: ${TRAEFIK_NETWORK:-traefik}
+        # Everything but /metrics, on the public host, over TLS.
+        traefik.http.routers.buglenz.rule: Host(`${BUGLENZ_HOST}`) && !PathPrefix(`/metrics`)
+        traefik.http.routers.buglenz.entrypoints: websecure
+        traefik.http.routers.buglenz.tls: "true"
+        traefik.http.routers.buglenz.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-letsencrypt}
+        traefik.http.routers.buglenz.middlewares: buglenz-body,buglenz-ratelimit
+        traefik.http.services.buglenz.loadbalancer.server.port: "8080"
+        # Second barrier behind the server's own limits: envelopes above 20 MB
+        # are refused at the edge; the SDK retries nothing.
+        traefik.http.middlewares.buglenz-body.buffering.maxRequestBodyBytes: "20971520"
+        traefik.http.middlewares.buglenz-ratelimit.ratelimit.average: "200"
+        traefik.http.middlewares.buglenz-ratelimit.ratelimit.burst: "400"
+    healthcheck:
+      disable: true # distroless image, no shell; Traefik and the scrape watch /health
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: buglenz
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: buglenz
+    volumes:
+      - buglenz_pg:/var/lib/postgresql/data
+    networks:
+      - internal
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          memory: 1G
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U buglenz -d buglenz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  buglenz_data:
+  buglenz_pg:
+
+networks:
+  internal:
+    driver: overlay
+    # Scrape and log collectors join this network to reach server:8080/metrics.
+    attachable: true
+  traefik:
+    external: true
+    name: ${TRAEFIK_NETWORK:-traefik}
