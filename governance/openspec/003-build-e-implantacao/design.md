@@ -148,3 +148,27 @@ de um evento pelo `@rustrak/test-sentry`.
 - Painel Grafana (`rustrak_ingest_*`, `rustrak_spool_pending`, `rustrak_http_*`) e alertas: entram
   quando a forma de scrape estiver definida; JSON em `deploy/grafana/`.
 - D4 e D8: implantação da instância interna.
+
+## 8. O que a execução revelou (2026-10-08) [confirmado]
+
+- `${VAR:?mensagem}` no Compose/Swarm não aceita `-` na mensagem: `${BUGLENZ_TAG:?e.g. v0.16.0-itl.2}`
+  virou a tag `itl.2`. Mensagens só com o nome da variável; `docker stack config -c` como validação.
+- Com `SSL_PROXY=true` a cookie de sessão é `Secure`: `provision.sh` só funciona pelo host HTTPS
+  (Traefik). O teste local usou um override com `SSL_PROXY=false`.
+- O `release-image.yml` em PR (build sem push) leva **9 min 23 s** em `amd64`; o passo de resumo
+  falhou uma vez por `[ -n "$DIGEST" ] && echo` sob `bash -e` quando não há digest.
+- `git describe` não encontrou tags no runner mesmo com `fetch-tags: true`; o gerador de licenças
+  lê a base do `DELTA-MANIFEST.md`. `pnpm -r licenses list` em Linux: 1.270 pacotes (macOS: 1.271).
+- Imagem local `arm64`: 19,9 MB de conteúdo, binário release de 19,9 MB. Rótulos OCI só na CI
+  (o build local não os passa).
+- No colima, a porta de ingress do Swarm não chega ao host; os testes rodaram por um container na
+  rede `buglenz_internal`. Volumes do repositório fora de `$HOME` não são montáveis no colima:
+  scripts entraram no container por `stdin`.
+- As primeiras tarefas do servidor falham até o PostgreSQL responder; `restart_policy` resolve em
+  segundos. Um `depends_on` com `condition` não existe em Swarm.
+- Backup + restauração: 13 KB de dump para uma instância vazia com um evento; o fluxo completo
+  (parar, recriar banco, restaurar, repor volume, religar) levou menos de 1 min.
+- Desvios do `tasks.md`: T6 usou a imagem construída localmente (a publicada só existe após o
+  merge) e enviou o evento com `curl` (envelope mínimo), não com `@rustrak/test-sentry`; a spec
+  de ingestão foi satisfeita do mesmo modo. A regra do Traefik foi validada só por `docker stack
+  config`, sem Traefik real.
