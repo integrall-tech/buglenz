@@ -71,19 +71,20 @@ O painel já tem canal por integração. O **Mattermost** recebe webhook de entr
 
 - **Release ofuscado chega ilegível**: tipo `nz`, frames só com endereço. O **release sem ofuscação chega
   legível** e agrupa entre versões. Hoje a instância não traduz símbolos.
-- **O app é ofuscado, então há uma decisão a tomar antes do piloto (T18):**
+- **A ofuscação é escolha de quem cria cada app (decisão do Edson em 2026-10-08), não uma regra da instância.**
+  O BugLenz precisa suportar os dois caminhos; o guia de onboarding explica a escolha e o que cada uma mostra:
 
-| Opção | Custo | Efeito |
+| Caminho | Custo | Efeito |
 |---|---|---|
-| **1. Compilar o release do piloto sem `--obfuscate` e sem `--split-debug-info`** | zero no servidor; o APK/AAB cresce poucos MB e fica mais fácil de engenharia reversa | stack trace legível desde o primeiro dia; **recomendada para o piloto** |
-| **2. Manter a ofuscação e construir a symbolication (pacote 016)** | grande: receber os `.symbols` por `debug_id`, traduzir endereços e nomes ofuscados, e depois o `mapping.txt` do R8 | tudo legível, com o app protegido; só quando o piloto justificar |
+| **Sem `--obfuscate` e sem `--split-debug-info`** | zero no servidor; pacote poucos MB maior e mais fácil de engenharia reversa | stack trace legível desde o primeiro dia; **o que o piloto usa agora** (pelo menos em `homolog`) |
+| **Com ofuscação** | exige a symbolication no servidor (pacote 016): receber os `.symbols` por `debug_id`, traduzir endereços e nomes ofuscados e, no Android, o `mapping.txt` do R8 | tudo legível com o app protegido; **capacidade futura**, para os apps que a exigirem |
 
-  A escolha é do Edson. Sem a opção 1 ou 2, os erros do Flutter em produção são inúteis.
+  Quem ofusca deve **guardar os símbolos de cada build** (CI), porque serão eles a traduzir os erros antigos
+  quando a symbolication existir. Por ambiente também vale: `homolog` sem ofuscação, `production` à escolha do app.
 
 ## O que ainda falta de você
 
-1. **A decisão acima (T18):** opção 1 ou 2.
-2. **Instância de produção:** D4 (onde roda), host do DSN (`errors.buglenz.dev` proposto) e a credencial do GHCR
+1. **Instância de produção:** D4 (onde roda), host do DSN (`errors.buglenz.dev` proposto) e a credencial do GHCR
    nos nós. É o que ainda impede o piloto de ir ao ar.
-3. Confirmar que **a versão também vem da tag do git** (interpretei assim a resposta "tag").
-4. O Mattermost entra pelo painel: quando houver o host, se for **interno** liste-o em `RUSTRAK_WEBHOOK_ALLOWED_HOSTS`.
+2. Confirmar que **a versão também vem da tag do git** (interpretei assim a resposta "tag").
+3. O Mattermost entra pelo painel: quando houver o host, se for **interno** liste-o em `RUSTRAK_WEBHOOK_ALLOWED_HOSTS`.
