@@ -1,6 +1,6 @@
 # ADR-0019 — Economia de minutos de CI
 
-**Estado:** aceita (2026-10-08); a parte do CodeQL foi revertida pela ADR-0020 (repositório público) · **Depende de:** ADR-0002, ADR-0005
+**Estado:** **substituída** pela ADR-0020 (CodeQL) e pela ADR-0021 (filtros por caminho); mantida como registro. Decisão original de 2026-10-08, motivada pelo fim da cota gratuita de um repositório privado.
 
 ## Contexto
 

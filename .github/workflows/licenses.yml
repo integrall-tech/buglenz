@@ -7,31 +7,9 @@
 name: Third-party licenses
 
 on:
-  # ADR-0019: the report changes only with the dependencies, the manifest it reads the
-  # base from, or its own tooling.
   pull_request:
-    paths:
-      - "**/package.json"
-      - "pnpm-lock.yaml"
-      - "**/pnpm-lock.yaml"
-      - "**/Cargo.toml"
-      - "**/Cargo.lock"
-      - "DELTA-MANIFEST.md"
-      - "governance/tools/**"
-      - "THIRD-PARTY-LICENSES.md"
-      - ".github/workflows/licenses.yml"
   push:
     branches: [main]
-    paths:
-      - "**/package.json"
-      - "pnpm-lock.yaml"
-      - "**/pnpm-lock.yaml"
-      - "**/Cargo.toml"
-      - "**/Cargo.lock"
-      - "DELTA-MANIFEST.md"
-      - "governance/tools/**"
-      - "THIRD-PARTY-LICENSES.md"
-      - ".github/workflows/licenses.yml"
 
 concurrency:
   group: licenses-${{ github.ref }}
