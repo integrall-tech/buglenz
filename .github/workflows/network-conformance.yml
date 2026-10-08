@@ -1,0 +1,79 @@
+# Network conformance (BugLenz fork; CONSTITUTION I3, ADR-0004).
+#
+# The instance must never open a connection on its own. Two layers, in one
+# job: a static scan of sources, binary and dashboard bundle against
+# scripts/egress-denylist.txt, then the server running as a firewalled user
+# for a window while it is exercised over HTTP. Any logged outbound attempt
+# fails the job. Details: scripts/network-conformance.sh.
+name: Network conformance
+
+on:
+  pull_request:
+  push:
+    branches: [main, next, "sync/**"]
+  workflow_dispatch:
+    inputs:
+      window_minutes:
+        description: "How long the server runs under the egress block"
+        default: "15"
+        required: false
+
+concurrency:
+  group: network-conformance-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: "0"
+  CARGO_PROFILE_DEV_DEBUG: "line-tables-only"
+
+jobs:
+  network-conformance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions-rust-lang/setup-rust-toolchain@ecabd13d1c56bd1345c230e542e9144811ad706f # v2.0.0
+        with:
+          cache-save-if: ${{ github.event_name == 'push' }}
+
+      - name: Build the server (SQLite, debug)
+        working-directory: apps/server
+        run: cargo build --locked
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build the dashboard bundle
+        run: pnpm --filter @rustrak/dashboard build
+
+      - name: Static layer — sources, binary, bundle
+        run: scripts/network-conformance.sh static apps/server/target/debug/rustrak apps/dashboard/dist
+
+      - name: Pick the window
+        id: window
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "seconds=180" >> "$GITHUB_OUTPUT"
+          else
+            minutes="${{ github.event.inputs.window_minutes || '15' }}"
+            echo "seconds=$(( minutes * 60 ))" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Runtime layer — firewalled server under load
+        env:
+          WINDOW_SECONDS: ${{ steps.window.outputs.seconds }}
+        run: sudo -E scripts/network-conformance.sh runtime apps/server/target/debug/rustrak
+
+      - name: Server log
+        if: always()
+        run: cat /tmp/buglenz-ct.*/server.log 2>/dev/null || true
