@@ -1,0 +1,40 @@
+# 004 — Design
+
+## Modelo
+
+`project_retention (project_id PK → projects ON DELETE CASCADE, events_days, transactions_days,
+logs_days INTEGER NULL, updated_at)`. Uma linha por projeto com ao menos um prazo próprio; sem linha,
+vale o padrão. Valor aceito: 1 a 3650 dias (o mínimo é o da limpeza manual).
+
+## Prazo efetivo
+
+`efetivo(tipo) = prazo do projeto (se houver) senão padrão da instância (se houver) senão nenhum`.
+Spans seguem as transações (cascata). Logs e eventos são independentes.
+
+## Worker
+
+```
+dorme 60 s; loop: passada(); dorme intervalo
+passada():
+  para cada projeto:
+    para cada tipo com prazo efetivo: execute_cleanup_in_batches(projeto, dias, filtro do tipo)
+    tipos sem prazo → WARN e entra em `desprotegidos`
+  guarda o relatório (remoções, desprotegidos, início, fim)
+```
+
+- Reaproveita `StorageService::execute_cleanup_in_batches` (lotes de 10 000, pausa no SQLite).
+- Não usa o `CleanupJob` (que é para a limpeza manual): as duas operações são idempotentes e
+  concorrentes sem prejuízo, só disputam carga.
+- Uma falha em um projeto é registrada e a passada segue para o próximo.
+- A passada é visível em `GET /api/retention` (`last_run`), em memória: some na reinicialização e é
+  refeita 60 s depois.
+
+## API
+
+Somente administradores globais, como o Storage. `PUT` aceita `{events_days, transactions_days,
+logs_days}`; `null` limpa o prazo do tipo; campo ausente não muda; fora de 1..3650 é 400 com o campo.
+
+## Decisões abertas
+
+- Os prazos (D6). Até lá, a instância de teste usa os números do ADR-0009 só por variável.
+- A tela de configuração fica para depois da API, porque exige catálogos de cinco idiomas.
