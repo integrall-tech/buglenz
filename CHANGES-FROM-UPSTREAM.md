@@ -32,6 +32,17 @@ editada (a marca e os textos são do pacote 007).
 Fora disso, o servidor, o dashboard e os pacotes `@rustrak/*` são os da tag base. Nenhuma
 migration foi tocada.
 
+### Build e implantação (pacote 003, ADR-0012)
+
+- A imagem do servidor é `ghcr.io/integrall-tech/buglenz-server:<vX.Y.Z-itl.N>` (privada,
+  `linux/amd64`, PostgreSQL, dashboard embutido), publicada por `release-image.yml` a cada tag do
+  fork. Não há imagem SQLite nem imagem `ui` separada; o nome muda de `rustrak-server` para
+  `buglenz-server` (zona B).
+- `INGEST_DIR` passa a ser `/data/ingest` na imagem, dentro do volume (issue #359 do upstream).
+- `deploy/swarm/` traz a stack Swarm + Traefik, `provision.sh` (cria o token de automação pela API,
+  já que `RUSTRAK_BOOTSTRAP_TOKEN` ignora o valor informado, #356) e `backup.sh`.
+- `THIRD-PARTY-LICENSES.md` é gerado em Linux pela CI e conferido a cada PR.
+
 ## Conformidade de licença
 
 - `NOTICE.md` adicionado: origem, copyright do upstream e das modificações, oferta de

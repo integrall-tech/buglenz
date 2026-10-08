@@ -49,7 +49,9 @@ BUGLENZ_ADMIN_EMAIL=admin@example.com BUGLENZ_ADMIN_PASSWORD='...' \
 deploy/swarm/provision.sh vendax-web
 ```
 
-Imprime `BUGLENZ_API_TOKEN`, `PROJECT_ID` e `DSN` uma única vez. Depois disso, remova
+Imprime `BUGLENZ_API_TOKEN`, `PROJECT_ID` e `DSN` uma única vez. Fale sempre com o host HTTPS
+(pelo Traefik): com `SSL_PROXY=true` a cookie de sessão é `Secure`, e um `curl` em HTTP puro
+recebe `401` no passo seguinte ao login. Depois disso, remova
 `CREATE_SUPERUSER` do `buglenz.env` e reimplante: a variável só serve ao primeiro boot.
 
 ## Métricas e logs

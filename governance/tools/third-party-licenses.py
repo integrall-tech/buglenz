@@ -37,7 +37,15 @@ def inventory_date() -> str:
 
 
 def upstream_base() -> str:
-    """Tag estável do upstream mais próxima (`vX.Y.Z`, sem o sufixo `-itl.N` do fork)."""
+    """Tag do upstream em que o fork está, lida de `DELTA-MANIFEST.md` ("Base atual: tag
+    `vX.Y.Z`"), que é a fonte de verdade do ADR-0005. `git describe` fica como reserva."""
+    import re
+    try:
+        m = re.search(r"Base atual: tag `(v[^`]+)`", open("DELTA-MANIFEST.md", encoding="utf-8").read())
+        if m:
+            return m.group(1)
+    except OSError:
+        pass
     return git("describe", "--tags", "--abbrev=0", "--match", "v[0-9]*", "--exclude", "*-itl*") or "(desconhecida)"
 
 OWN_CRATES = {"rustrak", "rustrak-benchmarks"}
