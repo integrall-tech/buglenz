@@ -1,0 +1,70 @@
+# Third-party license inventory (BugLenz fork; ADR-0003, ADR-0005).
+#
+# Regenerates THIRD-PARTY-LICENSES.md on Linux from `cargo deny list` and
+# `pnpm -r licenses list`, uploads it, and fails when it differs from the
+# committed file. The committed inventory is therefore the runner's, not the
+# laptop's: pnpm's platform-specific optional packages differ per OS.
+name: Third-party licenses
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: licenses-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_DENY_VERSION: "0.20.2"
+
+jobs:
+  licenses:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # The generator dates the inventory from the lockfiles' last commit.
+          fetch-depth: 0
+
+      - uses: actions-rust-lang/setup-rust-toolchain@ecabd13d1c56bd1345c230e542e9144811ad706f # v2.0.0
+        with:
+          cache-save-if: ${{ github.event_name == 'push' }}
+
+      - name: Install cargo-deny
+        run: cargo install cargo-deny --locked --version "$CARGO_DENY_VERSION"
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Generate the inventory
+        run: |
+          (cd apps/server && cargo deny list -f json -l crate) > "$RUNNER_TEMP/deny-server.json"
+          (cd packages/benchmarks && cargo deny list -f json -l crate) > "$RUNNER_TEMP/deny-bench.json"
+          pnpm -r licenses list --json --long > "$RUNNER_TEMP/pnpm-licenses.json"
+          python3 -I governance/tools/third-party-licenses.py \
+            "$RUNNER_TEMP/deny-server.json" "$RUNNER_TEMP/deny-bench.json" "$RUNNER_TEMP/pnpm-licenses.json" \
+            > THIRD-PARTY-LICENSES.md
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: THIRD-PARTY-LICENSES
+          path: THIRD-PARTY-LICENSES.md
+
+      - name: The committed inventory matches the generated one
+        run: |
+          git diff --exit-code -- THIRD-PARTY-LICENSES.md || {
+            echo "::error file=THIRD-PARTY-LICENSES.md::out of date. Download the THIRD-PARTY-LICENSES artifact of this run and commit it."
+            exit 1
+          }

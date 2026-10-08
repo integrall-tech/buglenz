@@ -5,7 +5,7 @@ Inventário das dependências do BugLenz e das licenças que elas declaram. Gera
 `pnpm -r licenses list` (JavaScript); o cabeçalho do script tem os comandos. Este arquivo é
 regenerado a cada sincronização com o upstream.
 
-Data: 2026-10-07. Base: Rustrak `v0.15.2`.
+Data: 2026-10-07 (último commit dos lockfiles). Base: Rustrak `v0.16.0`.
 
 A allow-list de licenças que o upstream aceita está em `deny.toml` e é verificada pelo
 workflow `rust-security.yml` (`cargo deny check advisories licenses` em `apps/server`).

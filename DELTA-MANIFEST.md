@@ -57,6 +57,8 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `apps/dashboard/src/routes/_authenticated.tsx` | A | 0004 | Alterado. Sem o `<UpdateBannerSlot />` (2 linhas) |
 | `.github/workflows/network-conformance.yml`, `scripts/network-conformance.sh`, `scripts/egress-denylist.txt` | G | 0004 | Novos. Teste de conformidade de rede: camada estática e servidor sob bloqueio de saída |
 | `apps/server/Dockerfile` | B | 0012 | Alterado (003). `ENV INGEST_DIR=/data/ingest`: spool de ingestão dentro do volume (issue #359 do upstream) |
+| `.github/workflows/licenses.yml` | G | 0003, 0005 | Novo (003). Regenera `THIRD-PARTY-LICENSES.md` em Linux e falha se divergir do commitado |
+| `.github/workflows/release-image.yml` | G | 0012, 0005 | Novo (003). Publica `ghcr.io/integrall-tech/buglenz-server:<tag>` por tag `v*-itl.*`; build sem push em PR |
 | `governance/**` | G | 0001, 0002 | Novo. Corpus de governança: CONSTITUTION, GAP-ANALYSIS, `adr/`, `rfc/`, `openspec/`, `baseline/`, `tools/` |
 
 ## Histórico de bases
