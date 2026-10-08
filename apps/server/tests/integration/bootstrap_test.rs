@@ -7,8 +7,14 @@ use rustrak::bootstrap;
 use rustrak::services::UsersService;
 use std::env;
 
+/// Every test here sets and clears the same process-wide `CREATE_SUPERUSER`, so they must not run
+/// at the same time: one test removing the variable while another still needs it left the other
+/// without its superuser (a flaky `unwrap` on a missing user).
+static ENV_LOCK: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
+
 #[tokio::test]
 async fn test_bootstrap_creates_superuser_when_empty() {
+    let _env = ENV_LOCK.lock().await;
     let db = TestDb::new().await;
 
     // Set CREATE_SUPERUSER environment variable
@@ -34,6 +40,7 @@ async fn test_bootstrap_creates_superuser_when_empty() {
 
 #[tokio::test]
 async fn test_bootstrap_skips_when_users_exist() {
+    let _env = ENV_LOCK.lock().await;
     let db = TestDb::new().await;
 
     // Create an existing user
@@ -64,6 +71,7 @@ async fn test_bootstrap_skips_when_users_exist() {
 
 #[tokio::test]
 async fn test_bootstrap_skips_when_env_not_set() {
+    let _env = ENV_LOCK.lock().await;
     let db = TestDb::new().await;
 
     // Ensure CREATE_SUPERUSER is not set
@@ -80,6 +88,7 @@ async fn test_bootstrap_skips_when_env_not_set() {
 
 #[tokio::test]
 async fn test_bootstrap_fails_with_invalid_format() {
+    let _env = ENV_LOCK.lock().await;
     let db = TestDb::new().await;
 
     // Invalid format (missing colon)
@@ -94,6 +103,7 @@ async fn test_bootstrap_fails_with_invalid_format() {
 
 #[tokio::test]
 async fn test_bootstrap_fails_with_empty_password() {
+    let _env = ENV_LOCK.lock().await;
     let db = TestDb::new().await;
 
     // Empty password should be rejected
@@ -112,6 +122,7 @@ async fn test_bootstrap_fails_with_empty_password() {
 
 #[tokio::test]
 async fn test_bootstrap_with_empty_string() {
+    let _env = ENV_LOCK.lock().await;
     let db = TestDb::new().await;
 
     // Empty string
@@ -130,6 +141,7 @@ async fn test_bootstrap_with_empty_string() {
 
 #[tokio::test]
 async fn test_bootstrap_creates_admin_user() {
+    let _env = ENV_LOCK.lock().await;
     let db = TestDb::new().await;
 
     env::set_var(
@@ -154,6 +166,7 @@ async fn test_bootstrap_creates_admin_user() {
 
 #[tokio::test]
 async fn test_bootstrap_password_is_hashed() {
+    let _env = ENV_LOCK.lock().await;
     let db = TestDb::new().await;
 
     env::set_var("CREATE_SUPERUSER", "hashcheck@example.com:testpassword123");
@@ -179,6 +192,7 @@ async fn test_bootstrap_password_is_hashed() {
 
 #[tokio::test]
 async fn test_bootstrap_with_email_containing_colon() {
+    let _env = ENV_LOCK.lock().await;
     let db = TestDb::new().await;
 
     // Email with colon in local part is invalid according to our email regex constraint
@@ -196,6 +210,7 @@ async fn test_bootstrap_with_email_containing_colon() {
 
 #[tokio::test]
 async fn test_bootstrap_idempotent_across_restarts() {
+    let _env = ENV_LOCK.lock().await;
     let db = TestDb::new().await;
 
     env::set_var("CREATE_SUPERUSER", "restart@example.com:password123");
@@ -231,6 +246,7 @@ async fn test_bootstrap_idempotent_across_restarts() {
 
 #[tokio::test]
 async fn test_bootstrap_with_whitespace_in_email() {
+    let _env = ENV_LOCK.lock().await;
     let db = TestDb::new().await;
 
     // Email with surrounding whitespace
