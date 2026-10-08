@@ -23,6 +23,7 @@ mod projects_api_test;
 mod quota_enforcement_test;
 mod rate_limit_test;
 mod releases_api_test;
+mod retention_test;
 mod scrub_test;
 mod security_test;
 mod sessions_api_test;

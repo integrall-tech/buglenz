@@ -18,6 +18,7 @@ pub mod project;
 pub mod project_member;
 pub mod rate_limit;
 pub mod release;
+pub mod retention;
 pub mod session;
 pub mod sourcemap;
 pub mod sourcemap_store;

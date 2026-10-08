@@ -14,6 +14,7 @@ pub mod period;
 pub mod privacy;
 pub mod projects;
 pub mod releases;
+pub mod retention;
 pub mod sessions;
 pub mod sourcemaps;
 pub mod spans;

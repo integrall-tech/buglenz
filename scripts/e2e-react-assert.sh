@@ -9,6 +9,8 @@
 #   - the latest event's application frame is source-mapped: original file,
 #     original line, context line present
 #   - release health counts the `unhandled` session as errored, not crashed
+#   - the BugLenz admin routes under /api/projects/{id} answer (they are registered ahead of the
+#     generic projects scope, which otherwise swallows them as a bare 404)
 # Writes the function-name (G7) and in_app (G8) readings to the step summary
 # as measurements for package 010; they never fail the run.
 set -euo pipefail
@@ -137,4 +139,15 @@ if errored < 1:
 if crashed != 0:
     print("FAIL: an unhandled session must not count as a crash"); sys.exit(1)
 EOF
+# Routes added under /api/projects/{id} (erasure, retention) must not be shadowed by the generic
+# projects scope: a bare 404 there means main.rs registered them too late. The integration tests
+# mount each module alone and cannot see it.
+code=$(curl -sS -o /dev/null -w '%{http_code}' -X DELETE -H "Authorization: Bearer $TOKEN" \
+  "$BASE/api/projects/$PROJECT_ID/privacy/users/no-such-user")
+[ "$code" = 200 ] || fail "DELETE /privacy/users answered $code, expected 200 (route shadowed?)"
+code=$(curl -sS -o /dev/null -w '%{http_code}' -X PUT -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{}' "$BASE/api/projects/$PROJECT_ID/retention")
+[ "$code" = 200 ] || fail "PUT /retention answered $code, expected 200 (route shadowed?)"
+api "/api/retention" >/dev/null || fail "GET /api/retention failed"
+log "admin routes under /api/projects/{id} answer"
 log "e2e-react: all assertions passed"

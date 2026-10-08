@@ -235,6 +235,15 @@ async fn main() -> std::io::Result<()> {
         ingest_dir,
     ));
 
+    // Retention (ADR-0009, invariant I5): the periods are applied by a worker, not by hand.
+    let retention_state =
+        std::sync::Arc::new(rustrak::workers::retention::RetentionState::from_env());
+    tokio::spawn(rustrak::workers::retention::run(
+        db_pool.clone(),
+        retention_state.clone(),
+    ));
+    let retention_data = web::Data::new(retention_state);
+
     let alert_pool = db_pool.clone();
     tokio::spawn(async move {
         loop {
@@ -267,6 +276,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(processors_data.clone())
             .app_data(metrics_data.clone())
             .app_data(cleanup_job_data.clone())
+            .app_data(retention_data.clone())
             // Middleware
             // `Logger::default()`'s format, plus the incident id a 5xx echoes
             // in `INCIDENT_ID_HEADER`. `error_response` never sees the request
@@ -328,6 +338,10 @@ async fn main() -> std::io::Result<()> {
             .configure(routes::spans::configure)
             // AI Agent Monitoring dashboard API (more specific than generic projects scope)
             .configure(routes::agents::configure)
+            // Erasure for one data subject and retention periods (admin only; BugLenz, ADR-0009):
+            // both live under /api/projects/{id}, so they must come before the generic scope
+            .configure(routes::privacy::configure)
+            .configure(routes::retention::configure)
             // Then generic projects/tokens routes
             .configure(routes::projects::configure)
             .configure(routes::tokens::configure)
@@ -340,8 +354,6 @@ async fn main() -> std::io::Result<()> {
             .configure(routes::sourcemaps::configure)
             // Storage usage + retention/cleanup (admin only)
             .configure(routes::storage::configure)
-            // Erasure for one data subject (admin only; BugLenz, ADR-0009)
-            .configure(routes::privacy::configure)
             // Ingest routes (Sentry SDK auth)
             .configure(routes::ingest::configure);
 

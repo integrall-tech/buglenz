@@ -5054,6 +5054,94 @@
         ]
       }
     },
+    "/api/projects/{project_id}/retention": {
+      "put": {
+        "tags": [
+          "Retention"
+        ],
+        "summary": "PUT /api/projects/{project_id}/retention\nA number sets a period, `null` clears it (the instance default applies), an absent field is left alone.",
+        "operationId": "put_project",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "description": "Project ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetentionUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The project's own periods after the update",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectRetention"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A period is outside 1..3650 days",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
     "/api/projects/{project_id}/sessions/stats": {
       "get": {
         "tags": [
@@ -6558,6 +6646,52 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/retention": {
+      "get": {
+        "tags": [
+          "Retention"
+        ],
+        "summary": "GET /api/retention",
+        "operationId": "get_overview",
+        "responses": {
+          "200": {
+            "description": "Instance defaults, every project's periods and the last pass",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetentionOverview"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
@@ -9093,6 +9227,33 @@
           }
         }
       },
+      "Effective": {
+        "type": "object",
+        "description": "What actually applies to a project.",
+        "properties": {
+          "events_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "logs_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "transactions_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          }
+        }
+      },
       "Erasure": {
         "type": "object",
         "description": "What one erasure removed.",
@@ -9978,6 +10139,73 @@
           }
         }
       },
+      "ProjectRetention": {
+        "type": "object",
+        "description": "A project's own periods; `None` falls back to the instance default.",
+        "properties": {
+          "events_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "logs_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "transactions_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "ProjectRetentionView": {
+        "type": "object",
+        "description": "One project's periods.",
+        "required": [
+          "project_id",
+          "name",
+          "own",
+          "effective",
+          "protected",
+          "missing"
+        ],
+        "properties": {
+          "effective": {
+            "$ref": "#/components/schemas/Effective",
+            "description": "What applies: its own, else the instance default."
+          },
+          "missing": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The types with no period at all."
+          },
+          "name": {
+            "type": "string"
+          },
+          "own": {
+            "$ref": "#/components/schemas/ProjectRetention",
+            "description": "What the project sets itself."
+          },
+          "project_id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "protected": {
+            "type": "boolean",
+            "description": "Every type has a period."
+          }
+        }
+      },
       "ProjectStatsSummary": {
         "type": "object",
         "description": "Project-wide counters for the overview page, each with its previous-period\ncomparison.",
@@ -10181,6 +10409,143 @@
           },
           "version": {
             "type": "string"
+          }
+        }
+      },
+      "RetentionDefaults": {
+        "type": "object",
+        "description": "The instance's default period for each type; `None` means the instance has none.",
+        "properties": {
+          "events_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "logs_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          },
+          "transactions_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32"
+          }
+        }
+      },
+      "RetentionOverview": {
+        "type": "object",
+        "required": [
+          "defaults",
+          "interval_hours",
+          "projects"
+        ],
+        "properties": {
+          "defaults": {
+            "$ref": "#/components/schemas/RetentionDefaults"
+          },
+          "interval_hours": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "last_run": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RetentionReport",
+                "description": "The last pass since the server started, if there was one."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectRetentionView"
+            }
+          }
+        }
+      },
+      "RetentionReport": {
+        "type": "object",
+        "description": "What one pass did.",
+        "required": [
+          "started_at",
+          "finished_at",
+          "projects",
+          "removed",
+          "unprotected",
+          "failed"
+        ],
+        "properties": {
+          "failed": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "Projects where a cleanup failed; the pass went on to the next one."
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "projects": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "removed": {
+            "$ref": "#/components/schemas/CleanupCounts"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "unprotected": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Unprotected"
+            }
+          }
+        }
+      },
+      "RetentionUpdate": {
+        "type": "object",
+        "properties": {
+          "events_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "maximum": 3650,
+            "minimum": 1
+          },
+          "logs_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "maximum": 3650,
+            "minimum": 1
+          },
+          "transactions_days": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int32",
+            "maximum": 3650,
+            "minimum": 1
           }
         }
       },
@@ -10877,6 +11242,26 @@
           },
           "transaction_name": {
             "type": "string"
+          }
+        }
+      },
+      "Unprotected": {
+        "type": "object",
+        "description": "A project and the types it has no period for.",
+        "required": [
+          "project_id",
+          "missing"
+        ],
+        "properties": {
+          "missing": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "project_id": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
