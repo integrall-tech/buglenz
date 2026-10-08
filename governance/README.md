@@ -1,6 +1,6 @@
 # BugLenz — corpus de governança
 
-**Versão:** 0.9 · **Data:** 2026-10-08 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1)) · **Base sincronizada para `v0.16.0`** (PR #3) · **Pacote 002 executado**
+**Versão:** 0.11 · **Data:** 2026-10-08 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1)) · **Base sincronizada para `v0.16.0`** (PR #3) · **Pacote 002 executado**
 
 Especificação do **BugLenz**: migração do [Rustrak](https://github.com/rustrak/rustrak) `v0.15.2` para um fork
 governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes OpenSpec).
@@ -20,6 +20,7 @@ governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes 
 | `openspec/016-symbolication-mobile/` | Stack trace legível para Android, iOS e Flutter ofuscado |
 | `openspec/007-rebrand-buglenz/` | Rebrand Rustrak → BugLenz por sobreposição no build |
 | `openspec/001-bootstrap-do-fork/` | Primeiro pacote, **executado em 2026-10-07**; T3 pendente (D10) |
+| `openspec/003-build-e-implantacao/` | Imagem em GHCR privado, workflow por tag, stack Swarm parametrizada, licenças geradas na CI. **Executado em 2026-10-08** (PR #5); primeira publicação na tag `v0.16.0-itl.3` |
 | `openspec/002-remocao-de-egress/` | Remoção da telemetria e da checagem de versão; teste de conformidade de rede. **Executado em 2026-10-08** sobre a `v0.16.0` (PR #4) |
 | `PROMPT-CLAUDE-CODE.md` | Prompt de início para o Claude Code executar o pacote 001 |
 
@@ -64,6 +65,10 @@ junto com `governance/baseline/001.md` (baseline medida) e `governance/tools/` (
 
 ## Mudanças
 
+- **0.11:** pacote 003 executado; `design.md` do 003 com a seção 8 (o que a execução revelou);
+  baseline em `governance/baseline/003.md`.
+- **0.10:** pacote 003 detalhado: GHCR privado (I11 mantido), só `amd64`, dividido — valores de D4/D8
+  ficam para a implantação; backup (BackupLenz) e descoberta de métricas/logs marcados "a confirmar".
 - **0.9:** pacote 002 executado; `design.md` do 002 ganha a seção 9 com o que a execução revelou;
   spec do 002 ajustada (corpo do 404). Baseline em `governance/baseline/002.md`.
 - **0.8:** D5 fechada; primeiro ciclo do ADR-0005 (`v0.15.2` → `v0.16.0`, sem conflito); pacote

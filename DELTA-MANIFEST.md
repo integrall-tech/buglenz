@@ -40,7 +40,7 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `.github/workflows/docker-publish.yml` | G | 0002, 0012 | Removido. Publicava `rustrak/rustrak-server` e `rustrak/rustrak-ui` no Docker Hub; o build para registry privado é do pacote 003 (I11) |
 | `.github/workflows/deploy-docs.yml` | G | 0002 | Removido. Publicava o site de documentação do upstream no GitHub Pages |
 | `.github/FUNDING.yml` | G | 0002 | Removido. Patrocínio do autor original (GitHub Sponsors) não se aplica ao repositório privado |
-| `THIRD-PARTY-LICENSES.md` | G | 0003 | Novo. Inventário de licenças das dependências Rust e JavaScript; gerado por `governance/tools/third-party-licenses.py` |
+| `THIRD-PARTY-LICENSES.md` | G | 0003 | Novo. Inventário de licenças das dependências Rust e JavaScript; gerado por `governance/tools/third-party-licenses.py` em Linux e conferido por `licenses.yml` (003) |
 | `apps/server/src/telemetry/posthog.rs`, `apps/server/src/telemetry/reporter.rs`, `apps/server/src/telemetry/report.rs`, `apps/server/src/telemetry/identity.rs`, `apps/server/src/telemetry/volume.rs`, `apps/server/src/telemetry/resources.rs` | G | 0004 | Removidos. Repórter de telemetria anônima: sink PostHog, agendador, relatório, identidade da instância, volume, amostragem de recursos |
 | `apps/server/src/telemetry/mod.rs` | G | 0004 | Alterado. Só declara `counters` e `metrics`; mantém `install_panic_hook`, `own_location`, `major_minor` |
 | `apps/server/src/routes/telemetry.rs` | G | 0004 | Removido. `GET /api/telemetry/preview` |
@@ -56,6 +56,10 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `apps/dashboard/src/shared/api/version-check.ts`, `apps/dashboard/src/shared/ui/components/update-banner-slot.tsx` | A | 0004 | Removidos. Checagem de versão em `rustrak.github.io` e o aviso de atualização |
 | `apps/dashboard/src/routes/_authenticated.tsx` | A | 0004 | Alterado. Sem o `<UpdateBannerSlot />` (2 linhas) |
 | `.github/workflows/network-conformance.yml`, `scripts/network-conformance.sh`, `scripts/egress-denylist.txt` | G | 0004 | Novos. Teste de conformidade de rede: camada estática e servidor sob bloqueio de saída |
+| `apps/server/Dockerfile` | B | 0012 | Alterado (003). `ENV INGEST_DIR=/data/ingest`: spool de ingestão dentro do volume (issue #359 do upstream) |
+| `.github/workflows/licenses.yml` | G | 0003, 0005 | Novo (003). Regenera `THIRD-PARTY-LICENSES.md` em Linux e falha se divergir do commitado |
+| `.github/workflows/release-image.yml` | G | 0012, 0005 | Novo (003). Publica `ghcr.io/integrall-tech/buglenz-server:<tag>` por tag `v*-itl.*`; build sem push em PR |
+| `deploy/swarm/buglenz.stack.yml`, `deploy/swarm/README.md`, `deploy/swarm/provision.sh`, `deploy/swarm/backup.sh` | B | 0012 | Novos (003). Stack Swarm parametrizada, provisionamento via API (sem `RUSTRAK_BOOTSTRAP_TOKEN`, #356), backup e restauração |
 | `governance/**` | G | 0001, 0002 | Novo. Corpus de governança: CONSTITUTION, GAP-ANALYSIS, `adr/`, `rfc/`, `openspec/`, `baseline/`, `tools/` |
 
 ## Histórico de bases
@@ -65,3 +69,4 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | 2026-10-07 | `v0.15.2` (`ff75852c`) | 001 bootstrap |
 | 2026-10-07 | `v0.16.0` (`4dbe5ce7`) | sync/2026-10-07, primeiro ciclo do ADR-0005; merge sem conflito |
 | 2026-10-07 | `v0.16.0` (`4dbe5ce7`) | 002 remoção de egress |
+| 2026-10-08 | `v0.16.0` (`4dbe5ce7`) | 003 build e implantação |

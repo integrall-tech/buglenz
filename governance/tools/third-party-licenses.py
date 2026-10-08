@@ -14,9 +14,39 @@ da lista: a licença deles está em LICENSE e NOTICE.md.
 """
 
 import json
+import subprocess
 import sys
 from collections import defaultdict
 from datetime import date
+
+LOCKFILES = ["apps/server/Cargo.lock", "packages/benchmarks/Cargo.lock", "pnpm-lock.yaml"]
+
+
+def git(*args: str) -> str | None:
+    try:
+        out = subprocess.run(["git", *args], capture_output=True, text=True, check=True).stdout.strip()
+        return out or None
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+
+def inventory_date() -> str:
+    """Data do último commit que tocou um lockfile: determinística para o mesmo tree, para
+    que a CI possa comparar o arquivo gerado com o commitado."""
+    return git("log", "-1", "--format=%cs", "--", *LOCKFILES) or date.today().isoformat()
+
+
+def upstream_base() -> str:
+    """Tag do upstream em que o fork está, lida de `DELTA-MANIFEST.md` ("Base atual: tag
+    `vX.Y.Z`"), que é a fonte de verdade do ADR-0005. `git describe` fica como reserva."""
+    import re
+    try:
+        m = re.search(r"Base atual: tag `(v[^`]+)`", open("DELTA-MANIFEST.md", encoding="utf-8").read())
+        if m:
+            return m.group(1)
+    except OSError:
+        pass
+    return git("describe", "--tags", "--abbrev=0", "--match", "v[0-9]*", "--exclude", "*-itl*") or "(desconhecida)"
 
 OWN_CRATES = {"rustrak", "rustrak-benchmarks"}
 OWN_NPM_PREFIX = "@rustrak/"
@@ -77,7 +107,7 @@ def main() -> None:
         "`pnpm -r licenses list` (JavaScript); o cabeçalho do script tem os comandos. Este arquivo é",
         "regenerado a cada sincronização com o upstream.",
         "",
-        f"Data: {date.today().isoformat()}. Base: Rustrak `v0.15.2`.",
+        f"Data: {inventory_date()} (último commit dos lockfiles). Base: Rustrak `{upstream_base()}`.",
         "",
         "A allow-list de licenças que o upstream aceita está em `deny.toml` e é verificada pelo",
         "workflow `rust-security.yml` (`cargo deny check advisories licenses` em `apps/server`).",

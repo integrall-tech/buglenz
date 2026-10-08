@@ -56,6 +56,12 @@ COPY --chown=65532:65532 --from=builder /app/static /app/static
 COPY --chown=65532:65532 --from=builder /data /data
 # One volume. Source maps live under it, so the `-v rustrak_data:/data` the
 # installation guide gives keeps them across container upgrades.
+#
+# BugLenz (ADR-0012, upstream issue #359): the ingest spool defaults to
+# /tmp/rustrak/ingest, in the container's writable layer, so events accepted
+# but not yet digested were lost when the container was recreated. Under
+# /data they survive an upgrade and are replayed on boot.
+ENV INGEST_DIR=/data/ingest
 VOLUME /data
 EXPOSE 8080
 USER nonroot
