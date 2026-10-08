@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { daysText, fieldOf, MAX_DAYS, parseDays } from './periods';
+import { daysText, fieldOf, MAX_DAYS, MIN_DAYS, parseDays } from './periods';
 
 describe('parseDays', () => {
   it('reads a whole number of days in range', () => {
-    expect(parseDays('1')).toBe(1);
+    expect(parseDays(String(MIN_DAYS))).toBe(MIN_DAYS);
     expect(parseDays(' 30 ')).toBe(30);
     expect(parseDays(String(MAX_DAYS))).toBe(MAX_DAYS);
   });
@@ -14,7 +14,18 @@ describe('parseDays', () => {
   });
 
   it('refuses anything else', () => {
-    for (const bad of ['0', '-5', '3651', '1.5', 'abc', '10d', '1e3', '٣']) {
+    for (const bad of [
+      '0',
+      '1',
+      '6',
+      '-5',
+      '3651',
+      '1.5',
+      'abc',
+      '10d',
+      '1e3',
+      '٣',
+    ]) {
       expect(parseDays(bad), bad).toBe('invalid');
     }
   });

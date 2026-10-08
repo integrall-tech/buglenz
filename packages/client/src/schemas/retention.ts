@@ -38,7 +38,7 @@ export const retentionOverviewSchema = z.object({
   projects: z.array(retentionProjectSchema),
 });
 
-const days = z.number().int().min(1).max(3650);
+const days = z.number().int().min(7).max(3650);
 
 /**
  * A number sets a period, `null` clears it (the instance default applies), an

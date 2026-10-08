@@ -72,7 +72,7 @@ Um worker apaga, a cada 24 h (`RUSTRAK_RETENTION_INTERVAL_HOURS`, de 1 a 168), o
 eventos, transações (com os spans) e logs, cada um com o seu. Os três prazos da instância são
 **obrigatórios** na stack e não têm valor embutido; o ADR-0009 propõe 90, 30 e 90 dias, sujeito à
 validação de quem responde por LGPD (decisão D6). Um projeto pode ter prazos próprios:
-`PUT /api/projects/{id}/retention` com `{"events_days": 30}` (`null` volta ao padrão).
+`PUT /api/projects/{id}/retention` com `{"events_days": 30}` (de 7 a 3650 dias, tanto aqui quanto nas variáveis) (`null` volta ao padrão).
 `GET /api/retention` mostra os prazos efetivos, quais projetos estão sem prazo e a última passada.
 A primeira passada acontece cerca de 60 s depois da partida; o relatório vive em memória.
 Fonte de verdade da limpeza manual continua sendo a tela de Storage.

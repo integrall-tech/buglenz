@@ -53,8 +53,8 @@ describe('RetentionResource', () => {
       expect(own.events_days).toBeNull();
     });
 
-    it('refuses a period outside 1..3650 before calling the server', async () => {
-      for (const bad of [0, -1, 3651, 1.5]) {
+    it('refuses a period outside 7..3650 before calling the server', async () => {
+      for (const bad of [0, 1, 6, -1, 3651, 1.5]) {
         const error = expectErr(
           await client.retention.updateProject(1, { events_days: bad }),
         );
@@ -64,7 +64,7 @@ describe('RetentionResource', () => {
 
     it('maps a project that does not exist', async () => {
       const error = expectErr(
-        await client.retention.updateProject(999, { events_days: 5 }),
+        await client.retention.updateProject(999, { events_days: 30 }),
       );
       expect(error.kind).toBe('not_found');
     });

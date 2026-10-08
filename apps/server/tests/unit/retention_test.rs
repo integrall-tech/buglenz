@@ -23,7 +23,7 @@ fn defaults_come_from_the_three_variables_and_are_empty_when_unset() {
 #[test]
 fn a_value_that_is_not_a_valid_period_is_not_a_default() {
     // A typo must not become "delete everything" (0) or a silent huge window.
-    for bad in ["0", "-5", "abc", "", "3651", "1.5"] {
+    for bad in ["0", "-5", "abc", "", "3651", "1.5", "1", "6"] {
         let d = RetentionDefaults::parse(Some(bad), None, None);
         assert_eq!(d.events_days, None, "{bad:?}");
     }
@@ -32,8 +32,9 @@ fn a_value_that_is_not_a_valid_period_is_not_a_default() {
         Some(3650)
     );
     assert_eq!(
-        RetentionDefaults::parse(Some("1"), None, None).events_days,
-        Some(1)
+        RetentionDefaults::parse(Some("7"), None, None).events_days,
+        Some(7),
+        "the floor itself is allowed"
     );
 }
 
@@ -54,7 +55,7 @@ fn the_effective_period_is_the_projects_own_then_the_default_then_none() {
     assert!(!e.is_protected());
 
     let full = Effective::resolve(
-        &RetentionDefaults::parse(Some("1"), Some("1"), Some("1")),
+        &RetentionDefaults::parse(Some("7"), Some("7"), Some("7")),
         &ProjectRetention::default(),
     );
     assert!(full.is_protected());
@@ -62,10 +63,10 @@ fn the_effective_period_is_the_projects_own_then_the_default_then_none() {
 }
 
 #[test]
-fn days_outside_one_to_3650_are_refused() {
-    assert!(validate_days("events_days", 1).is_ok());
+fn days_outside_the_floor_and_3650_are_refused() {
+    assert!(validate_days("events_days", 7).is_ok());
     assert!(validate_days("events_days", 3650).is_ok());
-    for bad in [0, -1, 3651, i32::MAX] {
+    for bad in [0, 1, 6, -1, 3651, i32::MAX] {
         assert!(validate_days("events_days", bad).is_err(), "{bad}");
     }
 }

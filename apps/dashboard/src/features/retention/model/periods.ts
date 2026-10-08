@@ -4,7 +4,8 @@ import type { RetentionPeriods } from '@rustrak/client';
 export const RETENTION_TYPES = ['events', 'transactions', 'logs'] as const;
 export type RetentionType = (typeof RETENTION_TYPES)[number];
 
-export const MIN_DAYS = 1;
+/** The server refuses anything below this: the first pass runs a minute after every start. */
+export const MIN_DAYS = 7;
 export const MAX_DAYS = 3650;
 
 /** The field of {@link RetentionPeriods} that holds a type's period. */

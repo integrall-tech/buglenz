@@ -102,7 +102,7 @@ pub async fn get_overview(
     request_body = RetentionUpdate,
     responses(
         (status = 200, description = "The project's own periods after the update", body = ProjectRetention),
-        (status = 400, description = "A period is outside 1..3650 days", body = crate::error::ErrorResponse),
+        (status = 400, description = "A period is outside 7..3650 days", body = crate::error::ErrorResponse),
         (status = 401, description = "Unauthorized", body = crate::error::ErrorResponse),
         (status = 403, description = "Forbidden", body = crate::error::ErrorResponse),
         (status = 404, description = "Project not found", body = crate::error::ErrorResponse),
