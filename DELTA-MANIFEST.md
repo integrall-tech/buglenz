@@ -56,6 +56,7 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `apps/dashboard/src/shared/api/version-check.ts`, `apps/dashboard/src/shared/ui/components/update-banner-slot.tsx` | A | 0004 | Removidos. Checagem de versão em `rustrak.github.io` e o aviso de atualização |
 | `apps/dashboard/src/routes/_authenticated.tsx` | A | 0004 | Alterado. Sem o `<UpdateBannerSlot />` (2 linhas) |
 | `.github/workflows/network-conformance.yml`, `scripts/network-conformance.sh`, `scripts/egress-denylist.txt` | G | 0004 | Novos. Teste de conformidade de rede: camada estática e servidor sob bloqueio de saída |
+| `apps/server/Dockerfile` | B | 0012 | Alterado (003). `ENV INGEST_DIR=/data/ingest`: spool de ingestão dentro do volume (issue #359 do upstream) |
 | `governance/**` | G | 0001, 0002 | Novo. Corpus de governança: CONSTITUTION, GAP-ANALYSIS, `adr/`, `rfc/`, `openspec/`, `baseline/`, `tools/` |
 
 ## Histórico de bases
@@ -65,3 +66,4 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | 2026-10-07 | `v0.15.2` (`ff75852c`) | 001 bootstrap |
 | 2026-10-07 | `v0.16.0` (`4dbe5ce7`) | sync/2026-10-07, primeiro ciclo do ADR-0005; merge sem conflito |
 | 2026-10-07 | `v0.16.0` (`4dbe5ce7`) | 002 remoção de egress |
+| 2026-10-08 | `v0.16.0` (`4dbe5ce7`) | 003 build e implantação |
