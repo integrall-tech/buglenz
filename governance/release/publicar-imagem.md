@@ -22,7 +22,7 @@ minutos de Actions não são mais um limite.
 - [ ] **`Network conformance` verde no commit de `main` que vai receber a tag** (a janela de 15 minutos roda a
   cada push em `main`, ADR-0021). Verde ou não há tag.
 - [ ] `DELTA-MANIFEST.md` cobre `git diff --name-status v0.16.0 HEAD` (cada arquivo, com ADR).
-- [ ] As três variáveis de retenção decididas (D6) para a instância que vai receber a imagem.
+- [ ] Os prazos de retenção da instância conferidos (padrão da stack: 90/30/90; D6 provisória).
 
 ## 2. A tag
 
@@ -54,7 +54,7 @@ Do Mac (`arm64`): `docker pull --platform linux/amd64 ghcr.io/integrall-tech/bug
 
 | Mudança | Efeito |
 |---|---|
-| **Retenção** (004) | A stack Swarm **exige** `RUSTRAK_RETENTION_EVENTS_DAYS`, `_TRANSACTIONS_DAYS` e `_LOGS_DAYS` (7 a 3650); sem elas `docker stack deploy` falha. A primeira passada apaga dados 60 s depois da partida. |
+| **Retenção** (004) | A stack Swarm traz padrão **90 dias (erros e logs) e 30 (transações)**, provisório (D6); mude por `RUSTRAK_RETENTION_*_DAYS` (7 a 3650). A primeira passada apaga dados 60 s depois da partida. |
 | **Migration nova** | `project_retention` (aditiva). Sobe sozinha no primeiro boot; o `down` é `DROP TABLE`. |
 | **Webhooks** (023) | Destino interno (loopback, rede privada, `*.internal`) é recusado ao salvar **e ao enviar**; canais já salvos assim passam a falhar. Exceção: `RUSTRAK_WEBHOOK_ALLOWED_HOSTS`. Redirecionamentos não são seguidos. |
 | **Senha** (023) | Acima de 1024 bytes é recusada (login, convite, troca, vínculo SSO). Não há mínimo. |

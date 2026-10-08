@@ -38,9 +38,12 @@ services:
       RUSTRAK_SCRUB_EXTRA_KEYS: ${RUSTRAK_SCRUB_EXTRA_KEYS:-}
       RUSTRAK_WEBHOOK_ALLOWED_HOSTS: ${RUSTRAK_WEBHOOK_ALLOWED_HOSTS:-}
       # Retention (ADR-0009, invariant I5): no instance runs without a period for each type.
-      RUSTRAK_RETENTION_EVENTS_DAYS: ${RUSTRAK_RETENTION_EVENTS_DAYS:?dias de retencao dos eventos, decisao D6}
-      RUSTRAK_RETENTION_TRANSACTIONS_DAYS: ${RUSTRAK_RETENTION_TRANSACTIONS_DAYS:?dias de retencao das transacoes, decisao D6}
-      RUSTRAK_RETENTION_LOGS_DAYS: ${RUSTRAK_RETENTION_LOGS_DAYS:?dias de retencao dos logs, decisao D6}
+      # The server has no built-in value; these are the BugLenz operating defaults (decision D6,
+      # provisional, set by the project owner on 2026-10-08): 90 days of errors and logs, 30 of
+      # transactions and their spans. Set the variable in the environment to change one.
+      RUSTRAK_RETENTION_EVENTS_DAYS: ${RUSTRAK_RETENTION_EVENTS_DAYS:-90}
+      RUSTRAK_RETENTION_TRANSACTIONS_DAYS: ${RUSTRAK_RETENTION_TRANSACTIONS_DAYS:-30}
+      RUSTRAK_RETENTION_LOGS_DAYS: ${RUSTRAK_RETENTION_LOGS_DAYS:-90}
       RUSTRAK_RETENTION_INTERVAL_HOURS: ${RUSTRAK_RETENTION_INTERVAL_HOURS:-24}
       # Sender of alert e-mails when a channel does not set its own (OpenSpec 007).
       SMTP_FROM: ${SMTP_FROM:-alerts@buglenz.dev}

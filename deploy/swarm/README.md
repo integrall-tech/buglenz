@@ -27,10 +27,10 @@ BUGLENZ_HOST=errors.buglenz.dev
 POSTGRES_PASSWORD=$(openssl rand -hex 16)
 SESSION_SECRET_KEY=$(openssl rand -hex 32)
 CREATE_SUPERUSER=admin@example.com:$(openssl rand -base64 18)
-# Prazos de retenção, em dias (decisão D6, responsável por LGPD). Sem valor padrão: a stack não sobe sem eles.
-RUSTRAK_RETENTION_EVENTS_DAYS=<dias>
-RUSTRAK_RETENTION_TRANSACTIONS_DAYS=<dias>
-RUSTRAK_RETENTION_LOGS_DAYS=<dias>
+# Prazos de retenção, em dias. Podem ser omitidos: a stack assume 90, 30 e 90 (decisão D6, provisória).
+# RUSTRAK_RETENTION_EVENTS_DAYS=90
+# RUSTRAK_RETENTION_TRANSACTIONS_DAYS=30
+# RUSTRAK_RETENTION_LOGS_DAYS=90
 EOF
 chmod 600 buglenz.env
 
@@ -69,13 +69,13 @@ acrescentar chaves negadas nesta instância (nomes de campo dos seus apps), defi
 ## Retenção
 
 Um worker apaga, a cada 24 h (`RUSTRAK_RETENTION_INTERVAL_HOURS`, de 1 a 168), o que passou do prazo:
-eventos, transações (com os spans) e logs, cada um com o seu. Os três prazos da instância são
-**obrigatórios** na stack e não têm valor embutido; o ADR-0009 propõe 90, 30 e 90 dias, sujeito à
-validação de quem responde por LGPD (decisão D6). Um projeto pode ter prazos próprios:
-`PUT /api/projects/{id}/retention` com `{"events_days": 30}` (de 7 a 3650 dias, tanto aqui quanto nas variáveis) (`null` volta ao padrão).
+eventos, transações (com os spans) e logs, cada um com o seu. Os três prazos da instância têm padrão na stack: **90 dias para erros e logs, 30 para transações (com os
+spans)**, o que o ADR-0009 propunha, definido em 2026-10-08 pelo dono do projeto como **padrão provisório**
+da decisão D6; o servidor em si não embute valor nenhum. Quem responde por LGPD pode ajustar por instância
+(variável no ambiente) ou por projeto (`PUT /api/projects/{id}/retention`); o piso é de 7 dias.
 `GET /api/retention` mostra os prazos efetivos, quais projetos estão sem prazo e a última passada.
-A primeira passada acontece cerca de 60 s depois da partida; o relatório vive em memória.
-Fonte de verdade da limpeza manual continua sendo a tela de Storage.
+A primeira passada acontece cerca de um minuto depois da partida; o relatório vive em memória.
+A limpeza manual continua sendo a da tela de Storage.
 
 Destinos de webhook internos (um servidor de chat ou o agente de triagem na mesma rede) são
 bloqueados por padrão; liste os hosts permitidos, como aparecem na URL, em
