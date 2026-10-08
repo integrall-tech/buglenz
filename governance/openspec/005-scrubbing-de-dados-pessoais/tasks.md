@@ -13,6 +13,6 @@ upstream entra em `DELTA-MANIFEST.md` no mesmo commit. **Revisão linha a linha 
 - [x] T4. Teste de integração `scrub_test.rs` (evento, transação, logs, span; `remote_addr` nulo; agrupamento com CPFs diferentes)
 - [x] T5. Exclusão por titular: serviço por backend com ajuste de contadores, rota admin, OpenAPI regenerado; `privacy_test.rs`
 - [x] T6. `e2e-react`: usuário com e-mail e mensagem com CPF/senha; assert dos marcadores e do `user.id` preservado; verde no PR
-- [ ] T7. Issue de proposta em `rustrak/rustrak` (texto para aprovação do Edson antes de abrir); link no manifesto
+- [x] T7. Issue de proposta em `rustrak/rustrak` (aberta como #384 em 2026-10-08, texto aprovado pelo Edson); link no manifesto
 - [x] T8. `DELTA-MANIFEST.md`, `CHANGES-FROM-UPSTREAM.md` (o que o operador vê: `[Filtered]`, marcadores, IP nulo, variável `RUSTRAK_SCRUB_EXTRA_KEYS`, endpoint); `deploy/swarm/README.md` cita a variável
 - [x] T9. `governance/baseline/005.md` (testes, custo do scrub medido no digest, e2e); GAP G2 marcado; conferir cada cenário de `specs/scrub.md`

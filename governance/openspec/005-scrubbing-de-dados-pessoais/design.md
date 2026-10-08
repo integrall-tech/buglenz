@@ -169,4 +169,4 @@ sai do fork público com o módulo e os pontos de chamada; se não, fica no fork
   que somam contadores precisam de cast explícito para decodificar a mesma tupla nos dois.
 - Importar um tipo só usado dentro de `#[cfg_attr(feature = "openapi", utoipa::path(...))]` quebra
   o build sem a feature (`postgres-e2e` compila sem ela); nomear o tipo por caminho.
-- Desvio de T7: a issue no upstream aguarda aprovação do texto pelo Edson.
+- T7: issue rustrak/rustrak#384 aberta após aprovação do texto pelo Edson.

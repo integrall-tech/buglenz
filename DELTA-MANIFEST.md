@@ -65,7 +65,7 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `.changeset/sessions-unhandled-status.md` | G | 0002 | Novo (006). Changeset `patch` de `@rustrak/server` que acompanha o PR ao upstream. Temporário, idem |
 | `e2e/react-app/**` | G | 0005, 0011 | Novo (006). App React 19 + `@sentry/react` 11.5.0 fora do workspace pnpm (lockfile próprio), para o teste de ponta a ponta |
 | `scripts/e2e-react-assert.sh`, `.github/workflows/e2e-react.yml` | G | 0005, 0011 | Novos (006). Job `e2e-react`: servidor do PR, source maps, Chromium, asserções pela API; passo 6 do ADR-0005 |
-| `apps/server/src/scrub/mod.rs`, `apps/server/src/scrub/keys.rs`, `apps/server/src/scrub/text.rs` | G | 0009 | Novos (005). Scrubbing de dados pessoais: chaves negadas → `[Filtered]`, máscaras `[cpf]`/`[cnpj]`/`[cartao]`/`[email]` |
+| `apps/server/src/scrub/mod.rs`, `apps/server/src/scrub/keys.rs`, `apps/server/src/scrub/text.rs` | G | 0009 | Novos (005); proposta ao upstream em [rustrak/rustrak#384](https://github.com/rustrak/rustrak/issues/384). Scrubbing de dados pessoais: chaves negadas → `[Filtered]`, máscaras `[cpf]`/`[cnpj]`/`[cartao]`/`[email]` |
 | `apps/server/src/lib.rs` | G | 0009 | Alterado (005). `pub mod scrub;` |
 | `apps/server/tests/unit/scrub_test.rs`, `apps/server/tests/unit/mod.rs` | G | 0009 | Novo / registro (005) |
 | `apps/server/src/routes/ingest.rs` | G | 0009 | Alterado (005). O IP do cliente não é lido na ingestão |

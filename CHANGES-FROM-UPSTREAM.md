@@ -49,7 +49,7 @@ migration foi tocada.
   `user.id` (ADR-0011).
 - `DELETE /api/projects/{id}/privacy/users/{user_id}` (admin): apaga eventos e transações do
   `user.id` informado, com os contadores de issue e projeto ajustados. Issues vazias ficam.
-- Proposta ao upstream: issue em rustrak/rustrak (link no manifesto quando aberta).
+- Proposta ao upstream: rustrak/rustrak#384 (issue; sem PR até haver interesse do mantenedor).
 
 ### Status de sessão `unhandled` (pacote 006, ADR-0011) — proposto ao upstream
 
