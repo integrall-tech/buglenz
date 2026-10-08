@@ -65,6 +65,7 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `.changeset/sessions-unhandled-status.md` | G | 0002 | Novo (006). Changeset `patch` de `@rustrak/server` que acompanha o PR ao upstream. Temporário, idem |
 | `e2e/react-app/**` | G | 0005, 0011 | Novo (006). App React 19 + `@sentry/react` 11.5.0 fora do workspace pnpm (lockfile próprio), para o teste de ponta a ponta |
 | `scripts/e2e-react-assert.sh`, `.github/workflows/e2e-react.yml` | G | 0005, 0011 | Novos (006). Job `e2e-react`: servidor do PR, source maps, Chromium, asserções pela API; passo 6 do ADR-0005 |
+| `brand/lib.mjs`, `brand/apply.mjs`, `brand/verify.mjs`, `brand/test/brand.test.mjs` | A | 0006 | Novos (007). Motor da sobreposição de marca: aplica regras declarativas com contagem esperada a uma cópia da árvore; `verify` guarda a zona C e a atribuição; 17 testes |
 | `governance/**` | G | 0001, 0002 | Novo. Corpus de governança: CONSTITUTION, GAP-ANALYSIS, `adr/`, `rfc/`, `openspec/`, `baseline/`, `tools/` |
 
 ## Histórico de bases
