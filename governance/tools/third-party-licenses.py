@@ -5,7 +5,7 @@ Uso, na raiz do repositório:
 
     (cd apps/server && cargo deny list -f json -l crate) > /tmp/deny-server.json
     (cd packages/benchmarks && cargo deny list -f json -l crate) > /tmp/deny-bench.json
-    corepack pnpm licenses list --json --long > /tmp/pnpm-licenses.json
+    corepack pnpm -r licenses list --json --long > /tmp/pnpm-licenses.json   # -r: todo o workspace (pnpm >= 12.10 lista só a raiz sem ele)
     python3 -I governance/tools/third-party-licenses.py \
         /tmp/deny-server.json /tmp/deny-bench.json /tmp/pnpm-licenses.json > THIRD-PARTY-LICENSES.md
 
@@ -74,7 +74,7 @@ def main() -> None:
         "",
         "Inventário das dependências do BugLenz e das licenças que elas declaram. Gerado por",
         "`governance/tools/third-party-licenses.py` a partir de `cargo deny list` (Rust) e",
-        "`pnpm licenses list` (JavaScript); o cabeçalho do script tem os comandos. Este arquivo é",
+        "`pnpm -r licenses list` (JavaScript); o cabeçalho do script tem os comandos. Este arquivo é",
         "regenerado a cada sincronização com o upstream.",
         "",
         f"Data: {date.today().isoformat()}. Base: Rustrak `v0.15.2`.",
