@@ -6,7 +6,8 @@
 # vX.Y.Z-itl.N git tag. On a pull request that touches the image inputs the
 # same build runs without pushing, as a check. Adapted from the upstream's
 # docker-publish.yml, which package 001 removed (Docker Hub, three images, two
-# platforms); this one is one image, linux/amd64 only, no telemetry secret.
+# platforms); this one is one image, linux/amd64 only, no telemetry secret,
+# built from the branded copy of the tree (brand/, OpenSpec 007).
 name: Release image
 
 on:
@@ -15,6 +16,7 @@ on:
   pull_request:
     paths:
       - apps/server/Dockerfile
+      - brand/**
       - apps/server/Cargo.toml
       - apps/server/Cargo.lock
       - rust-toolchain.toml
@@ -78,9 +80,21 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - name: Build the dashboard into the server's build context
+
+      # The brand is applied to a copy, never to the checkout (ADR-0006): the
+      # rules state how many matches they expect, so an upstream change that
+      # adds or removes a branded string stops the release here.
+      - name: Apply and verify the BugLenz brand
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
         run: |
+          node brand/apply.mjs buglenz --dest "$RUNNER_TEMP/branded" --var release="$VERSION"
+          node brand/verify.mjs buglenz --branded "$RUNNER_TEMP/branded"
+
+      - name: Build the branded dashboard into the server's build context
+        working-directory: ${{ runner.temp }}/branded
+        run: |
+          pnpm install --frozen-lockfile
           pnpm exec turbo run build --filter=@rustrak/dashboard
           bash scripts/bundle-dashboard.sh
 
@@ -97,8 +111,8 @@ jobs:
         id: build
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
-          context: ./apps/server
-          file: ./apps/server/Dockerfile
+          context: ${{ runner.temp }}/branded/apps/server
+          file: ${{ runner.temp }}/branded/apps/server/Dockerfile
           platforms: ${{ inputs.platforms || 'linux/amd64' }}
           build-args: FEATURES=postgres
           push: ${{ steps.meta.outputs.push == 'true' }}
