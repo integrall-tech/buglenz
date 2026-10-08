@@ -59,12 +59,22 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `apps/server/Dockerfile` | B | 0012 | Alterado (003). `ENV INGEST_DIR=/data/ingest`: spool de ingestão dentro do volume (issue #359 do upstream) |
 | `.github/workflows/licenses.yml` | G | 0003, 0005 | Novo (003). Regenera `THIRD-PARTY-LICENSES.md` em Linux e falha se divergir do commitado |
 | `.github/workflows/release-image.yml` | G | 0012, 0005, 0006 | Novo (003); a partir do 007 constrói a imagem da cópia marcada, depois de verificada. Publica `ghcr.io/integrall-tech/buglenz-server:<tag>` por tag `v*-itl.*`; build sem push em PR |
-| `deploy/swarm/buglenz.stack.yml`, `deploy/swarm/README.md`, `deploy/swarm/provision.sh`, `deploy/swarm/backup.sh` | B | 0012 | Novos (003). Stack Swarm parametrizada, provisionamento via API (sem `RUSTRAK_BOOTSTRAP_TOKEN`, #356), backup e restauração |
+| `deploy/swarm/buglenz.stack.yml`, `deploy/swarm/README.md`, `deploy/swarm/provision.sh`, `deploy/swarm/backup.sh` | B | 0012, 0009, 0006 | Novos (003; 005 acrescenta `RUSTRAK_SCRUB_EXTRA_KEYS` e a seção de dados pessoais; 007 acrescenta `SMTP_FROM` no domínio `buglenz.dev`). Stack Swarm parametrizada, provisionamento via API (sem `RUSTRAK_BOOTSTRAP_TOKEN`, #356), backup e restauração |
 | `apps/server/src/models/session.rs`, `apps/server/src/workers/session_aggregator.rs` | G | 0011, 0002 | Alterados (006). Status de sessão `unhandled` (protocolo 1.6.0) aceito e contado como errored; campo `unhandled` dos agregados. **Temporário**: proposto ao upstream em [rustrak/rustrak#383](https://github.com/rustrak/rustrak/pull/383); sai do manifesto quando entrar por sync |
 | `apps/server/tests/unit/envelope_parser_test.rs` | G | 0011 | Alterado (006). Teste do parser para o status `unhandled`. Temporário, idem |
 | `.changeset/sessions-unhandled-status.md` | G | 0002 | Novo (006). Changeset `patch` de `@rustrak/server` que acompanha o PR ao upstream. Temporário, idem |
 | `e2e/react-app/**` | G | 0005, 0011 | Novo (006). App React 19 + `@sentry/react` 11.5.0 fora do workspace pnpm (lockfile próprio), para o teste de ponta a ponta |
 | `scripts/e2e-react-assert.sh`, `.github/workflows/e2e-react.yml` | G | 0005, 0011 | Novos (006). Job `e2e-react`: servidor do PR, source maps, Chromium, asserções pela API; passo 6 do ADR-0005 |
+| `apps/server/src/scrub/mod.rs`, `apps/server/src/scrub/keys.rs`, `apps/server/src/scrub/text.rs` | G | 0009 | Novos (005); proposta ao upstream em [rustrak/rustrak#384](https://github.com/rustrak/rustrak/issues/384). Scrubbing de dados pessoais: chaves negadas → `[Filtered]`, máscaras `[cpf]`/`[cnpj]`/`[cartao]`/`[email]` |
+| `apps/server/src/lib.rs` | G | 0009 | Alterado (005). `pub mod scrub;` |
+| `apps/server/tests/unit/scrub_test.rs`, `apps/server/tests/unit/mod.rs` | G | 0009 | Novo / registro (005) |
+| `apps/server/src/routes/ingest.rs` | G | 0009 | Alterado (005). O IP do cliente não é lido na ingestão |
+| `apps/server/src/digest/processors/event.rs`, `apps/server/src/digest/processors/transaction.rs`, `apps/server/src/digest/processors/logs.rs`, `apps/server/src/digest/processors/span.rs`, `apps/server/src/digest/processors/span_v2.rs` | G | 0009 | Alterados (005). Chamada ao `scrub` antes de agrupar e persistir; `events.remote_addr` nunca gravado |
+| `apps/server/tests/integration/scrub_test.rs`, `apps/server/tests/integration/mod.rs` | G | 0009 | Novo / registro (005) |
+| `apps/server/tests/integration/digest_test.rs` | G | 0009 | Alterado (005). Expectativa de `test_list_stats_counts_by_email_when_id_is_absent`: com e-mails mascarados, eventos sem `user.id` contam como um usuário |
+| `apps/server/src/services/privacy.rs`, `apps/server/src/routes/privacy.rs` | G | 0009 | Novos (005). Exclusão por titular: `DELETE /api/projects/{id}/privacy/users/{user_id}` (admin), contadores de issue e projeto ajustados |
+| `apps/server/src/services/mod.rs`, `apps/server/src/routes/mod.rs`, `apps/server/src/main.rs`, `apps/server/src/openapi.rs`, `apps/server/openapi.json` | G | 0009 | Registro da rota e do schema (005); `openapi.json` regenerado |
+| `apps/server/tests/integration/privacy_test.rs` | G | 0009 | Novo (005) |
 | `brand/lib.mjs`, `brand/apply.mjs`, `brand/verify.mjs`, `brand/test/brand.test.mjs` | A | 0006 | Novos (007). Motor da sobreposição de marca: aplica regras declarativas com contagem esperada a uma cópia da árvore; `verify` guarda a zona C e a atribuição; 17 testes |
 | `brand/buglenz/rules.json`, `brand/buglenz/verify.json` | A | 0006 | Novos (007). 26 regras: catálogos (68 ocorrências por idioma), título, rodapés, modelos de webhook, `actor` e rodapé dos alertas, título da API, mensagem de SSO, tela "Sobre" (atribuição, link de código-fonte, sem link ao rastreador do upstream) |
 | `brand/buglenz/overrides/apps/dashboard/src/shared/ui/components/rustrak-wordmark.tsx`, `brand/buglenz/overrides/packages/ui/src/components/brand/wordmark.tsx` | A | 0006 | Novos (007). Logotipo tipográfico provisório (D9 aberta); substituem por inteiro, em tempo de build, os dois componentes do upstream, com o mesmo nome e a mesma assinatura |
@@ -83,3 +93,4 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | 2026-10-07 | `v0.16.0` (`4dbe5ce7`) | 002 remoção de egress |
 | 2026-10-08 | `v0.16.0` (`4dbe5ce7`) | 003 build e implantação |
 | 2026-10-08 | `v0.16.0` (`4dbe5ce7`) | 006 compatibilidade com o SDK atual |
+| 2026-10-08 | `v0.16.0` (`4dbe5ce7`) | 005 scrubbing de dados pessoais |

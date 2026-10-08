@@ -33,6 +33,10 @@ impl Processor for LogsProcessor {
             let timestamp = epoch_to_datetime(log.timestamp).unwrap_or(ctx.ingested_at);
             let level = normalize_level(&log.level);
             let severity_number = severity_number(&level);
+            // Personal data never reaches the database (ADR-0009).
+            let body = crate::scrub::scrub_text(&log.body);
+            let mut attributes = attributes_json(&log);
+            crate::scrub::scrub_value(&mut attributes);
 
             sqlx::query(
                 r#"
@@ -58,8 +62,8 @@ impl Processor for LogsProcessor {
             .bind(log.span_id.as_deref())
             .bind(&level)
             .bind(severity_number)
-            .bind(&log.body)
-            .bind(attributes_json(&log))
+            .bind(body.as_ref())
+            .bind(attributes)
             .bind(timestamp)
             .bind(ctx.ingested_at)
             .execute(&mut *tx)

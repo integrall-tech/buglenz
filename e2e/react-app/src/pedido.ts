@@ -9,7 +9,7 @@ export interface Item {
 
 export function calcularTotalPedido(itens: Item[]): number {
   if (itens.length === 0) {
-    throw new TypeError('pedido sem itens: total indefinido');
+    throw new TypeError('pedido sem itens: total indefinido (cliente 529.982.247-25)');
   }
   return itens.reduce((total, item) => total + item.preco * item.quantidade, 0);
 }

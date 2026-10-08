@@ -45,6 +45,25 @@ migration foi tocada.
   `X-Rustrak-*` dos webhooks, tabelas, caminhos de API e logs do servidor.
 - Logotipo e ícones são **provisórios** até a identidade visual (decisão D9).
 
+### Dados pessoais tratados antes de persistir (pacote 005, ADR-0009)
+
+- Todo payload (evento, transação e seus spans, logs, spans avulsos e v2) passa pelo módulo
+  `scrub` no digest, antes do agrupamento e de qualquer gravação:
+  - valores de chaves negadas (`password`, `senha`, `token`, `authorization`, `cookie`, `secret`,
+    `api_key`, `cpf`, `cnpj`, `ip_address`, …; lista completa em `apps/server/src/scrub/keys.rs`)
+    viram `"[Filtered]"`; `RUSTRAK_SCRUB_EXTRA_KEYS=chave1,chave2` acrescenta chaves por instância;
+  - em texto livre, CPF e CNPJ válidos, números de cartão (Luhn) e e-mails viram `[cpf]`,
+    `[cnpj]`, `[cartao]`, `[email]`; identificadores (`*_id`, timestamps, `release`) não são
+    mascarados.
+- O IP do cliente não é lido na ingestão: `events.remote_addr` e `transactions.remote_addr` ficam
+  nulos (as colunas continuam no schema).
+- Consequência visível: sem `user.id`, eventos de usuários diferentes contam como **um** usuário
+  afetado (o e-mail, que o upstream usava como reserva, está mascarado). O wrapper do SDK define
+  `user.id` (ADR-0011).
+- `DELETE /api/projects/{id}/privacy/users/{user_id}` (admin): apaga eventos e transações do
+  `user.id` informado, com os contadores de issue e projeto ajustados. Issues vazias ficam.
+- Proposta ao upstream: rustrak/rustrak#384 (issue; sem PR até haver interesse do mantenedor).
+
 ### Status de sessão `unhandled` (pacote 006, ADR-0011) — proposto ao upstream
 
 - Sessões com status `unhandled` (protocolo 1.6.0; o SDK JavaScript 11.x o envia em vez de
