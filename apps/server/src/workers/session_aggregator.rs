@@ -48,7 +48,26 @@ pub struct AggregatorState {
     pub counts: HashMap<BucketKey, Counters>,
     /// Map of UserKey → crashed; TRUE means this user had a crash this flush cycle.
     pub users: HashMap<UserKey, bool>,
+    /// What was already counted for each session id, so that a session reported more than once
+    /// (the Java SDK sends its final state twice) is counted once. Survives flushes; bounded.
+    pub seen: HashMap<(i32, String), SidSeen>,
 }
+
+/// What the aggregator already counted for one session id (BugLenz, gap G24).
+#[derive(Debug, Clone, Copy)]
+pub struct SidSeen {
+    /// The `init` update was counted.
+    pub init: bool,
+    /// The worst terminal outcome counted so far.
+    pub outcome: Option<SessionOutcome>,
+    /// When this session id was last reported.
+    pub at: DateTime<Utc>,
+}
+
+/// How many session ids are remembered, and for how long. Past either, the oldest go first; a
+/// session whose id was forgotten and is then reported again is counted again.
+pub const SEEN_CAP: usize = 100_000;
+const SEEN_TTL_HOURS: i64 = 24;
 
 /// Shared handle to the session aggregator — cheaply cloneable across handlers.
 #[derive(Clone)]
@@ -94,89 +113,8 @@ impl SessionAggregator {
 
     /// Ingest a single `session` envelope item.
     pub async fn ingest_session(&self, project_id: i32, update: &SessionUpdate) {
-        let attrs = match &update.attrs {
-            Some(a) => a,
-            None => {
-                log::warn!("session item missing attrs, dropping");
-                return;
-            }
-        };
-        let release = match &attrs.release {
-            Some(r) if !r.is_empty() => r.clone(),
-            _ => {
-                log::warn!("session item missing release, dropping");
-                return;
-            }
-        };
-        let environment = attrs.environment.clone().unwrap_or_default();
-
-        let started_str = update.started.as_deref().unwrap_or("");
-        let bucket = match parse_ts(started_str) {
-            Some(dt) => truncate_to_minute(dt),
-            None => truncate_to_minute(Utc::now()),
-        };
-
         let mut state = self.state.lock().await;
-        let release = apply_cardinality_cap(&state, project_id, release, self.cardinality_cap);
-
-        let key = BucketKey {
-            project_id,
-            release: release.clone(),
-            environment: environment.clone(),
-            bucket,
-        };
-
-        if update.init {
-            let entry = state.counts.entry(key).or_default();
-            entry.total += 1;
-
-            if let Some(did) = &update.did {
-                if !did.is_empty() {
-                    let day = bucket.date_naive();
-                    let ukey = UserKey {
-                        project_id,
-                        release: release.clone(),
-                        environment: environment.clone(),
-                        day,
-                        did: did.clone(),
-                    };
-                    state.users.entry(ukey).or_insert(false);
-                }
-            }
-        }
-
-        let status = update.status.as_ref().cloned().unwrap_or(SessionStatus::Ok);
-        if status.is_terminal() {
-            let outcome = classify(&status, update.errors);
-            let key = BucketKey {
-                project_id,
-                release: release.clone(),
-                environment: environment.clone(),
-                bucket,
-            };
-            let entry = state.counts.entry(key).or_default();
-            match outcome {
-                SessionOutcome::Crashed => {
-                    entry.crashed += 1;
-                    if let Some(did) = &update.did {
-                        if !did.is_empty() {
-                            let day = bucket.date_naive();
-                            let ukey = UserKey {
-                                project_id,
-                                release,
-                                environment,
-                                day,
-                                did: did.clone(),
-                            };
-                            state.users.insert(ukey, true);
-                        }
-                    }
-                }
-                SessionOutcome::Abnormal => entry.abnormal += 1,
-                SessionOutcome::Errored => entry.errored += 1,
-                SessionOutcome::Healthy => {}
-            }
-        }
+        apply_session(&mut state, project_id, update, self.cardinality_cap);
     }
 
     /// Ingest a pre-aggregated `sessions` envelope item.
@@ -391,6 +329,140 @@ fn merge_state(
     }
 }
 
+/// Counts one `session` update into the state. Pure: no database, no clock beyond `Utc::now()` for
+/// the memory of session ids.
+///
+/// A session id (`sid`) is counted once however many times it is reported: SDKs resend the final
+/// state (BugLenz, gap G24). The first `init` adds to `total`; the first terminal outcome adds to
+/// its counter; a later, worse outcome moves the session to that counter (errored becomes crashed);
+/// the same or a milder one changes nothing. An update without a `sid` cannot be told apart and is
+/// counted as it arrives.
+pub fn apply_session(
+    state: &mut AggregatorState,
+    project_id: i32,
+    update: &SessionUpdate,
+    cardinality_cap: usize,
+) {
+    let attrs = match &update.attrs {
+        Some(a) => a,
+        None => {
+            log::warn!("session item missing attrs, dropping");
+            return;
+        }
+    };
+    let release = match &attrs.release {
+        Some(r) if !r.is_empty() => r.clone(),
+        _ => {
+            log::warn!("session item missing release, dropping");
+            return;
+        }
+    };
+    let environment = attrs.environment.clone().unwrap_or_default();
+
+    let started_str = update.started.as_deref().unwrap_or("");
+    let bucket = match parse_ts(started_str) {
+        Some(dt) => truncate_to_minute(dt),
+        None => truncate_to_minute(Utc::now()),
+    };
+
+    let release = apply_cardinality_cap(state, project_id, release, cardinality_cap);
+    let key = BucketKey {
+        project_id,
+        release: release.clone(),
+        environment: environment.clone(),
+        bucket,
+    };
+    let user_key = |did: &str| UserKey {
+        project_id,
+        release: release.clone(),
+        environment: environment.clone(),
+        day: bucket.date_naive(),
+        did: did.to_string(),
+    };
+    let did = update.did.as_deref().filter(|d| !d.is_empty());
+
+    let sid = update
+        .sid
+        .as_deref()
+        .filter(|s| !s.is_empty())
+        .map(|s| (project_id, s.to_string()));
+    let before = sid
+        .as_ref()
+        .and_then(|k| state.seen.get(k))
+        .copied()
+        .unwrap_or(SidSeen {
+            init: false,
+            outcome: None,
+            at: Utc::now(),
+        });
+
+    if update.init && !before.init {
+        state.counts.entry(key.clone()).or_default().total += 1;
+        if let Some(did) = did {
+            state.users.entry(user_key(did)).or_insert(false);
+        }
+    }
+
+    let mut outcome_now = before.outcome;
+    let status = update.status.as_ref().cloned().unwrap_or(SessionStatus::Ok);
+    if status.is_terminal() {
+        let outcome = classify(&status, update.errors);
+        let counts = match before.outcome {
+            None => Some((None, outcome)),
+            Some(prev) if outcome.severity() > prev.severity() => Some((Some(prev), outcome)),
+            Some(_) => None,
+        };
+        if let Some((replaced, outcome)) = counts {
+            let entry = state.counts.entry(key).or_default();
+            match replaced {
+                Some(SessionOutcome::Errored) => entry.errored -= 1,
+                Some(SessionOutcome::Abnormal) => entry.abnormal -= 1,
+                Some(SessionOutcome::Crashed) | Some(SessionOutcome::Healthy) | None => {}
+            }
+            match outcome {
+                SessionOutcome::Crashed => {
+                    entry.crashed += 1;
+                    if let Some(did) = did {
+                        state.users.insert(user_key(did), true);
+                    }
+                }
+                SessionOutcome::Abnormal => entry.abnormal += 1,
+                SessionOutcome::Errored => entry.errored += 1,
+                SessionOutcome::Healthy => {}
+            }
+            outcome_now = Some(outcome);
+        }
+    }
+
+    if let Some(sid) = sid {
+        let now = Utc::now();
+        state.seen.insert(
+            sid,
+            SidSeen {
+                init: before.init || update.init,
+                outcome: outcome_now,
+                at: now,
+            },
+        );
+        evict_seen(&mut state.seen, now);
+    }
+}
+
+/// Keeps the memory of session ids inside [`SEEN_CAP`] and [`SEEN_TTL_HOURS`].
+fn evict_seen(seen: &mut HashMap<(i32, String), SidSeen>, now: DateTime<Utc>) {
+    if seen.len() <= SEEN_CAP {
+        return;
+    }
+    let horizon = now - chrono::Duration::hours(SEEN_TTL_HOURS);
+    seen.retain(|_, s| s.at >= horizon);
+    if seen.len() > SEEN_CAP {
+        let mut times: Vec<DateTime<Utc>> = seen.values().map(|s| s.at).collect();
+        times.sort_unstable();
+        let cut = times[times.len() / 10];
+        seen.retain(|_, s| s.at > cut);
+    }
+}
+
 pub fn truncate_to_minute(dt: DateTime<Utc>) -> DateTime<Utc> {
     dt.with_second(0)
         .and_then(|d| d.with_nanosecond(0))
@@ -479,63 +551,7 @@ mod tests {
 
     /// Pure bucketing helper for tests — no DB pool needed.
     fn apply_update(state: &mut AggregatorState, project_id: i32, update: &SessionUpdate) {
-        let attrs = update.attrs.as_ref().unwrap();
-        let release = attrs.release.clone().unwrap();
-        let environment = attrs.environment.clone().unwrap_or_default();
-        let bucket = parse_ts(update.started.as_deref().unwrap_or(""))
-            .map(truncate_to_minute)
-            .unwrap_or_else(|| truncate_to_minute(Utc::now()));
-
-        let release = apply_cardinality_cap(state, project_id, release, 10_000);
-
-        let key = BucketKey {
-            project_id,
-            release: release.clone(),
-            environment: environment.clone(),
-            bucket,
-        };
-
-        if update.init {
-            state.counts.entry(key.clone()).or_default().total += 1;
-            if let Some(did) = &update.did {
-                if !did.is_empty() {
-                    let ukey = UserKey {
-                        project_id,
-                        release: release.clone(),
-                        environment: environment.clone(),
-                        day: bucket.date_naive(),
-                        did: did.clone(),
-                    };
-                    state.users.entry(ukey).or_insert(false);
-                }
-            }
-        }
-
-        let status = update.status.as_ref().cloned().unwrap_or(SessionStatus::Ok);
-        if status.is_terminal() {
-            let outcome = classify(&status, update.errors);
-            let entry = state.counts.entry(key).or_default();
-            match outcome {
-                SessionOutcome::Crashed => {
-                    entry.crashed += 1;
-                    if let Some(did) = &update.did {
-                        if !did.is_empty() {
-                            let ukey = UserKey {
-                                project_id,
-                                release,
-                                environment,
-                                day: bucket.date_naive(),
-                                did: did.clone(),
-                            };
-                            state.users.insert(ukey, true);
-                        }
-                    }
-                }
-                SessionOutcome::Abnormal => entry.abnormal += 1,
-                SessionOutcome::Errored => entry.errored += 1,
-                SessionOutcome::Healthy => {}
-            }
-        }
+        apply_session(state, project_id, update, 10_000);
     }
 
     #[test]
@@ -725,6 +741,7 @@ mod tests {
                 },
             )]),
             users: HashMap::from([(user.clone(), false)]),
+            ..Default::default()
         };
         merge_state(
             &mut state,
@@ -739,5 +756,182 @@ mod tests {
         );
         assert_eq!(state.counts[&key].total, 3);
         assert!(state.users[&user]);
+    }
+
+    // --- G24: the same session id reported more than once -------------------
+
+    fn with_sid(mut update: SessionUpdate, sid: Option<&str>) -> SessionUpdate {
+        update.sid = sid.map(str::to_string);
+        update
+    }
+
+    fn totals(state: &AggregatorState) -> (i64, i64, i64, i64) {
+        state.counts.values().fold((0, 0, 0, 0), |a, c| {
+            (
+                a.0 + c.total,
+                a.1 + c.errored,
+                a.2 + c.crashed,
+                a.3 + c.abnormal,
+            )
+        })
+    }
+
+    /// What `sentry-spring-boot` 8.60.0 sends for one session: init, an update
+    /// with an error, the crash, and the same crash again when the session ends.
+    #[test]
+    fn a_terminal_state_repeated_for_one_session_counts_once() {
+        let mut state = AggregatorState::default();
+        for (init, status, errors) in [
+            (true, SessionStatus::Ok, 0),
+            (false, SessionStatus::Ok, 1),
+            (false, SessionStatus::Crashed, 2),
+            (false, SessionStatus::Crashed, 2),
+        ] {
+            apply_update(
+                &mut state,
+                1,
+                &make_update(init, status, errors, Some("u1")),
+            );
+        }
+        assert_eq!(totals(&state), (1, 0, 1, 0), "total 1, crashed 1, not 2");
+    }
+
+    #[test]
+    fn an_init_repeated_for_one_session_counts_once() {
+        let mut state = AggregatorState::default();
+        for _ in 0..3 {
+            apply_update(
+                &mut state,
+                1,
+                &make_update(true, SessionStatus::Ok, 0, None),
+            );
+        }
+        assert_eq!(totals(&state).0, 1);
+    }
+
+    #[test]
+    fn different_sessions_are_counted_separately() {
+        let mut state = AggregatorState::default();
+        for sid in ["a", "b", "c"] {
+            apply_update(
+                &mut state,
+                1,
+                &with_sid(make_update(true, SessionStatus::Ok, 0, None), Some(sid)),
+            );
+            apply_update(
+                &mut state,
+                1,
+                &with_sid(
+                    make_update(false, SessionStatus::Crashed, 1, None),
+                    Some(sid),
+                ),
+            );
+        }
+        assert_eq!(totals(&state), (3, 0, 3, 0));
+    }
+
+    #[test]
+    fn the_same_sid_in_two_projects_is_two_sessions() {
+        let mut state = AggregatorState::default();
+        for project in [1, 2] {
+            apply_update(
+                &mut state,
+                project,
+                &make_update(true, SessionStatus::Ok, 0, None),
+            );
+            apply_update(
+                &mut state,
+                project,
+                &make_update(false, SessionStatus::Crashed, 1, None),
+            );
+        }
+        assert_eq!(totals(&state), (2, 0, 2, 0));
+    }
+
+    #[test]
+    fn a_session_without_an_id_is_counted_as_before() {
+        let mut state = AggregatorState::default();
+        for _ in 0..2 {
+            apply_update(
+                &mut state,
+                1,
+                &with_sid(make_update(false, SessionStatus::Crashed, 1, None), None),
+            );
+        }
+        assert_eq!(totals(&state).2, 2, "nothing to tell the updates apart");
+    }
+
+    #[test]
+    fn a_worse_final_state_replaces_the_one_already_counted() {
+        let mut state = AggregatorState::default();
+        apply_update(
+            &mut state,
+            1,
+            &make_update(true, SessionStatus::Ok, 0, Some("u1")),
+        );
+        apply_update(
+            &mut state,
+            1,
+            &make_update(false, SessionStatus::Errored, 1, Some("u1")),
+        );
+        assert_eq!(totals(&state), (1, 1, 0, 0));
+        apply_update(
+            &mut state,
+            1,
+            &make_update(false, SessionStatus::Crashed, 1, Some("u1")),
+        );
+        assert_eq!(
+            totals(&state),
+            (1, 0, 1, 0),
+            "errored becomes crashed, not both"
+        );
+        // A milder state afterwards changes nothing.
+        apply_update(
+            &mut state,
+            1,
+            &make_update(false, SessionStatus::Exited, 1, Some("u1")),
+        );
+        assert_eq!(totals(&state), (1, 0, 1, 0));
+    }
+
+    #[test]
+    fn a_replacement_after_a_flush_is_a_correction_not_a_second_session() {
+        let mut state = AggregatorState::default();
+        apply_update(
+            &mut state,
+            1,
+            &make_update(true, SessionStatus::Ok, 0, None),
+        );
+        apply_update(
+            &mut state,
+            1,
+            &make_update(false, SessionStatus::Errored, 1, None),
+        );
+        // What the flush wrote is gone from memory; the memory of the session is not.
+        state.counts.clear();
+        apply_update(
+            &mut state,
+            1,
+            &make_update(false, SessionStatus::Crashed, 1, None),
+        );
+        assert_eq!(
+            totals(&state),
+            (0, -1, 1, 0),
+            "the delta that moves one session from errored to crashed"
+        );
+    }
+
+    #[test]
+    fn the_memory_of_sessions_is_bounded() {
+        let mut state = AggregatorState::default();
+        for i in 0..(SEEN_CAP + 10) {
+            let sid = format!("sid-{i}");
+            apply_update(
+                &mut state,
+                1,
+                &with_sid(make_update(true, SessionStatus::Ok, 0, None), Some(&sid)),
+            );
+        }
+        assert!(state.seen.len() <= SEEN_CAP, "{} entries", state.seen.len());
     }
 }
