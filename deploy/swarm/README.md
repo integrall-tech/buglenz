@@ -11,7 +11,7 @@ implanta e ficam no cofre da IntegrAllTech, nunca neste repositório.
 
 - Swarm inicializado; uma rede overlay externa para o Traefik (padrão `traefik`), com o Traefik
   já publicando `websecure` e um `certresolver` (padrão `letsencrypt`).
-- DNS do host público (`BUGLENZ_HOST`) apontando para o Traefik. O host entra no DSN de cada
+- DNS do host público (`BUGLENZ_HOST`, sob `buglenz.dev`: proposta `errors.buglenz.dev`) apontando para o Traefik. O host entra no DSN de cada
   aplicação; trocá-lo depois exige novo build dos apps (ADR-0006, decisão D8).
 - Credencial de **leitura** do GHCR em cada nó que pode rodar o serviço: a imagem é privada.
   `docker login ghcr.io -u <usuário> --password-stdin` com um token que tenha `read:packages`;
@@ -23,7 +23,7 @@ implanta e ficam no cofre da IntegrAllTech, nunca neste repositório.
 ```bash
 cat > buglenz.env <<EOF
 BUGLENZ_TAG=v0.16.0-itl.2
-BUGLENZ_HOST=errors.example.com
+BUGLENZ_HOST=errors.buglenz.dev
 POSTGRES_PASSWORD=$(openssl rand -hex 16)
 SESSION_SECRET_KEY=$(openssl rand -hex 32)
 CREATE_SUPERUSER=admin@example.com:$(openssl rand -base64 18)

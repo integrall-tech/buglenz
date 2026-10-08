@@ -34,6 +34,8 @@ services:
       INGEST_DIR: /data/ingest
       SOURCEMAP_STORAGE_PATH: /data/sourcemaps
       RUST_LOG: ${RUST_LOG:-info}
+      # Sender of alert e-mails when a channel does not set its own (OpenSpec 007).
+      SMTP_FROM: ${SMTP_FROM:-alerts@buglenz.dev}
     volumes:
       - buglenz_data:/data
     networks:

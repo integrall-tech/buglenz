@@ -70,6 +70,7 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `brand/buglenz/overrides/apps/dashboard/src/shared/ui/components/rustrak-wordmark.tsx`, `brand/buglenz/overrides/packages/ui/src/components/brand/wordmark.tsx` | A | 0006 | Novos (007). Logotipo tipográfico provisório (D9 aberta); substituem por inteiro, em tempo de build, os dois componentes do upstream, com o mesmo nome e a mesma assinatura |
 | `brand/buglenz/assets/icon.png`, `brand/buglenz/assets/apple-icon.png` | A | 0006 | Novos (007). Ícones provisórios gerados (D9 aberta) |
 | `.github/workflows/brand.yml` | A | 0006, 0005 | Novo (007). A cada PR e sync: motor, aplicação das regras, verificação, build do dashboard e `cargo check` do servidor marcados, busca de vazamentos no bundle |
+| `BUGLENZ.md` | A | 0003, 0006 | Novo (007). Apresentação do fork: origem, licença, o que muda, como a marca é aplicada; o `README.md` da raiz continua o do upstream |
 | `governance/**` | G | 0001, 0002 | Novo. Corpus de governança: CONSTITUTION, GAP-ANALYSIS, `adr/`, `rfc/`, `openspec/`, `baseline/`, `tools/` |
 
 ## Histórico de bases
