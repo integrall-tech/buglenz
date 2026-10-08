@@ -52,6 +52,8 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `apps/server/tests/common/telemetry.rs` | G | 0004 | Removido. Fixture do relatório |
 | `apps/server/tests/common/mod.rs`, `tests/unit/telemetry_test.rs`, `tests/unit/config_test.rs`, `tests/integration/telemetry_test.rs` | G | 0004 | Alterados. Testes do repórter, do sink, da identidade, do volume, da prévia e das variáveis removidos; testes de `Counters` mantidos |
 | `apps/server/tests/integration/*.rs` (18 arquivos), `tests/e2e/sentry_sdk_test.rs` | G | 0004 | Alterados. Fixture de `Config` sem o campo `telemetry` (4 linhas cada) |
+| `apps/dashboard/src/shared/api/version-check.ts`, `src/shared/ui/components/update-banner-slot.tsx` | A | 0004 | Removidos. Checagem de versão em `rustrak.github.io` e o aviso de atualização |
+| `apps/dashboard/src/routes/_authenticated.tsx` | A | 0004 | Alterado. Sem o `<UpdateBannerSlot />` (2 linhas) |
 | `governance/**` | G | 0001, 0002 | Novo. Corpus de governança: CONSTITUTION, GAP-ANALYSIS, `adr/`, `rfc/`, `openspec/`, `baseline/`, `tools/` |
 
 ## Histórico de bases
