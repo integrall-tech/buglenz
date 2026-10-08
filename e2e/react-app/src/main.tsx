@@ -21,6 +21,12 @@ Sentry.init({
   integrations: (defaults) => defaults.filter((i) => i.name !== 'Dedupe'),
 });
 
+// Personal data the server must scrub (ADR-0009): the e-mail is masked, the
+// id is kept, the extra under a denied key is filtered. The app sets them the
+// way a real SDK wrapper would.
+Sentry.setUser({ id: 'u-1', email: 'ana@example.com' });
+Sentry.setExtra('password', 'hunter2');
+
 createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>
     <App />

@@ -91,6 +91,24 @@ if line != 12:
 if not ctx or "TypeError" not in ctx:
     print(f"FAIL: context_line missing or wrong: {ctx!r}"); sys.exit(1)
 
+# Personal data (package 005, ADR-0009): the id survives, the e-mail and
+# the denied extra do not, and the document in the message is masked.
+user = d.get("data", {}).get("user") or d.get("user") or {}
+if user.get("id") != "u-1":
+    print(f"FAIL: user.id should be kept, got {user!r}"); sys.exit(1)
+if user.get("email") != "[email]":
+    print(f"FAIL: user.email should be masked, got {user.get('email')!r}"); sys.exit(1)
+extra = d.get("data", {}).get("extra") or d.get("extra") or {}
+if extra.get("password") != "[Filtered]":
+    print(f"FAIL: extra.password should be filtered, got {extra.get('password')!r}"); sys.exit(1)
+blob = json.dumps(d, ensure_ascii=False)
+for leaked in ("ana@example.com", "hunter2", "529.982.247-25", "52998224725"):
+    if leaked in blob:
+        print(f"FAIL: {leaked!r} is still in the stored event"); sys.exit(1)
+if "[cpf]" not in blob:
+    print("FAIL: the document in the message was not masked to [cpf]"); sys.exit(1)
+print("personal data: user.id kept, e-mail masked, extra filtered, cpf masked")
+
 # Measurements, not assertions (packages 010: G7 function names, G8 in_app).
 nm = [f for f in fs if "node_modules" in str(f.get("abs_path") or f.get("filename") or "")]
 nm_in_app = sorted({str(f.get("in_app")) for f in nm})
