@@ -60,6 +60,9 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `.github/workflows/licenses.yml` | G | 0003, 0005 | Novo (003). Regenera `THIRD-PARTY-LICENSES.md` em Linux e falha se divergir do commitado |
 | `.github/workflows/release-image.yml` | G | 0012, 0005 | Novo (003). Publica `ghcr.io/integrall-tech/buglenz-server:<tag>` por tag `v*-itl.*`; build sem push em PR |
 | `deploy/swarm/buglenz.stack.yml`, `deploy/swarm/README.md`, `deploy/swarm/provision.sh`, `deploy/swarm/backup.sh` | B | 0012 | Novos (003). Stack Swarm parametrizada, provisionamento via API (sem `RUSTRAK_BOOTSTRAP_TOKEN`, #356), backup e restauração |
+| `apps/server/src/models/session.rs`, `apps/server/src/workers/session_aggregator.rs` | G | 0011, 0002 | Alterados (006). Status de sessão `unhandled` (protocolo 1.6.0) aceito e contado como errored; campo `unhandled` dos agregados. **Temporário**: proposto ao upstream; sai do manifesto quando entrar por sync |
+| `apps/server/tests/unit/envelope_parser_test.rs` | G | 0011 | Alterado (006). Teste do parser para o status `unhandled`. Temporário, idem |
+| `.changeset/sessions-unhandled-status.md` | G | 0002 | Novo (006). Changeset `patch` de `@rustrak/server` que acompanha o PR ao upstream. Temporário, idem |
 | `governance/**` | G | 0001, 0002 | Novo. Corpus de governança: CONSTITUTION, GAP-ANALYSIS, `adr/`, `rfc/`, `openspec/`, `baseline/`, `tools/` |
 
 ## Histórico de bases
@@ -70,3 +73,4 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | 2026-10-07 | `v0.16.0` (`4dbe5ce7`) | sync/2026-10-07, primeiro ciclo do ADR-0005; merge sem conflito |
 | 2026-10-07 | `v0.16.0` (`4dbe5ce7`) | 002 remoção de egress |
 | 2026-10-08 | `v0.16.0` (`4dbe5ce7`) | 003 build e implantação |
+| 2026-10-08 | `v0.16.0` (`4dbe5ce7`) | 006 compatibilidade com o SDK atual |
