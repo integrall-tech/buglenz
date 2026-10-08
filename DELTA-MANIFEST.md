@@ -76,6 +76,7 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `apps/server/src/services/notification/destination.rs`, `apps/server/src/services/notification/mod.rs`, `apps/server/src/services/notification/webhook.rs`, `apps/server/src/services/notification/custom_webhook.rs` | G | 0018 | Novo / alterados (023). Webhooks não podem apontar para loopback, redes privadas, link-local, CGNAT ou nomes internos, na configuração e no envio; exceção por instância em `RUSTRAK_WEBHOOK_ALLOWED_HOSTS`; o cliente HTTP dos notificadores não segue redirecionamentos. Corrige H-4 do PR #57 |
 | `.github/workflows/ci.yml` | G | 0019 | Alterado. Ignora mudanças só de documentação (`governance/**`, `deploy/**`, `.changeset/**`, `**.md`) |
 | `.github/workflows/brand.yml`, `.github/workflows/e2e-react.yml`, `.github/workflows/licenses.yml`, `.github/workflows/network-conformance.yml` | G | 0019 | Alterados. Filtros por caminho; a janela de 15 minutos de rede deixa de rodar a cada push em `main` |
+| `.github/rulesets/protect-main.json`, `.github/rulesets/protect-release-tags.json`, `.github/rulesets/README.md` | G | 0021 | Novos. Rulesets propostos para `main` e para as tags `v*-itl.*`; **ainda não aplicados** |
 | `.changeset/server-hardening.md` | G | 0018 | Novo (023) |
 | `.changeset/automatic-retention.md` | G | 0009 | Novo (004) |
 | `.changeset/dashboard-pt-br.md` | G | 0002 | Novo (021) |
