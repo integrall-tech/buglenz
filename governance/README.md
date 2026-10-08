@@ -20,7 +20,7 @@ governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes 
 | `openspec/016-symbolication-mobile/` | Stack trace legível para Android, iOS e Flutter ofuscado |
 | `openspec/007-rebrand-buglenz/` | Rebrand Rustrak → BugLenz por sobreposição no build |
 | `openspec/001-bootstrap-do-fork/` | Primeiro pacote, **executado em 2026-10-07**; T3 pendente (D10) |
-| `openspec/007-rebrand-buglenz/` | Marca BugLenz por sobreposição no build; atribuição ao Rustrak preservada. **Executado em 2026-10-08**; logotipo provisório (D9) e proposta ao upstream pendentes |
+| `openspec/007-rebrand-buglenz/` | Marca BugLenz por sobreposição no build; atribuição ao Rustrak preservada. **Executado em 2026-10-08**; logotipo provisório (D9); proposta ao upstream: rustrak/rustrak#387 |
 | `openspec/005-scrubbing-de-dados-pessoais/` | Scrubbing no servidor (chaves, máscaras, IP), exclusão por titular. **Executado em 2026-10-08** (PR #7); issue no upstream: rustrak/rustrak#384 |
 | `openspec/006-compatibilidade-sdk-atual/` | Status de sessão `unhandled`, e2e React na CI, primeiro PR ao upstream (rustrak/rustrak#383). **Executado em 2026-10-08** (PR #6) |
 | `openspec/003-build-e-implantacao/` | Imagem em GHCR privado, workflow por tag, stack Swarm parametrizada, licenças geradas na CI. **Executado em 2026-10-08** (PR #5); primeira publicação na tag `v0.16.0-itl.3` |

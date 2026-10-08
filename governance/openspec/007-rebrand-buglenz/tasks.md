@@ -1,7 +1,6 @@
 # 007 — Tarefas
 
-Executado em 2026-10-08 no branch `pkg/007-rebrand-buglenz`. T11 aguarda a aprovação do texto pelo
-Edson. Achados em `design.md`, seção 7.
+Executado em 2026-10-08 no branch `pkg/007-rebrand-buglenz`. T11 concluída (issue #387). Achados em `design.md`, seção 7.
 
 - [x] T1. Refazer o inventário da zona A na versão corrente do fork e atualizar a tabela do `design.md`
 - [x] T2. Criar `brand/apply.mjs` e `brand/verify.mjs`, com testes próprios
@@ -13,5 +12,5 @@ Edson. Achados em `design.md`, seção 7.
 - [x] T8. Zona B: nome da imagem, serviço e rótulos; `SMTP_FROM`
 - [x] T9. Criar `BUGLENZ.md` na raiz
 - [x] T10. Registrar os arquivos novos no `DELTA-MANIFEST.md`
-- [ ] T11. Abrir a proposta de nome configurável no upstream
+- [x] T11. Abrir a proposta de nome configurável no upstream (rustrak/rustrak#387, texto aprovado pelo Edson em 2026-10-08)
 - [x] T12. Conferir cada cenário de `specs/rebrand.md`, com captura de tela de login, lista de issues e e-mail de alerta
