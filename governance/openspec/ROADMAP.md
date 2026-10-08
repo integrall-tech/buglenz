@@ -19,7 +19,7 @@ G (mais que isso). São ordens de grandeza, não estimativas. [inferência]
 | Pacote | Entrega | Gaps | ADR | Depende de | Tam. |
 |---|---|---|---|---|---|
 | 004 retencao-automatica | Prazo por projeto e tipo; worker diário; tela de configuração | G1 | 0009 | 003 | M |
-| 005 scrubbing-de-dados-pessoais | Etapa no digest; lista de negação; máscaras de CPF/CNPJ/cartão/e-mail; IP não gravado; exclusão por titular | G2 | 0009 | 003 | M |
+| 005 scrubbing-de-dados-pessoais | Módulo `scrub` no digest: lista de negação por chave (padrão + `RUSTRAK_SCRUB_EXTRA_KEYS`), máscaras `[cpf]`/`[cnpj]`/`[cartao]`/`[email]` com validação, IP nunca gravado, exclusão por titular; cenário de PII no `e2e-react`; proposta ao upstream. **Detalhado em 2026-10-08** | G2 | 0009, 0002 | 003 | M |
 | 006 compatibilidade-sdk-atual | Status de sessão `unhandled` (protocolo 1.6.0) em sessões e agregados, contado como errored; job `e2e-react` com `@sentry/react` 11.5.0 fixado e source maps; PR no upstream rustrak/rustrak#383 via fork público `integrall-tech/rustrak`. **Feito em 2026-10-08** (PR #6) | G3 | 0011, 0002 | 001 | P |
 | 007 rebrand-buglenz | Marca BugLenz nas zonas A e B, aplicada por sobreposição no build; atribuição ao Rustrak preservada | — | 0006 | 003, D8, D9 | M |
 | 021 catalogo-pt-br | Catálogo `pt-BR` (1.298 chaves), proposto ao upstream | G5 | 0002, 0010 | 001 | P |
