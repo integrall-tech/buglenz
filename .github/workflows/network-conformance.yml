@@ -54,7 +54,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Build the dashboard bundle
-        run: pnpm --filter @rustrak/dashboard build
+        # Through turbo so the workspace packages it imports (@rustrak/client,
+        # @rustrak/ui) are built first, as `pnpm run ci:web` does.
+        run: pnpm exec turbo run build --filter=@rustrak/dashboard
 
       - name: Static layer — sources, binary, bundle
         run: scripts/network-conformance.sh static apps/server/target/debug/rustrak apps/dashboard/dist
