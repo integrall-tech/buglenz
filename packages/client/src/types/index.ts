@@ -8,6 +8,7 @@ export * from './issue.js';
 export * from './log.js';
 export * from './member.js';
 export * from './project.js';
+export * from './retention.js';
 export * from './session.js';
 export * from './sourcemap.js';
 export * from './stats.js';

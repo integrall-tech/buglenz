@@ -37,6 +37,11 @@ services:
       # Extra denied keys for the personal-data scrub (ADR-0009), comma-separated.
       RUSTRAK_SCRUB_EXTRA_KEYS: ${RUSTRAK_SCRUB_EXTRA_KEYS:-}
       RUSTRAK_WEBHOOK_ALLOWED_HOSTS: ${RUSTRAK_WEBHOOK_ALLOWED_HOSTS:-}
+      # Retention (ADR-0009, invariant I5): no instance runs without a period for each type.
+      RUSTRAK_RETENTION_EVENTS_DAYS: ${RUSTRAK_RETENTION_EVENTS_DAYS:?dias de retencao dos eventos, decisao D6}
+      RUSTRAK_RETENTION_TRANSACTIONS_DAYS: ${RUSTRAK_RETENTION_TRANSACTIONS_DAYS:?dias de retencao das transacoes, decisao D6}
+      RUSTRAK_RETENTION_LOGS_DAYS: ${RUSTRAK_RETENTION_LOGS_DAYS:?dias de retencao dos logs, decisao D6}
+      RUSTRAK_RETENTION_INTERVAL_HOURS: ${RUSTRAK_RETENTION_INTERVAL_HOURS:-24}
       # Sender of alert e-mails when a channel does not set its own (OpenSpec 007).
       SMTP_FROM: ${SMTP_FROM:-alerts@buglenz.dev}
     volumes:

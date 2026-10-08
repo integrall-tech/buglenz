@@ -1549,7 +1549,8 @@
       "openProjectSettingsMenu": "Deschide meniul setărilor proiectului",
       "projectSettingsTitle": "Setări proiect",
       "openSettingsMenu": "Deschide meniul setărilor",
-      "settingsTitle": "Setări"
+      "settingsTitle": "Setări",
+      "retention": "Retenție"
     },
     "loadProjectFailed": "Proiectul nu a putut fi încărcat",
     "loadProjectsFailed": "Proiectele nu au putut fi încărcate",
@@ -1697,6 +1698,39 @@
       "githubRepository": "Depozit GitHub",
       "reportAnIssue": "Raportează o problemă",
       "sentryDocs": "Documentație SDK Sentry"
+    },
+    "retention": {
+      "meta": {
+        "title": "Retenție | Rustrak",
+        "description": "Perioade de retenție pentru evenimente, tranzacții și jurnale"
+      },
+      "title": "Retenție",
+      "subtitle": "Datele sunt șterse automat după ce depășesc perioada stabilită",
+      "notAuthorizedDescription": "Doar administratorii instanței pot vedea și modifica perioadele de retenție. Contactați un administrator dacă aveți nevoie de acces.",
+      "loadFailed": "Nu s-au putut citi perioadele de retenție",
+      "defaultsTitle": "Valorile implicite ale instanței",
+      "defaultsDescription": "Sunt stabilite de operator prin variabile de mediu. Un proiect fără perioadă proprie le folosește pe acestea.",
+      "types": {
+        "events": "Evenimente",
+        "transactions": "Tranzacții și spans",
+        "logs": "Jurnale"
+      },
+      "notSet": "Nesetat",
+      "days": "{count, plural, one {# zi} few {# zile} other {# de zile}}",
+      "lastRun": "Ultima trecere: {when}. Au fost șterse {events} evenimente, {transactions} tranzacții și {logs} jurnale.",
+      "noRun": "Nicio trecere de la pornirea serverului. Prima are loc la aproximativ un minut după pornire, apoi la fiecare {hours} ore.",
+      "byProject": "Pe proiect",
+      "byProjectDescription": "Lăsați un câmp gol pentru a folosi valoarea implicită a instanței.",
+      "noProjects": "Niciun proiect încă.",
+      "protected": "Protejat",
+      "unprotectedMissing": "Fără perioadă pentru {types}",
+      "warningUnprotected": "{count, plural, one {# proiect nu are} few {# proiecte nu au} other {# de proiecte nu au}} perioadă de retenție pentru unele date. Acele date nu sunt șterse niciodată.",
+      "placeholderNone": "Niciuna",
+      "placeholderDefault": "Implicit: {days}",
+      "invalidRange": "Introduceți un număr întreg de zile între {min} și {max}, sau lăsați gol.",
+      "save": "Salvează",
+      "saved": "Retenție actualizată pentru {project}",
+      "saveFailed": "Nu s-au putut salva perioadele de retenție"
     }
   }
 }

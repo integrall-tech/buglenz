@@ -4,7 +4,7 @@
 
 `project_retention (project_id PK → projects ON DELETE CASCADE, events_days, transactions_days,
 logs_days INTEGER NULL, updated_at)`. Uma linha por projeto com ao menos um prazo próprio; sem linha,
-vale o padrão. Valor aceito: 1 a 3650 dias (o mínimo é o da limpeza manual).
+vale o padrão. Valor aceito: **7 a 3650 dias**. O piso de 7 é deliberado: a primeira passada roda 60 s depois de cada partida, e um prazo digitado pequeno demais (`1`) apagaria quase tudo de uma vez. A limpeza manual mantém o mínimo de 1 dia, porque ali há prévia e confirmação.
 
 ## Prazo efetivo
 
@@ -32,7 +32,7 @@ passada():
 ## API
 
 Somente administradores globais, como o Storage. `PUT` aceita `{events_days, transactions_days,
-logs_days}`; `null` limpa o prazo do tipo; campo ausente não muda; fora de 1..3650 é 400 com o campo.
+logs_days}`; `null` limpa o prazo do tipo; campo ausente não muda; fora de 7..3650 é 400 com o campo.
 
 ## Decisões abertas
 

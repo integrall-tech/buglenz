@@ -1549,7 +1549,8 @@
       "openProjectSettingsMenu": "打开项目设置菜单",
       "projectSettingsTitle": "项目设置",
       "openSettingsMenu": "打开设置菜单",
-      "settingsTitle": "设置"
+      "settingsTitle": "设置",
+      "retention": "数据保留"
     },
     "loadProjectFailed": "无法加载项目",
     "loadProjectsFailed": "无法加载项目",
@@ -1697,6 +1698,39 @@
       "githubRepository": "GitHub 仓库",
       "reportAnIssue": "报告问题",
       "sentryDocs": "Sentry SDK 文档"
+    },
+    "retention": {
+      "meta": {
+        "title": "数据保留 | Rustrak",
+        "description": "事件、事务和日志的保留期限"
+      },
+      "title": "数据保留",
+      "subtitle": "数据超过保留期限后会被自动删除",
+      "notAuthorizedDescription": "只有实例管理员可以查看和修改保留期限。如需访问权限，请联系管理员。",
+      "loadFailed": "无法读取保留期限",
+      "defaultsTitle": "实例默认值",
+      "defaultsDescription": "由运维人员通过环境变量设置。没有自定义期限的项目使用这些值。",
+      "types": {
+        "events": "事件",
+        "transactions": "事务和 span",
+        "logs": "日志"
+      },
+      "notSet": "未设置",
+      "days": "{count} 天",
+      "lastRun": "上次执行：{when}。已删除 {events} 个事件、{transactions} 个事务和 {logs} 条日志。",
+      "noRun": "服务器启动后尚未执行。首次执行在启动后约一分钟，之后每 {hours} 小时一次。",
+      "byProject": "按项目",
+      "byProjectDescription": "留空则使用实例默认值。",
+      "noProjects": "暂无项目。",
+      "protected": "已保护",
+      "unprotectedMissing": "{types}未设置期限",
+      "warningUnprotected": "有 {count} 个项目的部分数据未设置保留期限。这些数据永远不会被删除。",
+      "placeholderNone": "无",
+      "placeholderDefault": "默认：{days}",
+      "invalidRange": "请输入 {min} 到 {max} 之间的整数天数，或留空。",
+      "save": "保存",
+      "saved": "已更新 {project} 的保留期限",
+      "saveFailed": "无法保存保留期限"
     }
   }
 }

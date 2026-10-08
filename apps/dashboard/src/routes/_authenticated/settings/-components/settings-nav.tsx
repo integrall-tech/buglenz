@@ -1,4 +1,13 @@
-import { Database, Info, Key, Palette, Plug, User, Users } from 'lucide-react';
+import {
+  CalendarClock,
+  Database,
+  Info,
+  Key,
+  Palette,
+  Plug,
+  User,
+  Users,
+} from 'lucide-react';
 import { useTranslations } from 'use-intl';
 import { cn } from '@/shared/lib/utils';
 import { Link } from '@/shared/ui/components/link';
@@ -17,6 +26,12 @@ const navItems = [
     href: '/settings/storage',
     labelKey: 'nav.storage',
     icon: Database,
+    adminOnly: true,
+  },
+  {
+    href: '/settings/retention',
+    labelKey: 'nav.retention',
+    icon: CalendarClock,
     adminOnly: true,
   },
   { href: '/settings/account', labelKey: 'nav.account', icon: User },

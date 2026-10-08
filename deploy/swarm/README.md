@@ -27,6 +27,10 @@ BUGLENZ_HOST=errors.buglenz.dev
 POSTGRES_PASSWORD=$(openssl rand -hex 16)
 SESSION_SECRET_KEY=$(openssl rand -hex 32)
 CREATE_SUPERUSER=admin@example.com:$(openssl rand -base64 18)
+# Prazos de retenção, em dias (decisão D6, responsável por LGPD). Sem valor padrão: a stack não sobe sem eles.
+RUSTRAK_RETENTION_EVENTS_DAYS=<dias>
+RUSTRAK_RETENTION_TRANSACTIONS_DAYS=<dias>
+RUSTRAK_RETENTION_LOGS_DAYS=<dias>
 EOF
 chmod 600 buglenz.env
 
@@ -61,6 +65,17 @@ CPF/CNPJ/cartão/e-mail em texto viram marcadores, e o IP do cliente não é gra
 acrescentar chaves negadas nesta instância (nomes de campo dos seus apps), defina
 `RUSTRAK_SCRUB_EXTRA_KEYS=documento,telefone` no ambiente do serviço. Exclusão por titular:
 `DELETE /api/projects/{id}/privacy/users/{user_id}` com token de admin.
+
+## Retenção
+
+Um worker apaga, a cada 24 h (`RUSTRAK_RETENTION_INTERVAL_HOURS`, de 1 a 168), o que passou do prazo:
+eventos, transações (com os spans) e logs, cada um com o seu. Os três prazos da instância são
+**obrigatórios** na stack e não têm valor embutido; o ADR-0009 propõe 90, 30 e 90 dias, sujeito à
+validação de quem responde por LGPD (decisão D6). Um projeto pode ter prazos próprios:
+`PUT /api/projects/{id}/retention` com `{"events_days": 30}` (de 7 a 3650 dias, tanto aqui quanto nas variáveis) (`null` volta ao padrão).
+`GET /api/retention` mostra os prazos efetivos, quais projetos estão sem prazo e a última passada.
+A primeira passada acontece cerca de 60 s depois da partida; o relatório vive em memória.
+Fonte de verdade da limpeza manual continua sendo a tela de Storage.
 
 Destinos de webhook internos (um servidor de chat ou o agente de triagem na mesma rede) são
 bloqueados por padrão; liste os hosts permitidos, como aparecem na URL, em

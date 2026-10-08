@@ -2502,6 +2502,69 @@ export const handlers = [
     });
   }),
 
+  // Retention — instance defaults, every project and the last pass
+  http.get(`${BASE_URL}/api/retention`, () => {
+    return HttpResponse.json({
+      defaults: { events_days: 90, transactions_days: 30, logs_days: null },
+      interval_hours: 24,
+      last_run: {
+        started_at: '2026-10-08T17:19:45Z',
+        finished_at: '2026-10-08T17:19:46Z',
+        projects: 2,
+        removed: {
+          events: 3,
+          transactions: 2,
+          spans: 5,
+          logs: 0,
+          issues_removed: 1,
+        },
+        unprotected: [{ project_id: 1, missing: ['logs'] }],
+        failed: [],
+      },
+      projects: [
+        {
+          project_id: 1,
+          name: 'Test Project',
+          own: { events_days: 14, transactions_days: null, logs_days: null },
+          effective: {
+            events_days: 14,
+            transactions_days: 30,
+            logs_days: null,
+          },
+          protected: false,
+          missing: ['logs'],
+        },
+        {
+          project_id: 2,
+          name: 'Second Project',
+          own: { events_days: null, transactions_days: null, logs_days: 60 },
+          effective: { events_days: 90, transactions_days: 30, logs_days: 60 },
+          protected: true,
+          missing: [],
+        },
+      ],
+    });
+  }),
+
+  // Retention — set or clear a project's own periods
+  http.put(
+    `${BASE_URL}/api/projects/:projectId/retention`,
+    async ({ params, request }) => {
+      if (params.projectId === '999') {
+        return HttpResponse.json(
+          { error: { type: 'NotFound', message: 'Project not found' } },
+          { status: 404 },
+        );
+      }
+      const body = (await request.json()) as Record<string, number | null>;
+      return HttpResponse.json({
+        events_days: body.events_days ?? null,
+        transactions_days: body.transactions_days ?? null,
+        logs_days: body.logs_days ?? null,
+      });
+    },
+  ),
+
   // Storage — dry-run orphaned source-map GC
   http.post(`${BASE_URL}/api/storage/source-maps/gc/preview`, () => {
     return HttpResponse.json({ files_removed: 4, bytes_freed: 81920 });
