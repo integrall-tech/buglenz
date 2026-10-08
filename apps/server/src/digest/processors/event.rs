@@ -157,6 +157,10 @@ impl ErrorProcessor {
                 e
             );
         }
+        // The rewrite puts source code back into the frames (context_line,
+        // pre_context, post_context): literals in the code can be personal
+        // data too, so the tree is scrubbed again before grouping and storage.
+        crate::scrub::scrub_value(&mut event_data);
 
         // 2c. Trim oversized fields (deep context windows, frame vars, huge
         // breadcrumb trails) for events whose raw payload came in above the

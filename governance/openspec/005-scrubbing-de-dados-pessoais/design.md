@@ -77,7 +77,7 @@ delimitadores e os dígitos verificadores já evitam o falso positivo em hashes 
 | Arquivo | Linha | Mudança |
 |---|---|---|
 | `routes/ingest.rs` | 68-71 | `let remote_addr: Option<String> = None;` com comentário ADR-0009 — o IP não entra no `ProcessorCtx` nem no `EventMetadata` |
-| `digest/processors/event.rs` | após `:141` (parse) | `crate::scrub::scrub_value(&mut event_data);` |
+| `digest/processors/event.rs` | após `:141` (parse) **e** após a reescrita por source map (`:2b`) | `crate::scrub::scrub_value(&mut event_data);` duas vezes: a reescrita reinsere `context_line`/`pre_context`/`post_context` com o código-fonte original, e literais do código podem ser dado pessoal |
 | `digest/processors/transaction.rs` | após `:18` | `crate::scrub::scrub_value(&mut data);` (os spans filhos estão dentro de `data`) |
 | `digest/processors/logs.rs` | no laço, antes do `INSERT` | `let body = scrub_text(&log.body)`; `scrub_value(&mut attributes)` |
 | `digest/processors/span.rs` | `parse_item`, após `:38` | `scrub_value(&mut data)` |
@@ -150,3 +150,23 @@ sai do fork público com o módulo e os pontos de chamada; se não, fica no fork
   ficam fora até haver atributo acordado no wrapper (ADR-0011).
 - Nomes das chaves negadas vindas de apps Java/Flutter (`senha`, `cpf` cobertos; `documento`,
   `telefone`? decidir com quem responde por LGPD): `RUSTRAK_SCRUB_EXTRA_KEYS` cobre até lá.
+
+## 9. O que a execução revelou (2026-10-08) [confirmado]
+
+- **O código-fonte reconstruído pelo source map é payload.** O primeiro `e2e-react` com PII falhou:
+  o CPF digitado numa mensagem de erro do app aparecia também em `context_line` (a linha do
+  `throw`, copiada do código original). O digest agora faz o scrub antes **e depois** de
+  `rewrite_frames`. A regressão é coberta pelo job `e2e-react` (não por teste unitário: exigiria
+  fabricar um source map).
+- Duas colisões de chave contra testes do upstream: `*_tokens` (contadores `gen_ai.usage.*`)
+  casava com a regra de substring de `token`; e identificadores só de dígitos que passam no Luhn
+  (um `span_id`) viravam `[cartao]` e colidiam sob `ON CONFLICT DO NOTHING`. Regras novas: `tokens`
+  não nega; chaves `*id`, timestamps e `release` nunca recebem máscara de texto.
+- Um teste do upstream mudou de expectativa (`test_list_stats_counts_by_email_when_id_is_absent`):
+  sem `user.id`, e-mails mascarados contam como um usuário. Documentado em
+  `CHANGES-FROM-UPSTREAM.md`.
+- `projects.stored_event_count` é `INT4` no PostgreSQL e `INTEGER` no SQLite: consultas de teste
+  que somam contadores precisam de cast explícito para decodificar a mesma tupla nos dois.
+- Importar um tipo só usado dentro de `#[cfg_attr(feature = "openapi", utoipa::path(...))]` quebra
+  o build sem a feature (`postgres-e2e` compila sem ela); nomear o tipo por caminho.
+- Desvio de T7: a issue no upstream aguarda aprovação do texto pelo Edson.

@@ -58,8 +58,8 @@
 
 ## Ponta a ponta
 
-**WHEN** o app e2e identifica o usuário com `id` e `email` e lança um erro cuja mensagem contém CPF e senha
-**THEN** o evento no servidor tem `user.id` preservado, `user.email` = `[email]`, e a mensagem com `[cpf]`; a senha informada não aparece em lugar nenhum do evento
+**WHEN** o app e2e identifica o usuário com `id` e `email`, põe uma senha em `extra.password` e lança um erro cuja mensagem contém um CPF
+**THEN** o evento no servidor tem `user.id` preservado, `user.email` = `[email]`, `extra.password` = `[Filtered]`, a mensagem com `[cpf]`, e nenhum dos valores originais aparece no evento (uma senha em texto livre, fora de uma chave negada, **não** é detectável: é responsabilidade da camada 1, ADR-0011)
 
 ## Delta controlado
 
