@@ -44,6 +44,7 @@ migration foi tocada.
 - Não mudam: variáveis `RUSTRAK_*`, métricas `rustrak_*`, pacotes `@rustrak/*`, cabeçalhos
   `X-Rustrak-*` dos webhooks, tabelas, caminhos de API e logs do servidor.
 - Logotipo e ícones são **provisórios** até a identidade visual (decisão D9).
+- Proposta ao upstream de um nome de produto configurável: rustrak/rustrak#387 (issue; se aceita, as regras de `brand/` encolhem a cada versão).
 
 ### Dados pessoais tratados antes de persistir (pacote 005, ADR-0009)
 
