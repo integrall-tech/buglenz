@@ -16,7 +16,7 @@ acontece com a instância em produção (C). Nada em C é iniciado antes de B es
 - [x] T6. (feito em 2026-10-08: `buglenz-sdk/contract`, `docs/matriz.md`, CI `unit`; o job `contract` na CI depende do segredo `GHCR_READ_TOKEN`) Testes de contrato na CI contra a imagem `buglenz-server` publicada (React e Spring Boot) e a matriz de homologação com o primeiro par verde
 - [x] T7. **(decidido em 2026-10-08: letra b)** Pacote irmão do Archbase, com versão e repositório próprios, anunciado junto; sem dependência do Archbase nem de Mantine no wrapper. Como o wrapper React é publicado "junto do Archbase" (ADR-0011): mesmo pacote, pacote irmão ou dependência opcional; sem copiar código GPL e sem importar `@rustrak/*`
 - [x] T8. (feito em 2026-10-08: `buglenz-sdk/docs/onboarding.md` em português; `docs/matriz.md` está em inglês) `docs/onboarding.md` em português e `docs/matriz.md`
-- [ ] T9. **(decisão)** Nomear o produto piloto e os projetos na instância (um por app implantável)
+- [x] T9. **(decidido em 2026-10-08)** Piloto **VendaX.ai**: `vendax-admin-web` e `vendax-mobile` (Flutter), production e homolog, alertas no Mattermost; ver `piloto-vendax.md`
 
 ## C. Com a instância em produção
 
@@ -25,3 +25,10 @@ acontece com a instância em produção (C). Nada em C é iniciado antes de B es
 - [ ] T12. Primeiro alerta real configurado; conferir o remetente `alerts@buglenz.dev` (ou o definido) e o `actor` "BugLenz"
 - [ ] T13. Registrar `governance/baseline/009.md` e abrir o relógio dos 30 dias; **registrar, com o Edson, a posição sobre retenção** (pacote 004 antes da produção, ou limpeza manual como exceção, seção 8 do design)
 - [ ] T14. Amostragem manual aos 30 dias: nenhum evento com dado da lista de negação
+
+## Flutter (consequência do piloto)
+
+- [x] T15. Gravar o SDK Dart contra a instância (`governance/baseline/009-dart.md`): aceito, frames legíveis, scrub ok. **`sentry_flutter` em dispositivo: não feito** (licenças do Android SDK, Xcode incompleto)
+- [ ] T16. Wrapper Flutter no `buglenz-sdk` (`buglenz_flutter`): `release` `<app>@<versão>`, sem PII por padrão, `beforeSend` e `beforeBreadcrumb` com a lista compartilhada de chaves e as máscaras de texto (vetores compartilhados), testes
+- [ ] T17. Teste de contrato do Flutter (Dart contra a imagem publicada) e linha na `docs/matriz.md`; o `recorder.py` do contrato precisa ler requisições *chunked*
+- [ ] T18. **(decisão D3/G17)** Ofuscação e crashes nativos no piloto: se sim, pacote 016
