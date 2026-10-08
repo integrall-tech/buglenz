@@ -1,6 +1,6 @@
 # BugLenz — corpus de governança
 
-**Versão:** 0.15 · **Data:** 2026-10-08 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1)) · **Base sincronizada para `v0.16.0`** (PR #3) · **Pacote 002 executado**
+**Versão:** 0.16 · **Data:** 2026-10-08 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1)) · **Base sincronizada para `v0.16.0`** (PR #3) · **Pacote 002 executado**
 
 Especificação do **BugLenz**: migração do [Rustrak](https://github.com/rustrak/rustrak) `v0.15.2` para um fork
 governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes OpenSpec).
@@ -20,6 +20,7 @@ governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes 
 | `openspec/016-symbolication-mobile/` | Stack trace legível para Android, iOS e Flutter ofuscado |
 | `openspec/007-rebrand-buglenz/` | Rebrand Rustrak → BugLenz por sobreposição no build |
 | `openspec/001-bootstrap-do-fork/` | Primeiro pacote, **executado em 2026-10-07**; T3 pendente (D10) |
+| `openspec/007-rebrand-buglenz/` | Marca BugLenz por sobreposição no build; atribuição ao Rustrak preservada. **Executado em 2026-10-08**; logotipo provisório (D9) e proposta ao upstream pendentes |
 | `openspec/005-scrubbing-de-dados-pessoais/` | Scrubbing no servidor (chaves, máscaras, IP), exclusão por titular. **Executado em 2026-10-08** (PR #7); issue no upstream: rustrak/rustrak#384 |
 | `openspec/006-compatibilidade-sdk-atual/` | Status de sessão `unhandled`, e2e React na CI, primeiro PR ao upstream (rustrak/rustrak#383). **Executado em 2026-10-08** (PR #6) |
 | `openspec/003-build-e-implantacao/` | Imagem em GHCR privado, workflow por tag, stack Swarm parametrizada, licenças geradas na CI. **Executado em 2026-10-08** (PR #5); primeira publicação na tag `v0.16.0-itl.3` |
@@ -47,8 +48,8 @@ junto com `governance/baseline/001.md` (baseline medida) e `governance/tools/` (
 | D5 | ~~Responsável e substituto pela sincronização quinzenal (ADR-0005)~~ **Fechada (2026-10-07): responsável Edson Martins, substituto Neimar Chagas.** Primeiro ciclo: `sync/2026-10-07` → `v0.16.0` | — | Edson |
 | D6 | Prazos padrão de retenção (ADR-0009) | pacote 004 | responsável por LGPD |
 | D7 | Avaliar o Jev em sombra na instância interna, ao lado do provedor local (ADR-0015) | pacote 018 | Edson, Neimar |
-| D8 | Papel de cada domínio e host do DSN (ADR-0006) | pacote 003 | Edson |
-| D9 | Identidade visual do BugLenz: logotipo, ícones, cores | pacote 007 | Edson |
+| D8 | ~~Papel de cada domínio e host do DSN (ADR-0006)~~ **Parcialmente fechada (2026-10-08): `buglenz.dev` é o domínio de tudo.** Proposta `errors.buglenz.dev` (instância e host do DSN), `docs.buglenz.dev`, `alerts@buglenz.dev`; falta confirmar o host do DSN antes do primeiro app piloto | primeiro app piloto | Edson |
+| D9 | Identidade visual do BugLenz: logotipo, ícones, cores. **Provisórios no pacote 007** (logotipo tipográfico e ícones gerados) | versão final do 007 | Edson |
 | D10 | Plano GitHub Team/Pro para a organização `integrall-tech`, ou outra forma de proteger `main` (PR e CI obrigatórios, sem force-push). No plano Free, rulesets em repositório privado retornam 403 | T3 do pacote 001; até lá a proteção é por convenção | Edson, Neimar |
 
 ## O que não foi verificado
@@ -67,6 +68,8 @@ junto com `governance/baseline/001.md` (baseline medida) e `governance/tools/` (
 
 ## Mudanças
 
+- **0.16:** pacote 007 executado (sobreposição de marca em `brand/`, 26 regras, `brand.yml`); D8
+  fechada para `buglenz.dev`; D9 segue aberta (logotipo e ícones provisórios).
 - **0.15:** pacote 005 executado; G2 corrigido no fork; achado: o scrub precisa rodar também depois da
   reescrita por source map (o código-fonte reinserido nos frames é payload).
 - **0.14:** pacote 005 detalhado com as decisões de 2026-10-08 (configuração por instância, IP nunca

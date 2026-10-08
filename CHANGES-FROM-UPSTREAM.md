@@ -32,6 +32,19 @@ editada (a marca e os textos são do pacote 007).
 Fora disso, o servidor, o dashboard e os pacotes `@rustrak/*` são os da tag base. Nenhuma
 migration foi tocada.
 
+### Marca BugLenz (pacote 007, ADR-0006)
+
+- A interface, os alertas e a API dizem **BugLenz**: título da aba, logotipo, rodapés, os 68 textos
+  de cada catálogo (en, es, fr, ro, zh), modelos de webhook, `actor` e rodapé dos alertas, remetente
+  padrão `alerts@buglenz.dev` e título do OpenAPI. A tela "Sobre" traz a atribuição ("BugLenz é um
+  fork do Rustrak, GPL-3.0") e um link para o `NOTICE.md` da versão em execução; o link para o
+  rastreador de problemas do upstream foi removido.
+- Os arquivos do upstream **não** são editados: a marca é aplicada no build, por `brand/` (26
+  regras com contagem esperada), e `brand.yml` falha o PR se um merge do upstream mudar uma contagem.
+- Não mudam: variáveis `RUSTRAK_*`, métricas `rustrak_*`, pacotes `@rustrak/*`, cabeçalhos
+  `X-Rustrak-*` dos webhooks, tabelas, caminhos de API e logs do servidor.
+- Logotipo e ícones são **provisórios** até a identidade visual (decisão D9).
+
 ### Dados pessoais tratados antes de persistir (pacote 005, ADR-0009)
 
 - Todo payload (evento, transação e seus spans, logs, spans avulsos e v2) passa pelo módulo

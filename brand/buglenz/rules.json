@@ -1,0 +1,244 @@
+[
+  {
+    "id": "catalog-brand-name",
+    "type": "catalog",
+    "files": [
+      "apps/dashboard/src/shared/i18n/messages/*.json"
+    ],
+    "find": "Rustrak",
+    "replace": "BugLenz",
+    "expect": 68
+  },
+  {
+    "id": "catalog-email-placeholder",
+    "type": "catalog",
+    "files": [
+      "apps/dashboard/src/shared/i18n/messages/*.json"
+    ],
+    "find": "alerts@rustrak.local",
+    "replace": "alerts@buglenz.dev",
+    "expect": 1
+  },
+  {
+    "id": "catalog-about-attribution",
+    "type": "catalog-set",
+    "files": [
+      "apps/dashboard/src/shared/i18n/messages/*.json"
+    ],
+    "key": "settings.about.attribution",
+    "values": {
+      "en": "BugLenz is a fork of Rustrak (github.com/rustrak/rustrak), released under the GNU GPL-3.0. The source code of this version and the licence notice are available through the link below.",
+      "es": "BugLenz es una bifurcación de Rustrak (github.com/rustrak/rustrak), publicada bajo la licencia GNU GPL-3.0. El código fuente de esta versión y el aviso de licencia están disponibles en el enlace de abajo.",
+      "fr": "BugLenz est un fork de Rustrak (github.com/rustrak/rustrak), publié sous licence GNU GPL-3.0. Le code source de cette version et l'avis de licence sont disponibles via le lien ci-dessous.",
+      "ro": "BugLenz este un fork al Rustrak (github.com/rustrak/rustrak), publicat sub licența GNU GPL-3.0. Codul sursă al acestei versiuni și avizul de licență sunt disponibile prin linkul de mai jos.",
+      "zh": "BugLenz 是 Rustrak (github.com/rustrak/rustrak) 的衍生项目，依据 GNU GPL-3.0 许可证发布。本版本的源代码和许可声明可通过下方链接获取。"
+    }
+  },
+  {
+    "id": "catalog-about-source-link",
+    "type": "catalog-set",
+    "files": [
+      "apps/dashboard/src/shared/i18n/messages/*.json"
+    ],
+    "key": "settings.about.githubRepository",
+    "values": {
+      "en": "Source code and notice",
+      "es": "Código fuente y aviso",
+      "fr": "Code source et mentions légales",
+      "ro": "Cod sursă și aviz",
+      "zh": "源代码与声明"
+    }
+  },
+  {
+    "id": "about-drop-upstream-issues-link",
+    "type": "replace",
+    "file": "apps/dashboard/src/routes/_authenticated/settings/about.tsx",
+    "expect": 1,
+    "replace": "",
+    "find": [
+      "            <a",
+      "              href=\"https://github.com/rustrak/rustrak/issues\"",
+      "              target=\"_blank\"",
+      "              rel=\"noopener noreferrer\"",
+      "              className=\"text-sm text-primary hover:underline block\"",
+      "            >",
+      "              {t('about.reportAnIssue')}",
+      "            </a>",
+      ""
+    ]
+  },
+  {
+    "id": "about-source-link",
+    "type": "replace",
+    "file": "apps/dashboard/src/routes/_authenticated/settings/about.tsx",
+    "expect": 1,
+    "find": "href=\"https://github.com/rustrak/rustrak\"",
+    "replace": "href=\"https://github.com/integrall-tech/buglenz/blob/${release}/NOTICE.md\""
+  },
+  {
+    "id": "about-attribution-paragraph",
+    "type": "replace",
+    "file": "apps/dashboard/src/routes/_authenticated/settings/about.tsx",
+    "expect": 1,
+    "find": "            {!serverVersion.success && (",
+    "replace": [
+      "            <p className=\"text-xs text-muted-foreground\">",
+      "              {t('about.attribution')}",
+      "            </p>",
+      "",
+      "            {!serverVersion.success && ("
+    ]
+  },
+  {
+    "id": "html-title",
+    "type": "replace",
+    "file": "apps/dashboard/index.html",
+    "expect": 1,
+    "find": "<title>Rustrak - Error Tracking System</title>",
+    "replace": "<title>BugLenz - Error Tracking System</title>"
+  },
+  {
+    "id": "webhook-templates-brand",
+    "type": "replace",
+    "file": "apps/dashboard/src/features/alert/model/message-template.ts",
+    "expect": 5,
+    "find": "Rustrak: {{",
+    "replace": "BugLenz: {{"
+  },
+  {
+    "id": "webhook-variable-actor",
+    "type": "replace",
+    "file": "apps/dashboard/src/features/alert/model/message-template.ts",
+    "expect": 1,
+    "find": "variable('alert', 'actor', 'string', 'Rustrak')",
+    "replace": "variable('alert', 'actor', 'string', 'BugLenz')"
+  },
+  {
+    "id": "webhook-source-field",
+    "type": "replace",
+    "file": "apps/dashboard/src/features/alert/model/message-template.ts",
+    "expect": 1,
+    "find": "\"source\": \"rustrak\"",
+    "replace": "\"source\": \"buglenz\""
+  },
+  {
+    "id": "settings-title",
+    "type": "replace",
+    "file": "apps/dashboard/src/routes/_authenticated/settings.tsx",
+    "expect": 1,
+    "find": "| Rustrak`",
+    "replace": "| BugLenz`"
+  },
+  {
+    "id": "footer-copyright",
+    "type": "replace",
+    "files": [
+      "apps/dashboard/src/routes/login.tsx",
+      "apps/dashboard/src/shared/ui/components/error-screen.tsx"
+    ],
+    "expect": 1,
+    "find": "{new Date().getFullYear()} Rustrak</p>",
+    "replace": "{new Date().getFullYear()} BugLenz</p>"
+  },
+  {
+    "id": "ui-topbar-aria",
+    "type": "replace",
+    "file": "packages/ui/src/components/shell/topbar.tsx",
+    "expect": 1,
+    "find": "'aria-label': 'Rustrak',",
+    "replace": "'aria-label': 'BugLenz',"
+  },
+  {
+    "id": "ui-topbar-search",
+    "type": "replace",
+    "file": "packages/ui/src/components/shell/topbar.tsx",
+    "expect": 1,
+    "find": "'Search Rustrak…'",
+    "replace": "'Search BugLenz…'"
+  },
+  {
+    "id": "wordmark-components",
+    "type": "override",
+    "dir": "overrides"
+  },
+  {
+    "id": "icon",
+    "type": "copy",
+    "from": "assets/icon.png",
+    "to": "apps/dashboard/public/icon.png"
+  },
+  {
+    "id": "apple-icon",
+    "type": "copy",
+    "from": "assets/apple-icon.png",
+    "to": "apps/dashboard/public/apple-icon.png"
+  },
+  {
+    "id": "server-openapi-title",
+    "type": "replace",
+    "file": "apps/server/src/openapi.rs",
+    "expect": 1,
+    "find": "title = \"Rustrak\"",
+    "replace": "title = \"BugLenz\""
+  },
+  {
+    "id": "server-test-alert",
+    "type": "replace",
+    "file": "apps/server/src/routes/alerts.rs",
+    "expect": 1,
+    "find": "This is a test alert from Rustrak",
+    "replace": "This is a test alert from BugLenz"
+  },
+  {
+    "id": "server-test-alert-actor",
+    "type": "replace",
+    "file": "apps/server/src/routes/alerts.rs",
+    "expect": 1,
+    "find": "actor: \"Rustrak Test\"",
+    "replace": "actor: \"BugLenz Test\""
+  },
+  {
+    "id": "server-alert-actor",
+    "type": "replace",
+    "files": [
+      "apps/server/src/services/alert.rs"
+    ],
+    "expect": 1,
+    "find": "actor: \"Rustrak\".to_string(),",
+    "replace": "actor: \"BugLenz\".to_string(),"
+  },
+  {
+    "id": "server-webhook-actor",
+    "type": "replace",
+    "files": [
+      "apps/server/src/services/notification/custom_webhook.rs"
+    ],
+    "expect": 2,
+    "find": "actor: \"Rustrak\".to_string(),",
+    "replace": "actor: \"BugLenz\".to_string(),"
+  },
+  {
+    "id": "server-email-footer",
+    "type": "replace",
+    "file": "apps/server/src/services/notification/email.rs",
+    "expect": 2,
+    "find": "This alert was sent by Rustrak for project",
+    "replace": "This alert was sent by BugLenz for project"
+  },
+  {
+    "id": "server-email-default-sender",
+    "type": "replace",
+    "file": "apps/server/src/services/notification/email.rs",
+    "expect": 2,
+    "find": "alerts@rustrak.local",
+    "replace": "alerts@buglenz.dev"
+  },
+  {
+    "id": "server-sso-error",
+    "type": "replace",
+    "file": "apps/server/src/services/users.rs",
+    "expect": 1,
+    "find": "No Rustrak account is linked",
+    "replace": "No BugLenz account is linked"
+  }
+]

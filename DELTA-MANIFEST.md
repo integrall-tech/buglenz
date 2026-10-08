@@ -58,8 +58,8 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `.github/workflows/network-conformance.yml`, `scripts/network-conformance.sh`, `scripts/egress-denylist.txt` | G | 0004 | Novos. Teste de conformidade de rede: camada estática e servidor sob bloqueio de saída |
 | `apps/server/Dockerfile` | B | 0012 | Alterado (003). `ENV INGEST_DIR=/data/ingest`: spool de ingestão dentro do volume (issue #359 do upstream) |
 | `.github/workflows/licenses.yml` | G | 0003, 0005 | Novo (003). Regenera `THIRD-PARTY-LICENSES.md` em Linux e falha se divergir do commitado |
-| `.github/workflows/release-image.yml` | G | 0012, 0005 | Novo (003). Publica `ghcr.io/integrall-tech/buglenz-server:<tag>` por tag `v*-itl.*`; build sem push em PR |
-| `deploy/swarm/buglenz.stack.yml`, `deploy/swarm/README.md`, `deploy/swarm/provision.sh`, `deploy/swarm/backup.sh` | B | 0012, 0009 | Novos (003; 005 acrescenta `RUSTRAK_SCRUB_EXTRA_KEYS` e a seção de dados pessoais). Stack Swarm parametrizada, provisionamento via API (sem `RUSTRAK_BOOTSTRAP_TOKEN`, #356), backup e restauração |
+| `.github/workflows/release-image.yml` | G | 0012, 0005, 0006 | Novo (003); a partir do 007 constrói a imagem da cópia marcada, depois de verificada. Publica `ghcr.io/integrall-tech/buglenz-server:<tag>` por tag `v*-itl.*`; build sem push em PR |
+| `deploy/swarm/buglenz.stack.yml`, `deploy/swarm/README.md`, `deploy/swarm/provision.sh`, `deploy/swarm/backup.sh` | B | 0012, 0009, 0006 | Novos (003; 005 acrescenta `RUSTRAK_SCRUB_EXTRA_KEYS` e a seção de dados pessoais; 007 acrescenta `SMTP_FROM` no domínio `buglenz.dev`). Stack Swarm parametrizada, provisionamento via API (sem `RUSTRAK_BOOTSTRAP_TOKEN`, #356), backup e restauração |
 | `apps/server/src/models/session.rs`, `apps/server/src/workers/session_aggregator.rs` | G | 0011, 0002 | Alterados (006). Status de sessão `unhandled` (protocolo 1.6.0) aceito e contado como errored; campo `unhandled` dos agregados. **Temporário**: proposto ao upstream em [rustrak/rustrak#383](https://github.com/rustrak/rustrak/pull/383); sai do manifesto quando entrar por sync |
 | `apps/server/tests/unit/envelope_parser_test.rs` | G | 0011 | Alterado (006). Teste do parser para o status `unhandled`. Temporário, idem |
 | `.changeset/sessions-unhandled-status.md` | G | 0002 | Novo (006). Changeset `patch` de `@rustrak/server` que acompanha o PR ao upstream. Temporário, idem |
@@ -75,6 +75,13 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `apps/server/src/services/privacy.rs`, `apps/server/src/routes/privacy.rs` | G | 0009 | Novos (005). Exclusão por titular: `DELETE /api/projects/{id}/privacy/users/{user_id}` (admin), contadores de issue e projeto ajustados |
 | `apps/server/src/services/mod.rs`, `apps/server/src/routes/mod.rs`, `apps/server/src/main.rs`, `apps/server/src/openapi.rs`, `apps/server/openapi.json` | G | 0009 | Registro da rota e do schema (005); `openapi.json` regenerado |
 | `apps/server/tests/integration/privacy_test.rs` | G | 0009 | Novo (005) |
+| `brand/lib.mjs`, `brand/apply.mjs`, `brand/verify.mjs`, `brand/test/brand.test.mjs` | A | 0006 | Novos (007). Motor da sobreposição de marca: aplica regras declarativas com contagem esperada a uma cópia da árvore; `verify` guarda a zona C e a atribuição; 17 testes |
+| `brand/buglenz/rules.json`, `brand/buglenz/verify.json` | A | 0006 | Novos (007). 26 regras: catálogos (68 ocorrências por idioma), título, rodapés, modelos de webhook, `actor` e rodapé dos alertas, título da API, mensagem de SSO, tela "Sobre" (atribuição, link de código-fonte, sem link ao rastreador do upstream) |
+| `brand/buglenz/overrides/apps/dashboard/src/shared/ui/components/rustrak-wordmark.tsx`, `brand/buglenz/overrides/packages/ui/src/components/brand/wordmark.tsx` | A | 0006 | Novos (007). Logotipo tipográfico provisório (D9 aberta); substituem por inteiro, em tempo de build, os dois componentes do upstream, com o mesmo nome e a mesma assinatura |
+| `brand/buglenz/assets/icon.png`, `brand/buglenz/assets/apple-icon.png` | A | 0006 | Novos (007). Ícones provisórios gerados (D9 aberta) |
+| `.github/workflows/brand.yml` | A | 0006, 0005 | Novo (007). A cada PR e sync: motor, aplicação das regras, verificação, build do dashboard e `cargo check` do servidor marcados, busca de vazamentos no bundle |
+| `BUGLENZ.md` | A | 0003, 0006 | Novo (007). Apresentação do fork: origem, licença, o que muda, como a marca é aplicada; o `README.md` da raiz continua o do upstream |
+| `governance/baseline/007.md`, `governance/baseline/007-screens/*.png` | G | 0006 | Novos (007). Baseline e capturas de tela (login e "Sobre") do servidor marcado |
 | `governance/**` | G | 0001, 0002 | Novo. Corpus de governança: CONSTITUTION, GAP-ANALYSIS, `adr/`, `rfc/`, `openspec/`, `baseline/`, `tools/` |
 
 ## Histórico de bases
