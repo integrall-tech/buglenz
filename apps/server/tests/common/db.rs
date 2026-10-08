@@ -6,6 +6,16 @@
 
 use rustrak::db::DbPool;
 
+/// Tests deliver webhooks to listeners on the loopback address, which the destination check
+/// refuses by default (ADR-0018). Every test database goes through here first, so the exemption
+/// is in place before the check reads the environment.
+fn allow_local_webhooks() {
+    static ONCE: std::sync::Once = std::sync::Once::new();
+    ONCE.call_once(|| {
+        std::env::set_var("RUSTRAK_WEBHOOK_ALLOWED_HOSTS", "127.0.0.1,localhost,::1");
+    });
+}
+
 #[cfg(feature = "sqlite")]
 use std::sync::Arc;
 
@@ -32,6 +42,7 @@ pub struct TestDb {
 #[cfg(feature = "postgres")]
 impl TestDb {
     pub async fn new() -> Self {
+        allow_local_webhooks();
         let container = Postgres::default()
             .with_tag("16-alpine")
             .start()
@@ -77,6 +88,7 @@ pub struct TestDb {
 #[cfg(feature = "sqlite")]
 impl TestDb {
     pub async fn new() -> Self {
+        allow_local_webhooks();
         // Migrate one template once, then copy it for an isolated database.
         // This keeps parallel tests independent without paying migration setup
         // cost for every TestDb::new().

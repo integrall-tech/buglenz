@@ -5,6 +5,7 @@
 mod auth_test;
 mod config_test;
 mod decompression_test;
+mod destination_test;
 mod envelope_parser_test;
 mod gen_ai_aggregation_test;
 mod gen_ai_test;

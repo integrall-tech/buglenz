@@ -108,6 +108,15 @@ impl NotificationDispatcher for WebhookNotifier {
             }
         };
 
+        // The routing override is not validated when it is saved, so the destination is checked
+        // here too (ADR-0018, H-4).
+        // Not in this crate's own unit tests, which deliver to a listener on 127.0.0.1; the
+        // integration tests (tests/unit/destination_test.rs) run with the guard on.
+        #[cfg(not(test))]
+        if let Err(e) = super::destination::check_url(&url) {
+            return NotificationResult::failure(e.to_string(), None);
+        }
+
         // Serialize payload
         let body = match serde_json::to_vec(payload) {
             Ok(b) => b,
@@ -199,6 +208,8 @@ impl NotificationDispatcher for WebhookNotifier {
                     "Webhook URL must use HTTP or HTTPS".to_string(),
                 ));
             }
+
+            super::destination::check_url(url)?;
         }
 
         Ok(())
