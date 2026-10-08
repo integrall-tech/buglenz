@@ -43,7 +43,7 @@ export function brandSourceMaps(opts): Plugin          // vite-plugin com SENTRY
 | Item | Valor | Evidência |
 |---|---|---|
 | SDK | `@sentry/react` **11.5.0** homologado contra Rustrak `v0.16.0` + pacote 006 | `e2e-react` na CI do fork |
-| `sendDefaultPii` | `false` | ADR-0009. O tipo `BrowserOptions` do 11.x **não** tem a propriedade [confirmado no 006: erro de compilação]; confirmar o nome atual no `@sentry/core` antes de usar |
+| Coleta de dados | `dataCollection` com tudo desligado (`userInfo`, `cookies`, `httpHeaders`, `httpBodies: []`, `urlQueryParams`, variáveis de frame) | ADR-0009. **`sendDefaultPii` não existe no 11.x** [confirmado nos tipos do 11.5.0]; o substituto é `dataCollection`, que **coleta tudo por padrão**. Inicializar o SDK cru não é seguro |
 | Dedupe | ligado (padrão do SDK); dois erros iguais seguidos viram um envelope | achado D2 do 006 |
 | Sessões | automáticas; o servidor aceita `unhandled`; um terminal por sessão | pacote 006; o SDK Java difere (seção 3) |
 | `beforeSend` / `beforeBreadcrumb` | removem cabeçalhos `cookie`/`authorization`, corpo de requisição e texto digitado; o servidor ainda mascara (camada 2) | ADR-0009 |
