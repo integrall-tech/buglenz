@@ -93,14 +93,14 @@ async fn store_transaction(pool: &DbPool, project_id: i32, user: &str) {
 const COUNTS: &str = "SELECT \
     (SELECT COUNT(*) FROM events WHERE project_id = $1), \
     (SELECT COALESCE(SUM(stored_event_count), 0) FROM issues WHERE project_id = $1), \
-    (SELECT stored_event_count FROM projects WHERE id = $1), \
+    (SELECT CAST(stored_event_count AS BIGINT) FROM projects WHERE id = $1), \
     (SELECT COUNT(*) FROM transactions WHERE project_id = $1), \
     (SELECT COUNT(*) FROM spans WHERE project_id = $1)";
 #[cfg(not(feature = "postgres"))]
 const COUNTS: &str = "SELECT \
     (SELECT COUNT(*) FROM events WHERE project_id = ?1), \
     (SELECT COALESCE(SUM(stored_event_count), 0) FROM issues WHERE project_id = ?1), \
-    (SELECT stored_event_count FROM projects WHERE id = ?1), \
+    (SELECT CAST(stored_event_count AS INTEGER) FROM projects WHERE id = ?1), \
     (SELECT COUNT(*) FROM transactions WHERE project_id = ?1), \
     (SELECT COUNT(*) FROM spans WHERE project_id = ?1)";
 
