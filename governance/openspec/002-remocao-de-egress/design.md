@@ -182,3 +182,26 @@ depois.
 - Rebrand dos textos e da documentação que citam telemetria (007).
 - Proteção de `main` com o novo check obrigatório `network-conformance` (D10).
 - Teste de ponta a ponta com app React minificado (GAP §3) como job da CI: pertence ao 006.
+
+## 9. O que a execução revelou (2026-10-08) [confirmado]
+
+- A fixture de `Config` com o campo `telemetry` estava em **19 arquivos de teste** (18 em
+  `tests/integration/` e `tests/e2e/sentry_sdk_test.rs`), não em 2, e também no módulo
+  `#[cfg(test)]` de `src/routes/projects.rs`. Todas as 20 ocorrências removidas (4 linhas cada).
+- T2 e T3 foram um único commit: `main.rs` e `routes/` não compilam sem `telemetry/mod.rs`
+  enxuto e vice-versa.
+- `GET /api/telemetry/preview` responde `404` com corpo vazio quando o dashboard está desligado;
+  o JSON de erro vem do fallback de `API_PREFIXES`, que só existe com o dashboard montado. A spec
+  foi ajustada.
+- O access log do actix ecoa o path `GET /api/telemetry/preview` da própria sonda; o script
+  exclui essa linha ao verificar que o log não fala em telemetria.
+- `pnpm licenses list` no pnpm 12.10 lista só o pacote raiz; o gerador de
+  `THIRD-PARTY-LICENSES.md` passou a usar `pnpm -r` (1.271 pacotes; 222 sem o `-r`).
+- No runner, `pnpm --filter @rustrak/dashboard build` não constrói `@rustrak/client` antes; o
+  workflow usa `pnpm exec turbo run build --filter=@rustrak/dashboard`.
+- `iptables -m owner` e `sudo` funcionam no `ubuntu-24.04` hospedado; o autoteste registrou 4
+  linhas `EGRESS` para um `curl` (IPv4, IPv6 e DNS). Zero linhas em 180 s de servidor sob carga.
+- Um `trap EXIT` que referenciava uma variável `local` quebrou a primeira execução verde com
+  `set -u`; corrigido expandindo o pid no momento do `trap`.
+- Resultado: 1.341 testes Rust (−35), 1.157 JS (igual), `/metrics` e `metrics_test.rs` intactos.
+  Baseline em `governance/baseline/002.md`.
