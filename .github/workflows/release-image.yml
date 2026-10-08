@@ -123,7 +123,7 @@ jobs:
             echo
             echo "- tags: \`$TAGS\`"
             echo "- pushed: $PUSHED"
-            [ -n "$DIGEST" ] && echo "- digest: \`$DIGEST\`"
+            if [ -n "$DIGEST" ]; then echo "- digest: \`$DIGEST\`"; fi
           } >> "$GITHUB_STEP_SUMMARY"
 
   prune:
