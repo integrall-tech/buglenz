@@ -18,6 +18,8 @@ a matriz de homologação, licença proprietária da IntegrAllTech, publicados e
 
 ## 2. Wrapper React
 
+**Archbase (decidido, 2026-10-08):** o wrapper é um **pacote irmão** (`@integrall/buglenz-react`, nome a confirmar), com versão e repositório próprios, anunciado junto do Archbase. Não depende do Archbase nem de Mantine: o fallback do `ErrorBoundary` é HTML simples e aceita um componente passado pelo app, de modo que o Archbase pode fornecê-lo sem acoplar o wrapper.
+
 ### 2.1 Interface [inferência]
 
 ```ts

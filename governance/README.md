@@ -52,7 +52,7 @@ junto com `governance/baseline/001.md` (baseline medida) e `governance/tools/` (
 | D8 | ~~Papel de cada domínio e host do DSN (ADR-0006)~~ **Parcialmente fechada (2026-10-08): `buglenz.dev` é o domínio de tudo.** Proposta `errors.buglenz.dev` (instância e host do DSN), `docs.buglenz.dev`, `alerts@buglenz.dev`; falta confirmar o host do DSN antes do primeiro app piloto | primeiro app piloto | Edson |
 | D9 | Identidade visual do BugLenz: logotipo, ícones, cores. **Provisórios no pacote 007** (logotipo tipográfico e ícones gerados) | versão final do 007 | Edson |
 | D10 | Plano GitHub Team/Pro para a organização `integrall-tech`, ou outra forma de proteger `main` (PR e CI obrigatórios, sem force-push). No plano Free, rulesets em repositório privado retornam 403 | T3 do pacote 001; até lá a proteção é por convenção | Edson, Neimar |
-| D11 | Repositório, licença e registry dos wrappers de SDK (ADR-0011); como o wrapper React se publica junto do Archbase | pacote 009, bloco B | Edson |
+| D11 | **Parcialmente fechada (2026-10-08): wrapper React é pacote irmão do Archbase (letra b).** Falta: repositório (proposta: um só, `integrall-tech/buglenz-sdk`), licença e registry privado npm/Maven | pacote 009, bloco B | Edson |
 | D12 | Produto piloto (web React + backend Spring Boot) e seus projetos na instância | pacote 009, bloco B | Edson |
 | D13 | Posição sobre retenção na entrada em produção do piloto: pacote 004 antes, ou limpeza manual agendada como exceção aprovada | início do relógio de 30 dias | Edson, Neimar |
 

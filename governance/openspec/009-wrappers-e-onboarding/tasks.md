@@ -14,7 +14,7 @@ acontece com a instância em produção (C). Nada em C é iniciado antes de B es
 - [ ] T4. Wrapper React: `initBugLenz`, `ErrorBoundary`, `identify`, `brandSourceMaps`; testes unitários; confirmar o nome atual da opção de PII no SDK 11.x
 - [ ] T5. Wrapper Spring Boot: auto-configuração `buglenz.*`, `beforeSend`, falha na partida sem DSN em produção; testes
 - [ ] T6. Testes de contrato na CI contra a imagem `buglenz-server` publicada (React e Spring Boot) e a matriz de homologação com o primeiro par verde
-- [ ] T7. **(decisão)** Como o wrapper React é publicado "junto do Archbase" (ADR-0011): mesmo pacote, pacote irmão ou dependência opcional; sem copiar código GPL e sem importar `@rustrak/*`
+- [x] T7. **(decidido em 2026-10-08: letra b)** Pacote irmão do Archbase, com versão e repositório próprios, anunciado junto; sem dependência do Archbase nem de Mantine no wrapper. Como o wrapper React é publicado "junto do Archbase" (ADR-0011): mesmo pacote, pacote irmão ou dependência opcional; sem copiar código GPL e sem importar `@rustrak/*`
 - [ ] T8. `docs/onboarding.md` em português e `docs/matriz.md`
 - [ ] T9. **(decisão)** Nomear o produto piloto e os projetos na instância (um por app implantável)
 
