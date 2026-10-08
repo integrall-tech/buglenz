@@ -41,6 +41,6 @@ dados sem prazo; sem os prazos decididos (D6, responsável por LGPD), ela não p
 
 - ADR-0009 (item 3). Delta no manifesto: migration nova nos dois bancos, `workers/retention.rs`,
   `services/retention.rs`, `routes/retention.rs`, `openapi.json`, `main.rs`, `openapi.rs`.
-- Risco: apagar dado por engano. Mitigação: mínimo de 1 dia, pré-visualização igual à da limpeza
+- Risco: apagar dado por engano. Mitigação: piso de 7 dias por tipo (variáveis e prazo por projeto), pré-visualização igual à da limpeza
   manual, lotes curtos, teste de que um projeto sem prazo não perde nada.
 - Tamanho: M.

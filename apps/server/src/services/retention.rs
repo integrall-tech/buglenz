@@ -1,6 +1,8 @@
 //! Retention periods per project and data type (BugLenz, ADR-0009, invariant I5).
 //!
-//! A period is a number of days, 1 to 3650. The instance sets defaults through three variables
+//! A period is a number of days, 7 to 3650. The floor is deliberate: the first pass runs a minute
+//! after every start, so a period typed too small (`1`) would delete almost everything at once;
+//! the manual cleanup keeps its own, lower, minimum. The instance sets defaults through three variables
 //! with no built-in value (the numbers are a decision for whoever answers for LGPD); a project may
 //! override each type. Spans follow their transactions.
 
@@ -11,7 +13,8 @@ use sqlx::FromRow;
 use crate::db::DbPool;
 use crate::error::{AppError, AppResult, FieldErrorCode};
 
-pub const MIN_DAYS: i32 = 1;
+/// The smallest period the automatic retention accepts, in the variables and per project.
+pub const MIN_DAYS: i32 = 7;
 pub const MAX_DAYS: i32 = 3650;
 
 pub const EVENTS_VAR: &str = "RUSTRAK_RETENTION_EVENTS_DAYS";
@@ -122,13 +125,13 @@ where
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct RetentionUpdate {
     #[serde(default, deserialize_with = "double_option")]
-    #[cfg_attr(feature = "openapi", schema(value_type = Option<i32>, minimum = 1, maximum = 3650))]
+    #[cfg_attr(feature = "openapi", schema(value_type = Option<i32>, minimum = 7, maximum = 3650))]
     pub events_days: Option<Option<i32>>,
     #[serde(default, deserialize_with = "double_option")]
-    #[cfg_attr(feature = "openapi", schema(value_type = Option<i32>, minimum = 1, maximum = 3650))]
+    #[cfg_attr(feature = "openapi", schema(value_type = Option<i32>, minimum = 7, maximum = 3650))]
     pub transactions_days: Option<Option<i32>>,
     #[serde(default, deserialize_with = "double_option")]
-    #[cfg_attr(feature = "openapi", schema(value_type = Option<i32>, minimum = 1, maximum = 3650))]
+    #[cfg_attr(feature = "openapi", schema(value_type = Option<i32>, minimum = 7, maximum = 3650))]
     pub logs_days: Option<Option<i32>>,
 }
 

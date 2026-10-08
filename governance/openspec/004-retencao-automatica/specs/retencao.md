@@ -12,8 +12,11 @@
 **WHEN** a passada falha em um projeto
 **THEN** o erro é registrado e os demais projetos são processados
 
-**WHEN** um administrador define `events_days = 0` ou `4000`
+**WHEN** um administrador define `events_days` como `0`, `1`, `6` ou `4000`
 **THEN** a resposta é 400 apontando o campo, e nada muda
+
+**WHEN** uma variável de prazo da instância vale menos de 7 ou mais de 3650, ou não é um número inteiro
+**THEN** ela é ignorada com um erro no log e o tipo fica sem padrão
 
 **WHEN** um administrador define `logs_days = null`
 **THEN** o prazo próprio de logs do projeto é removido e vale o padrão da instância

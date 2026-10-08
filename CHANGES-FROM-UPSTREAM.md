@@ -11,7 +11,7 @@ arquivo é derivado dele e atualizado no mesmo commit.
 
 O upstream só limpa dados por ação manual. Aqui um worker aplica os prazos, a cada 24 h:
 
-- Prazo por tipo (`events`, `transactions` com seus spans, `logs`), da instância
+- Prazo por tipo, de **7 a 3650 dias** (`events`, `transactions` com seus spans, `logs`), da instância
   (`RUSTRAK_RETENTION_EVENTS_DAYS`, `RUSTRAK_RETENTION_TRANSACTIONS_DAYS`,
   `RUSTRAK_RETENTION_LOGS_DAYS`; sem valor embutido) e por projeto (`PUT /api/projects/{id}/retention`).
 - Projeto sem prazo para um tipo não perde esse tipo; a passada avisa em `WARN` e

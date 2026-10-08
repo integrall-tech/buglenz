@@ -5095,7 +5095,7 @@
             }
           },
           "400": {
-            "description": "A period is outside 1..3650 days",
+            "description": "A period is outside 7..3650 days",
             "content": {
               "application/json": {
                 "schema": {
@@ -10527,7 +10527,7 @@
             ],
             "format": "int32",
             "maximum": 3650,
-            "minimum": 1
+            "minimum": 7
           },
           "logs_days": {
             "type": [
@@ -10536,7 +10536,7 @@
             ],
             "format": "int32",
             "maximum": 3650,
-            "minimum": 1
+            "minimum": 7
           },
           "transactions_days": {
             "type": [
@@ -10545,7 +10545,7 @@
             ],
             "format": "int32",
             "maximum": 3650,
-            "minimum": 1
+            "minimum": 7
           }
         }
       },
