@@ -15,7 +15,7 @@ acontece com a instância em produção (C). Nada em C é iniciado antes de B es
 - [x] T5. (feito em 2026-10-08, `buglenz-sdk/spring-boot`, 59 testes; conferido ponta a ponta: nenhum valor original no envelope que sai da JVM) Wrapper Spring Boot: auto-configuração `buglenz.*`, `beforeSend`, falha na partida sem DSN em produção; testes
 - [x] T6. (feito em 2026-10-08: `buglenz-sdk/contract`, `docs/matriz.md`, CI `unit`; o job `contract` na CI depende do segredo `GHCR_READ_TOKEN`) Testes de contrato na CI contra a imagem `buglenz-server` publicada (React e Spring Boot) e a matriz de homologação com o primeiro par verde
 - [x] T7. **(decidido em 2026-10-08: letra b)** Pacote irmão do Archbase, com versão e repositório próprios, anunciado junto; sem dependência do Archbase nem de Mantine no wrapper. Como o wrapper React é publicado "junto do Archbase" (ADR-0011): mesmo pacote, pacote irmão ou dependência opcional; sem copiar código GPL e sem importar `@rustrak/*`
-- [ ] T8. `docs/onboarding.md` em português e `docs/matriz.md`
+- [x] T8. (feito em 2026-10-08: `buglenz-sdk/docs/onboarding.md` em português; `docs/matriz.md` está em inglês) `docs/onboarding.md` em português e `docs/matriz.md`
 - [ ] T9. **(decisão)** Nomear o produto piloto e os projetos na instância (um por app implantável)
 
 ## C. Com a instância em produção
