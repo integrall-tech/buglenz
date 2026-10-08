@@ -1,6 +1,6 @@
 # BugLenz — corpus de governança
 
-**Versão:** 0.26 · **Data:** 2026-10-08 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1)) · **Base sincronizada para `v0.16.0`** (PR #3) · **Pacote 002 executado**
+**Versão:** 0.27 · **Data:** 2026-10-08 · **Status:** proposta para revisão · **Pacote 001 executado** (PR [integrall-tech/buglenz#1](https://github.com/integrall-tech/buglenz/pull/1)) · **Base sincronizada para `v0.16.0`** (PR #3) · **Pacote 002 executado**
 
 Especificação do **BugLenz**: migração do [Rustrak](https://github.com/rustrak/rustrak) `v0.15.2` para um fork
 governado da IntegrAllTech, no formato spec-driven (CONSTITUTION, ADRs, pacotes OpenSpec).
@@ -47,7 +47,7 @@ junto com `governance/baseline/001.md` (baseline medida) e `governance/tools/` (
 | D3 | Apps Flutter entram na Fase 1? Se sim, os pacotes 016 (pelo menos etapas 1 e 2) e 015 sobem de prioridade | escopo da Fase 1 | Edson |
 | D4 | Localização da instância interna (I12) | pacote 003 | Edson, Neimar |
 | D5 | ~~Responsável e substituto pela sincronização quinzenal (ADR-0005)~~ **Fechada (2026-10-07): responsável Edson Martins, substituto Neimar Chagas.** Primeiro ciclo: `sync/2026-10-07` → `v0.16.0` | — | Edson |
-| D6 | Prazos padrão de retenção (ADR-0009) | pacote 004 | responsável por LGPD |
+| D6 | ~~Prazos padrão de retenção (ADR-0009)~~ **Definida provisoriamente em 2026-10-08, por delegação do Edson: 90 dias para erros e logs, 30 para transações e spans** (o que o ADR-0009 propunha), como padrão da stack Swarm; o servidor não embute valor. O responsável por LGPD pode ajustar por instância ou por projeto | pacote 004 | Edson (provisório); responsável por LGPD (validação) |
 | D7 | Avaliar o Jev em sombra na instância interna, ao lado do provedor local (ADR-0015) | pacote 018 | Edson, Neimar |
 | D8 | ~~Papel de cada domínio e host do DSN (ADR-0006)~~ **Parcialmente fechada (2026-10-08): `buglenz.dev` é o domínio de tudo.** Proposta `errors.buglenz.dev` (instância e host do DSN), `docs.buglenz.dev`, `alerts@buglenz.dev`; falta confirmar o host do DSN antes do primeiro app piloto | primeiro app piloto | Edson |
 | D9 | Identidade visual do BugLenz: logotipo, ícones, cores. **Provisórios no pacote 007** (logotipo tipográfico e ícones gerados) | versão final do 007 | Edson |
@@ -72,6 +72,7 @@ junto com `governance/baseline/001.md` (baseline medida) e `governance/tools/` (
 
 ## Mudanças
 
+- **0.27:** D6 definida provisoriamente (90/30/90 dias) como padrão da stack Swarm, por delegação do Edson; o servidor continua sem valor embutido. Dois rulesets aplicados em `main` e nas tags de release (D10); catálogo `pt` revisado e proposto ao upstream (rustrak/rustrak#389).
 - **0.26:** ADR-0021 (opção B) e rulesets para `main` (com checks obrigatórios) e para as tags de release, prontos para o Edson aplicar (D10). A ADR-0019 fica substituída: os workflows voltam a rodar em todo PR.
 - **0.25:** ADR-0020: o repositório do fork é público. I11 (imagens em registry privado) não muda. Destrava a D10 e simplifica a D2; o CodeQL volta.
 - **0.24:** ADR-0019 (economia de minutos de CI): filtros por caminho nos workflows, CodeQL só à mão, janela de 15 min de rede à mão antes de cada tag. Motivo: a cota gratuita do GitHub Actions acabou.

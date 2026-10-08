@@ -46,3 +46,12 @@ responde por LGPD na IntegrAllTech.
 ## Nota de 2026-10-08
 
 No `@sentry/react` 11.x a opção `sendDefaultPii` foi substituída por `dataCollection`, que coleta tudo por padrão (usuário, cookies, cabeçalhos, corpos, query strings). A camada 1 do wrapper React desliga cada categoria. No Spring Boot, `sentry.send-default-pii=false` continua válido, mas o SDK cru ainda envia e-mail em `user` e `extra`; por isso o wrapper também filtra o evento.
+
+## Nota de 2026-10-08 (D6)
+
+Os prazos padrão de retenção passam a ter valor na stack de implantação: **90 dias para erros (eventos) e
+logs, 30 dias para transações e spans**, os números propostos acima. Foram definidos pelo dono do projeto,
+por delegação, como **padrão provisório**: o texto original dizia que precisavam de validação de quem
+responde por LGPD, e isso continua valendo. O servidor segue sem valor embutido (nada é apagado sem
+variável ou prazo por projeto); o padrão vive em `deploy/swarm/buglenz.stack.yml`. O piso é de 7 dias.
+
