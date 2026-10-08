@@ -133,6 +133,7 @@ Todos [confirmado] por código ou documentação do repositório.
 | G21 | **Eventos em uma tabela única com `data JSONB`, sem particionamento.** | migration inicial do PostgreSQL. | [confirmado] |
 | G22 | **Risco de upstream:** 9 meses de vida, versão 0.x com quebra em minor, sem `SECURITY.md`, financiado por GitHub Sponsors. | repositório. | [confirmado] |
 | G23 | **GPL-3.0-only**, inclusive no cliente TypeScript. | `Cargo.toml`, `packages/client/package.json`. | [confirmado] |
+| G24 | **Terminais repetidos da mesma sessão são contados mais de uma vez.** `ingest_session` não guarda estado por `sid`; cada atualização terminal incrementa um contador. O `sentry-spring-boot` 8.60.0 com sessão explícita envia `crashed` duas vezes para a mesma sessão (na queda e no `endSession`): `total 1, crashed 2, healthy -1, crash-free -1.0`. O SDK JavaScript envia um terminal só, por isso o G3 não mostrou. Afeta qualquer SDK que repita o terminal (Java, provavelmente Android e Flutter). Evidência em `governance/baseline/009-t1.md` | `workers/session_aggregator.rs` (`ingest_session`); execução de 2026-10-08 | [confirmado] |
 
 Não consegui ler as issues e PRs abertos do upstream (o README lista 40 e 9); a página bloqueia
 leitura automatizada. Vale uma passada manual para ver quais gaps acima já têm trabalho em curso.

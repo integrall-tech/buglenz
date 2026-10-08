@@ -82,6 +82,7 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `.github/workflows/brand.yml` | A | 0006, 0005 | Novo (007). A cada PR e sync: motor, aplicação das regras, verificação, build do dashboard e `cargo check` do servidor marcados, busca de vazamentos no bundle |
 | `BUGLENZ.md` | A | 0003, 0006 | Novo (007). Apresentação do fork: origem, licença, o que muda, como a marca é aplicada; o `README.md` da raiz continua o do upstream |
 | `governance/baseline/007.md`, `governance/baseline/007-screens/*.png` | G | 0006 | Novos (007). Baseline e capturas de tela (login e "Sobre") do servidor marcado |
+| `governance/baseline/009-t1.md` | G | 0011 | Novo (009/T1). Tráfego real do `sentry-spring-boot` 8.60.0 contra a instância; origem do gap G24 |
 | `governance/**` | G | 0001, 0002 | Novo. Corpus de governança: CONSTITUTION, GAP-ANALYSIS, `adr/`, `rfc/`, `openspec/`, `baseline/`, `tools/` |
 
 ## Histórico de bases

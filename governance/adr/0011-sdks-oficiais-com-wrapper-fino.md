@@ -25,6 +25,8 @@ de sessão que o servidor 0.15.2 não reconhece (G3). O SDK evolui mais rápido 
 
 ## Consequências
 
+- Os wrappers ficam em `integrall-tech/buglenz-sdk`, sob **licença MIT** (2026-10-08), sem referência ao fork.
+
 - Source maps não são publicados junto do bundle em produção; vão só para a instância.
 - Enquanto G9 (tunnel) não for resolvido, navegadores com bloqueador podem não enviar eventos.
 - Flutter ofuscado e crash nativo dependem da decisão D3 (G17).

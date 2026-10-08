@@ -42,3 +42,7 @@ O scrubbing roda fora do caminho síncrono de ingestão, então não afeta a lat
 [inferência] O dado bruto fica em `INGEST_DIR` até o digest; esse diretório precisa estar em
 volume da instância, não em `/tmp` compartilhado. Os prazos padrão precisam de validação com quem
 responde por LGPD na IntegrAllTech.
+
+## Nota de 2026-10-08
+
+No `@sentry/react` 11.x a opção `sendDefaultPii` foi substituída por `dataCollection`, que coleta tudo por padrão (usuário, cookies, cabeçalhos, corpos, query strings). A camada 1 do wrapper React desliga cada categoria. No Spring Boot, `sentry.send-default-pii=false` continua válido, mas o SDK cru ainda envia e-mail em `user` e `extra`; por isso o wrapper também filtra o evento.
