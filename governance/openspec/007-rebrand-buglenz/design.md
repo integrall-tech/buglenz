@@ -77,3 +77,29 @@ só o logotipo. [não verificado: disposição do mantenedor]
 Ativos necessários antes da execução: logotipo em SVG (versão clara e escura), ícone 512×512,
 ícone Apple 180×180 e, se desejado, tokens de cor. A UI nasce em tema escuro. Sem os ativos, o
 pacote pode ser executado com logotipo tipográfico provisório.
+
+## 7. O que a execução revelou (2026-10-08) [confirmado na `v0.16.0`]
+
+- **Inventário maior que o previsto.** Além do que a tabela lista: os modelos de webhook do
+  dashboard (`features/alert/model/message-template.ts`: 5× `Rustrak: {{`, `actor`, `"source":
+  "rustrak"`), os rodapés `© <ano> Rustrak` de `login.tsx` e `error-screen.tsx`, o título de
+  `settings.tsx`, `topbar.tsx` do design system, o placeholder `alerts@rustrak.local` do catálogo, a
+  mensagem de SSO de `users.rs` e o `actor "Rustrak Test"` do alerta de teste. Os "modelos
+  prontos" que a tabela atribuía a `custom_webhook.rs` existem **só em módulos de teste**.
+- **Contagens medidas:** 68 `Rustrak` por catálogo (nos 5), todos em valores, nenhum em chave;
+  catálogos regravam idênticos (`JSON.stringify(…, null, 2) + "\n"`), o que permite `catalog-set`.
+- **Zona C que o design não citava:** cabeçalhos `X-Rustrak-Signature/Timestamp/Request-ID` do
+  webhook, `X-Rustrak-Incident`, nomes de tipos `RustrakError`/`RustrakClient` (dezenas de usos no
+  dashboard). Por isso as regras são por arquivo e por texto exato, nunca globais.
+- **Mecanismo no build:** o workflow aplica a marca a uma **cópia** (`--dest`), verifica e constrói
+  a imagem da cópia; o `Dockerfile` do upstream não muda. `--in-place` só roda com `CI=true`.
+  Os diretórios do próprio fork (`brand/`, `governance/`, `e2e/`, `deploy/`) ficam fora da cópia
+  só na raiz (`apps/server/tests/e2e` é mantido).
+- **Arquivos substituídos por inteiro** (overrides) saem da contagem de zona C e, em troca, a
+  verificação exige que mantenham os nomes exportados (`RustrakWordmark`, `Wordmark`).
+- **"Sobre"**: o link do rastreador do upstream foi removido e o de repositório aponta para o
+  `NOTICE.md` da tag (`${release}`); atribuição em cinco idiomas (en, es, fr, ro, zh).
+- **Texto de marketing do upstream** no painel do login ("50MB", "<50ms", "10k+") não é marca e
+  não foi alterado; não é medição deste fork.
+- **D8 fechada (2026-10-08):** domínio `buglenz.dev`; propostas `errors.buglenz.dev` (instância e
+  DSN, a confirmar), `docs.buglenz.dev`, remetente `alerts@buglenz.dev`.

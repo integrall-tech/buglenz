@@ -21,7 +21,7 @@ G (mais que isso). São ordens de grandeza, não estimativas. [inferência]
 | 004 retencao-automatica | Prazo por projeto e tipo; worker diário; tela de configuração | G1 | 0009 | 003 | M |
 | 005 scrubbing-de-dados-pessoais | Módulo `scrub` no digest: lista de negação por chave (padrão + `RUSTRAK_SCRUB_EXTRA_KEYS`), máscaras `[cpf]`/`[cnpj]`/`[cartao]`/`[email]` com validação, IP nunca gravado, exclusão por titular; cenário de PII no `e2e-react`; proposta ao upstream. **Feito em 2026-10-08** (PR #7) | G2 | 0009, 0002 | 003 | M |
 | 006 compatibilidade-sdk-atual | Status de sessão `unhandled` (protocolo 1.6.0) em sessões e agregados, contado como errored; job `e2e-react` com `@sentry/react` 11.5.0 fixado e source maps; PR no upstream rustrak/rustrak#383 via fork público `integrall-tech/rustrak`. **Feito em 2026-10-08** (PR #6) | G3 | 0011, 0002 | 001 | P |
-| 007 rebrand-buglenz | Marca BugLenz nas zonas A e B, aplicada por sobreposição no build; atribuição ao Rustrak preservada | — | 0006 | 003, D8, D9 | M |
+| 007 rebrand-buglenz | Marca BugLenz nas zonas A e B, aplicada por sobreposição no build; atribuição ao Rustrak preservada. **Feito em 2026-10-08** com logotipo provisório (D9) | — | 0006 | 003, D8, D9 | M |
 | 021 catalogo-pt-br | Catálogo `pt-BR` (1.298 chaves), proposto ao upstream | G5 | 0002, 0010 | 001 | P |
 | 008 sso-archguard | Instância interna atrás do ArchGuard; teste do fluxo OIDC | — | 0008 | 003 | P |
 | 009 wrappers-e-onboarding | Wrapper React (com Archbase) e Spring Boot; source maps no CI; primeiro produto piloto | — | 0011 | 005, 006 | M |
