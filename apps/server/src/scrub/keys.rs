@@ -92,13 +92,7 @@ pub fn parse_extra(raw: Option<&str>) -> HashSet<String> {
 
 /// Whether a JSON key's value must be replaced.
 pub fn is_denied(key: &str) -> bool {
-    let key = normalise(key);
-    if key.is_empty() {
-        return false;
-    }
-    EXACT.contains(&key.as_str())
-        || CONTAINS.iter().any(|needle| key.contains(needle))
-        || extra_keys().contains(&key)
+    is_denied_with(key, extra_keys())
 }
 
 /// Same as [`is_denied`], against an explicit extra list; what the tests use
@@ -108,7 +102,13 @@ pub fn is_denied_with(key: &str, extra: &HashSet<String>) -> bool {
     if key.is_empty() {
         return false;
     }
-    EXACT.contains(&key.as_str())
-        || CONTAINS.iter().any(|needle| key.contains(needle))
-        || extra.contains(&key)
+    EXACT.contains(&key.as_str()) || matches_by_content(&key) || extra.contains(&key)
+}
+
+/// The substring rules, minus the one collision that matters: `tokens` is a
+/// count (`gen_ai.usage.input_tokens`, `max_tokens`), never a credential.
+fn matches_by_content(key: &str) -> bool {
+    CONTAINS
+        .iter()
+        .any(|needle| key.contains(needle) && !(*needle == "token" && key.contains("tokens")))
 }

@@ -37,6 +37,8 @@ impl SpanProcessor {
     fn parse_item(work: &[u8]) -> AppResult<ParsedSpan> {
         let mut data: serde_json::Value = serde_json::from_slice(work)
             .map_err(|e| AppError::Validation(format!("Invalid span JSON: {e}")))?;
+        // Personal data never reaches the database (ADR-0009).
+        crate::scrub::scrub_value(&mut data);
 
         // span_id and trace_id are required for a standalone span to be
         // accepted.

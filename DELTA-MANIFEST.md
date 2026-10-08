@@ -68,6 +68,10 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `apps/server/src/scrub/mod.rs`, `apps/server/src/scrub/keys.rs`, `apps/server/src/scrub/text.rs` | G | 0009 | Novos (005). Scrubbing de dados pessoais: chaves negadas → `[Filtered]`, máscaras `[cpf]`/`[cnpj]`/`[cartao]`/`[email]` |
 | `apps/server/src/lib.rs` | G | 0009 | Alterado (005). `pub mod scrub;` |
 | `apps/server/tests/unit/scrub_test.rs`, `apps/server/tests/unit/mod.rs` | G | 0009 | Novo / registro (005) |
+| `apps/server/src/routes/ingest.rs` | G | 0009 | Alterado (005). O IP do cliente não é lido na ingestão |
+| `apps/server/src/digest/processors/event.rs`, `apps/server/src/digest/processors/transaction.rs`, `apps/server/src/digest/processors/logs.rs`, `apps/server/src/digest/processors/span.rs`, `apps/server/src/digest/processors/span_v2.rs` | G | 0009 | Alterados (005). Chamada ao `scrub` antes de agrupar e persistir; `events.remote_addr` nunca gravado |
+| `apps/server/tests/integration/scrub_test.rs`, `apps/server/tests/integration/mod.rs` | G | 0009 | Novo / registro (005) |
+| `apps/server/tests/integration/digest_test.rs` | G | 0009 | Alterado (005). Expectativa de `test_list_stats_counts_by_email_when_id_is_absent`: com e-mails mascarados, eventos sem `user.id` contam como um usuário |
 | `governance/**` | G | 0001, 0002 | Novo. Corpus de governança: CONSTITUTION, GAP-ANALYSIS, `adr/`, `rfc/`, `openspec/`, `baseline/`, `tools/` |
 
 ## Histórico de bases

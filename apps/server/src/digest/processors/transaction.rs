@@ -17,6 +17,8 @@ impl Processor for TransactionProcessor {
         // The ingest route propagates this error so the SDK can retry the envelope.
         let mut data: serde_json::Value = serde_json::from_slice(&work)
             .map_err(|e| AppError::Validation(format!("Invalid transaction JSON: {}", e)))?;
+        // Personal data never reaches the database; child spans live in here too (ADR-0009).
+        crate::scrub::scrub_value(&mut data);
 
         let timestamp = extract_timestamp(&data, "timestamp").unwrap_or(ctx.ingested_at);
         let start_timestamp = extract_timestamp(&data, "start_timestamp");
