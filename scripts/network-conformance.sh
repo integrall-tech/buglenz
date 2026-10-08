@@ -205,8 +205,10 @@ runtime_check() {
 
   local n; n=$(egress_count)
   kill -0 "$server_pid" 2>/dev/null || fail "runtime: server is not alive at the end of the window"
-  if grep -qi 'telemetry' "$CT_DIR/server.log"; then
-    grep -i 'telemetry' "$CT_DIR/server.log" | head -3
+  # The access log echoes our own probe of the removed route; that line is
+  # the request path, not the server talking about telemetry.
+  if grep -i 'telemetry' "$CT_DIR/server.log" | grep -v 'GET /api/telemetry/preview' | grep -q .; then
+    grep -i 'telemetry' "$CT_DIR/server.log" | grep -v 'GET /api/telemetry/preview' | head -3
     fail "runtime: the server log mentions telemetry"
   fi
   if [ "$n" -ne 0 ]; then
