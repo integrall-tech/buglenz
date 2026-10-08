@@ -7,6 +7,26 @@ arquivo é derivado dele e atualizado no mesmo commit.
 
 ## Comportamento
 
+### Endurecimento do servidor (pacote 023, ADR-0018)
+
+Correções de segurança que o upstream ainda não aceitou ([rustrak/rustrak#57](https://github.com/rustrak/rustrak/pull/57)):
+
+- **Senha:** acima de 1024 bytes é recusada com 400 no login, no aceite de convite, na troca de
+  senha e no vínculo SSO, antes de qualquer consulta ou Argon2. Não há tamanho mínimo (decisão do
+  upstream mantida).
+- **Login:** um e-mail inexistente gasta o mesmo Argon2 que uma senha errada, para o tempo de
+  resposta não revelar quais e-mails têm conta.
+- **Sessão:** login e aceite de convite descartam o que a sessão guardava antes e a renovam.
+- **Webhooks:** o destino não pode ser loopback, rede privada (10/8, 172.16/12, 192.168/16),
+  link-local (inclui `169.254.169.254`), CGNAT, `localhost` nem nomes `.local`/`.internal`. Vale ao
+  salvar o canal e ao enviar (cobre a URL do roteamento da regra). O cliente HTTP não segue
+  redirecionamentos. Quem **precisa** de um destino interno lista o host em
+  `RUSTRAK_WEBHOOK_ALLOWED_HOSTS` (vírgula; o host como aparece na URL). Canais já salvos com
+  destino interno passam a falhar no envio.
+- **Ingest:** corpo acima de 100 MB responde 413 em JSON (era texto puro).
+- Limite conhecido: o bloqueio olha o host escrito na URL; um nome público que resolve para IP
+  interno passa. A política de saída de rede do nó (invariante I3) fecha isso.
+
 ### Telemetria e checagem de versão removidas (pacote 002, ADR-0004)
 
 A instância não inicia nenhuma conexão por conta própria (CONSTITUTION I3). O que mudou em

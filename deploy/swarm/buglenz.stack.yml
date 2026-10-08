@@ -36,6 +36,7 @@ services:
       RUST_LOG: ${RUST_LOG:-info}
       # Extra denied keys for the personal-data scrub (ADR-0009), comma-separated.
       RUSTRAK_SCRUB_EXTRA_KEYS: ${RUSTRAK_SCRUB_EXTRA_KEYS:-}
+      RUSTRAK_WEBHOOK_ALLOWED_HOSTS: ${RUSTRAK_WEBHOOK_ALLOWED_HOSTS:-}
       # Sender of alert e-mails when a channel does not set its own (OpenSpec 007).
       SMTP_FROM: ${SMTP_FROM:-alerts@buglenz.dev}
     volumes:

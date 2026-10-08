@@ -1,6 +1,6 @@
 # ADR-0018 — Correções de segurança do servidor que o upstream ainda não aceitou
 
-**Estado:** proposta (2026-10-08) · **Depende de:** ADR-0002, ADR-0005
+**Estado:** aceita (2026-10-08; o Edson pediu a implementação). Revisão humana do código ainda pendente (§5) · **Depende de:** ADR-0002, ADR-0005
 
 ## Contexto
 
@@ -18,7 +18,7 @@ exploração]:
 | H-2 / M-3 | DoS por tamanho de senha | **presente** (nenhum limite no login nem no aceite de convite) |
 | H-3 | Vazamento de detalhe interno nos erros 5xx | **já corrigido no upstream** (`INTERNAL_ERROR_MESSAGE` fixo em `error.rs`) |
 | H-4 | SSRF por URL de webhook | **presente** (`validate_config` só confere o esquema `http`/`https`) |
-| M-1 | Corpo grande no ingest sem 413 em JSON | **provavelmente tratado** (`PayloadConfig` + `PayloadTooLarge` na descompressão) [inferência; a conferir por teste] |
+| M-1 | Corpo grande no ingest sem 413 em JSON | **presente**: 413, mas em texto puro (confirmado por execução com 101 MB) |
 | M-2 | Fixação de sessão | **presente no login**; o fluxo SSO já renova a sessão |
 
 ## Decisão
@@ -38,3 +38,22 @@ exploração]:
   e nos testes, até o upstream aceitar.
 - Conflito previsível no sync se o upstream corrigir de outro jeito: resolver a favor do upstream e
   manter os testes.
+
+## Decisões tomadas na implementação (2026-10-08)
+
+- **Sem tamanho mínimo de senha.** O PR #57 impõe 8 a 1024; a base tem teste que fixa a decisão do
+  upstream de não ter mínimo (`accept_invitation_allows_short_password_but_requires_nonempty`). Só o
+  limite superior, que é o que protege contra abuso, foi trazido. Mínimo é política: decisão do Edson.
+- **M-2 em armazenamento por cookie.** A sessão é um `CookieSessionStore` (estado assinado no
+  cookie): não existe identificador de sessão no servidor para fixar. O que o login passa a fazer é
+  descartar o que a sessão guardava antes (estado de SSO ou algo plantado) e renová-la.
+  Consequência registrada [inferência]: no logout o cookie não é revogado no servidor; um cookie
+  roubado vale até expirar. Fora do escopo deste pacote.
+- **H-4 vale também no envio.** A URL do roteamento da regra não passa por `validate_config`; a
+  checagem roda no `send` dos dois notificadores. O cliente HTTP dos notificadores deixou de seguir
+  redirecionamentos, ou um endpoint público redirecionaria para o endereço interno.
+- **Exceção por instância: `RUSTRAK_WEBHOOK_ALLOWED_HOSTS`**, vazia por padrão, sem chave que
+  desligue a checagem. Existe porque destinos internos são legítimos (o agente de triagem do
+  ADR-0014 fica na rede interna).
+- **Limite conhecido:** nomes públicos que resolvem para IP interno passam; a política de saída de
+  rede do nó (I3) fecha isso.
