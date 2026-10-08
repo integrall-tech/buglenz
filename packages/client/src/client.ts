@@ -13,6 +13,7 @@ import {
   MembersResource,
   ProjectsResource,
   ReleasesResource,
+  RetentionResource,
   SessionsResource,
   SourceMapsResource,
   SpansResource,
@@ -143,6 +144,11 @@ export class RustrakClient {
   public readonly storage: StorageResource;
 
   /**
+   * Retention API resource (periods per project and data type, admin only)
+   */
+  public readonly retention: RetentionResource;
+
+  /**
    * Health API resource (version info)
    */
   public readonly health: HealthResource;
@@ -175,6 +181,7 @@ export class RustrakClient {
     this.agents = new AgentsResource(this.http);
     this.stats = new StatsResource(this.http);
     this.storage = new StorageResource(this.http);
+    this.retention = new RetentionResource(this.http);
     this.health = new HealthResource(this.http);
   }
 }

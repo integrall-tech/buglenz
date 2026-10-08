@@ -11,6 +11,7 @@ export { LogsResource } from './logs.js';
 export { MembersResource } from './members.js';
 export { ProjectsResource } from './projects.js';
 export { ReleasesResource } from './releases.js';
+export { RetentionResource } from './retention.js';
 export { SessionsResource } from './sessions.js';
 export { SourceMapsResource } from './sourcemaps.js';
 export { SpansResource } from './spans.js';

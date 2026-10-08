@@ -1549,7 +1549,8 @@
       "openProjectSettingsMenu": "Abrir menú de configuración del proyecto",
       "projectSettingsTitle": "Configuración del proyecto",
       "openSettingsMenu": "Abrir menú de configuración",
-      "settingsTitle": "Configuración"
+      "settingsTitle": "Configuración",
+      "retention": "Retención"
     },
     "loadProjectFailed": "No se pudo cargar el proyecto",
     "loadProjectsFailed": "No se pudieron cargar los proyectos",
@@ -1697,6 +1698,39 @@
       "githubRepository": "Repositorio de GitHub",
       "reportAnIssue": "Informar de un problema",
       "sentryDocs": "Documentación de los SDK de Sentry"
+    },
+    "retention": {
+      "meta": {
+        "title": "Retención | Rustrak",
+        "description": "Plazos de retención de eventos, transacciones y registros"
+      },
+      "title": "Retención",
+      "subtitle": "Los datos se eliminan automáticamente cuando superan su plazo",
+      "notAuthorizedDescription": "Solo los administradores de la instancia pueden ver y cambiar los plazos de retención. Contacta con un administrador si necesitas acceso.",
+      "loadFailed": "No se pudieron leer los plazos de retención",
+      "defaultsTitle": "Valores de la instancia",
+      "defaultsDescription": "Los define el operador mediante variables de entorno. Un proyecto sin plazo propio usa estos.",
+      "types": {
+        "events": "Eventos",
+        "transactions": "Transacciones y spans",
+        "logs": "Registros"
+      },
+      "notSet": "Sin definir",
+      "days": "{count, plural, one {# día} other {# días}}",
+      "lastRun": "Última pasada: {when}. Se eliminaron {events} eventos, {transactions} transacciones y {logs} registros.",
+      "noRun": "Aún no hay ninguna pasada desde que arrancó el servidor. La primera se ejecuta aproximadamente un minuto después del arranque y luego cada {hours} horas.",
+      "byProject": "Por proyecto",
+      "byProjectDescription": "Deja una casilla vacía para usar el valor de la instancia.",
+      "noProjects": "Aún no hay proyectos.",
+      "protected": "Protegido",
+      "unprotectedMissing": "Sin plazo para {types}",
+      "warningUnprotected": "{count, plural, one {# proyecto no tiene} other {# proyectos no tienen}} plazo de retención para algunos datos. Esos datos nunca se eliminan.",
+      "placeholderNone": "Ninguno",
+      "placeholderDefault": "Por defecto: {days}",
+      "invalidRange": "Introduce un número entero de días entre {min} y {max}, o déjalo vacío.",
+      "save": "Guardar",
+      "saved": "Retención actualizada para {project}",
+      "saveFailed": "No se pudieron guardar los plazos de retención"
     }
   }
 }
