@@ -19,6 +19,5 @@ pub mod spans;
 pub mod stats;
 pub mod storage;
 pub mod team;
-pub mod telemetry;
 pub mod tokens;
 pub mod transactions;

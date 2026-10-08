@@ -155,18 +155,9 @@ async fn main() -> std::io::Result<()> {
         tokio::spawn(SessionAggregator::run(handle));
     }
 
-    // Anonymous telemetry. Counted always (the preview endpoint shows the
-    // operator what would leave), sent only when every switch agrees.
+    // Process counters, read by /metrics. The upstream's anonymous telemetry
+    // report was removed in the BugLenz fork (ADR-0004): nothing leaves.
     rustrak::telemetry::install_panic_hook(rustrak::telemetry::Counters::global());
-    let telemetry_status = match rustrak::telemetry::decide(
-        &config.telemetry,
-        rustrak::telemetry::posthog::compiled_key(),
-    ) {
-        Ok(()) => rustrak::telemetry::TelemetryStatus::Enabled {
-            sink: rustrak::telemetry::posthog::SINK_NAME,
-        },
-        Err(why) => rustrak::telemetry::TelemetryStatus::Disabled(why),
-    };
 
     // Bootstrap: create initial token if none exist
     bootstrap_token(&db_pool).await;
@@ -210,44 +201,6 @@ async fn main() -> std::io::Result<()> {
     }
     let serve_dashboard = dashboard.is_some();
 
-    let telemetry_reporter = Arc::new(rustrak::telemetry::Reporter::new(
-        db_pool.clone(),
-        Arc::new(rustrak::telemetry::posthog::PostHogSink::new(
-            rustrak::telemetry::posthog::ENDPOINT,
-            rustrak::telemetry::posthog::compiled_key().unwrap_or_default(),
-        )),
-        rustrak::telemetry::Counters::global(),
-        rustrak::telemetry::Context {
-            dashboard_served: serve_dashboard,
-            config: rustrak::telemetry::ConfigFacts {
-                ssl_proxy: config.security.ssl_proxy,
-                public_url_set: config.public_url.is_some(),
-                smtp_configured: std::env::var("SMTP_HOST").is_ok_and(|h| !h.trim().is_empty()),
-                session_secret_set: config.security.session_secret_key.is_some(),
-                alert_providers: Vec::new(),
-                quota_customized: config.rate_limit.is_customized(),
-            },
-            sqlite_path: rustrak::telemetry::sqlite_path_from_url(&config.database.url),
-            ingest_dir: ingest_dir.clone(),
-        },
-    ));
-    match telemetry_status {
-        rustrak::telemetry::TelemetryStatus::Enabled { .. } => {
-            let instance = rustrak::telemetry::instance_id(&db_pool)
-                .await
-                .unwrap_or_else(|_| "unknown".to_string());
-            log::info!(
-                "Anonymous telemetry is on (instance {instance}). RUSTRAK_TELEMETRY=off disables it. \
-                 https://rustrak.github.io/rustrak/configuration/telemetry"
-            );
-            tokio::spawn(Arc::clone(&telemetry_reporter).run());
-        }
-        rustrak::telemetry::TelemetryStatus::Disabled(why) => {
-            log::info!("Telemetry is off: {why}.");
-        }
-    }
-    let telemetry_reporter_data = web::Data::new(telemetry_reporter);
-    let telemetry_status_data = web::Data::new(telemetry_status);
     let metrics_data = web::Data::new(routes::metrics::MetricsEndpoint::new(
         metrics_enabled,
         ingest_dir.clone(),
@@ -312,8 +265,6 @@ async fn main() -> std::io::Result<()> {
             .app_data(sourcemap_store_data)
             .app_data(session_aggregator_data.clone())
             .app_data(processors_data.clone())
-            .app_data(telemetry_reporter_data.clone())
-            .app_data(telemetry_status_data.clone())
             .app_data(metrics_data.clone())
             .app_data(cleanup_job_data.clone())
             // Middleware
@@ -389,8 +340,6 @@ async fn main() -> std::io::Result<()> {
             .configure(routes::sourcemaps::configure)
             // Storage usage + retention/cleanup (admin only)
             .configure(routes::storage::configure)
-            // What the anonymous telemetry would send (admin only)
-            .configure(routes::telemetry::configure)
             // Ingest routes (Sentry SDK auth)
             .configure(routes::ingest::configure);
 

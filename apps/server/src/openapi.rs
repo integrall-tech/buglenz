@@ -130,7 +130,6 @@ impl Modify for SecurityAddon {
         crate::routes::storage::get_cleanup_status,
         crate::routes::storage::preview_source_map_gc,
         crate::routes::storage::gc_source_maps,
-        crate::routes::telemetry::preview,
     ),
     components(schemas(
         crate::routes::auth::UpdatePreferencesRequest,
@@ -208,7 +207,6 @@ impl Modify for SecurityAddon {
         crate::models::UpdateRelease,
         crate::models::ReleaseResponse,
         crate::models::StorageSummary,
-        crate::routes::telemetry::TelemetryPreview,
         crate::models::SourceMapStorage,
         crate::models::ProjectStorage,
         crate::models::CleanupCounts,
