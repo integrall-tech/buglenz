@@ -12,7 +12,7 @@ G (mais que isso). São ordens de grandeza, não estimativas. [inferência]
 |---|---|---|---|---|---|
 | 001 bootstrap-do-fork | Repositório privado, remotes, artefatos de conformidade, CI herdado verde, baseline — **feito em 2026-10-07**, exceto T3 | — | 0001, 0002, 0003, 0005 | D2 em andamento; D10 para T3 | P |
 | 002 remocao-de-egress | Telemetria e checagem de versão fora do código; teste de conformidade de rede. **Feito em 2026-10-08** sobre a `v0.16.0` (PR #4). O upstream segue investindo na telemetria (issue #375) | G4 | 0004 | 001, sync `v0.16.0` | P |
-| 003 build-e-implantacao | Imagem PostgreSQL no registry privado; stack Swarm + Traefik; métricas e logs; backup; `INGEST_DIR` sob `/data` (issue #359 do upstream); contorno para `RUSTRAK_BOOTSTRAP_TOKEN` (#356); `THIRD-PARTY-LICENSES.md` gerado na CI | G20 | 0012 | 002, D4, D8 | M |
+| 003 build-e-implantacao | Imagem PostgreSQL `linux/amd64` em GHCR privado; workflow por tag; stack Swarm + Traefik **parametrizada** (valores de D4/D8 fora do repo, na implantação); `INGEST_DIR` sob `/data` (#359); provisionamento sem `RUSTRAK_BOOTSTRAP_TOKEN` (#356); `THIRD-PARTY-LICENSES.md` gerado na CI; backup e scrape **a confirmar**. **Detalhado em 2026-10-08** | G20 | 0012 | 002 (D4, D8 só na implantação) | P–M |
 
 ## Fase 1 — Mínimo para dados de produção
 
