@@ -14,6 +14,7 @@ Spans seguem as transações (cascata). Logs e eventos são independentes.
 **Spans avulsos** (auditoria de 2026-10-09, segunda rodada): um span que chega sem transação (`transaction_id` nulo, migração
 `20260714000000_standalone_spans`) não tem cascata a seguir e nunca expirava. Agora a passada o apaga pelo prazo de
 **transações** do projeto, e a contagem entra em `removed.spans`.
+
 **Relatos de usuário** (`user_reports`, segunda rodada): seguem o prazo de eventos; o texto passa pelo scrub ao ser gravado
 (e-mail vira `[email]`, CPF vira `[cpf]`). Ficam fora da exclusão por titular, que casa por `user.id`.
 
