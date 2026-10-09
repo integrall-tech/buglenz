@@ -1,5 +1,7 @@
 # 005 — Especificação
 
+> **Emenda de 2026-10-09 (auditoria).** O cenário do delta vazio de migrações valia **no fim do pacote 005** (a migração de retenção veio no 004). Tratamentos acrescentados depois, sem cenário próprio: o `did` das sessões vira pseudônimo com chave; e-mail em campo `*id` é mascarado (`user.id` continua o id do usuário, mas um e-mail nele não); CPF/CNPJ enviado como número e e-mail como chave de objeto são mascarados; `user_reports` passa pelo scrub. Ver a ADR-0009 (notas de 2026-10-09).
+
 ## Chaves negadas
 
 **WHEN** um payload traz, em qualquer nível, uma chave cuja forma normalizada esteja na lista de negação (`password`, `senha`, `token`, `authorization`, `cookie`, `secret`, `apiKey`, `x-api-key`, `cpf`, `cnpj`, `ip_address`, …)

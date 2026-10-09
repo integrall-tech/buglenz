@@ -1,5 +1,7 @@
 # 006 — Especificação
 
+> **Emenda de 2026-10-09 (auditoria).** Os cenários "o diff de migrações, `pnpm-lock.yaml` e `pnpm-workspace.yaml` é vazio" e "o diff de `apps/*/src` são 16 arquivos mais 2" valiam **no fim do pacote 006**. Hoje o delta é maior e está todo no `DELTA-MANIFEST.md`. Os cenários sobre abrir o PR no upstream e sobre o remoto `integrall-tech/rustrak` dependem de conferência no GitHub.
+
 ## Status de sessão
 
 **WHEN** um envelope traz um item `session` com `"status":"unhandled"` e `"errors":1`

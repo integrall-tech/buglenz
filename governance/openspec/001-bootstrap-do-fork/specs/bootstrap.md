@@ -1,5 +1,7 @@
 # 001 — Especificação
 
+> **Emenda de 2026-10-09 (auditoria).** O cenário "a diferença em `apps/*/src`, `packages/*/src` e migrações é vazia" valia **no fim do pacote 001**, em relação à `v0.15.2`. Hoje o delta é maior por decisão dos pacotes seguintes; cada arquivo consta em `DELTA-MANIFEST.md` e o job `manifest` falha se faltar linha. A cláusula "com a ADR associada" **não** é verificada por máquina: só uma pessoa a confere.
+
 ## Origem e remotes
 
 **WHEN** `git merge-base main v0.15.2` é executado no repositório do fork

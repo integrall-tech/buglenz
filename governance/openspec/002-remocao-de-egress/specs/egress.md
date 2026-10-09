@@ -1,5 +1,7 @@
 # 002 — Especificação
 
+> **Emenda de 2026-10-09 (auditoria).** Os cenários "a diferença nas migrações é vazia" e "só os arquivos do 002 e do 001 diferem" valiam **no fim do pacote 002**. Depois entraram as migrações de retenção (004) e muitos arquivos de outros pacotes, todos no `DELTA-MANIFEST.md`. A varredura do binário agora roda também sobre a imagem que sai (`release-image.yml`), com a lista inteira de tokens e sem distinguir maiúsculas.
+
 ## Código
 
 **WHEN** `grep -rE 'posthog|versions\.json|RUSTRAK_TELEMETRY|DO_NOT_TRACK|VITE_RUSTRAK_VERSION_CHECK_ENABLED|/api/telemetry'` é executado sobre `apps/server/src`, `apps/server/tests`, `apps/dashboard/src`, `packages/*/src`, `apps/server/Dockerfile`, `apps/server/.env.example` e `docker-compose*.yml`

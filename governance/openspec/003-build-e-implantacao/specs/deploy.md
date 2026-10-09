@@ -1,5 +1,7 @@
 # 003 — Especificação
 
+> **Emenda de 2026-10-09 (auditoria).** O cenário "o delta é o mesmo do 002, sem arquivo novo" valia **no fim do pacote 003**. Dois pontos ainda dependem do Swarm de produção: `/metrics` negado ao público (só conferido com `docker stack config`) e o serviço se chama `server` na stack `buglenz` (`buglenz_server`). A limpeza do GHCR conta versões: cada release ocupa três, então o limite passou de 10 para 30 (cerca de dez releases).
+
 ## Imagem
 
 **WHEN** uma tag `vX.Y.Z-itl.N` é publicada no repositório

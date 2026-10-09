@@ -9,7 +9,7 @@ upstream entra em `DELTA-MANIFEST.md` no mesmo commit. **Revisão linha a linha 
 - [x] T0. Branch `pkg/005-scrubbing-de-dados-pessoais` a partir de `main`; corpus em `governance/`
 - [x] T1. Confirmar na base os pontos de chamada da seção 3 do `design.md` e o padrão de contadores de `storage.rs`/`issue.rs`
 - [x] T2. Módulo `scrub`: chaves (`keys.rs`), texto (`text.rs`), `scrub_value`; testes unitários; `cargo test --test unit_tests`
-- [x] T3. Pontos de chamada nos cinco processadores e `remote_addr = None` na ingestão; `cargo test` completo (SQLite e PostgreSQL e2e)
+- [x] T3. Pontos de chamada nos cinco processadores e `remote_addr = None` na ingestão; `cargo test` completo (SQLite e PostgreSQL e2e) **Ressalva da auditoria de 2026-10-09:** a suíte de integração só rodava em SQLite na CI; o `postgres-e2e` roda apenas os testes e2e. Rodei a de integração inteira em PostgreSQL à mão (516 de 517) e o job `postgres-integration` passou a rodá-la na CI.
 - [x] T4. Teste de integração `scrub_test.rs` (evento, transação, logs, span; `remote_addr` nulo; agrupamento com CPFs diferentes)
 - [x] T5. Exclusão por titular: serviço por backend com ajuste de contadores, rota admin, OpenAPI regenerado; `privacy_test.rs`
 - [x] T6. `e2e-react`: usuário com e-mail e mensagem com CPF/senha; assert dos marcadores e do `user.id` preservado; verde no PR
