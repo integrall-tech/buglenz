@@ -949,7 +949,19 @@ async fn test_sdk_automatic_regression_shows_up_in_the_activity_log() {
     sentry::capture_message("service unavailable", Level::Error);
     flush_and_digest(&server, project.id).await;
 
-    let reopened = only_issue(&db.pool, project.id).await;
+    // On a loaded runner the second event can still be in flight when the pass above runs: keep
+    // digesting until it lands instead of trusting one fixed sleep (this test failed on CI that way).
+    let mut reopened = only_issue(&db.pool, project.id).await;
+    for _ in 0..20 {
+        if reopened.status == "unresolved" {
+            break;
+        }
+        tokio::time::sleep(Duration::from_millis(500)).await;
+        server
+            .process_pending_events(project.id, &e2e_rate_limits())
+            .await;
+        reopened = only_issue(&db.pool, project.id).await;
+    }
     assert_eq!(reopened.status, "unresolved");
     assert_eq!(reopened.substatus.as_deref(), Some("regressed"));
 
