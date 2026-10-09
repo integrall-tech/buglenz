@@ -81,3 +81,14 @@ original não existe mais no banco; a exclusão desses eventos não é possível
 está lá). Um CPF enviado como `user.id` continua gravado: a alternativa é um pseudônimo com chave, como no `did` das
 sessões, e fica como decisão em aberto.
 
+## Nota de 2026-10-09 (números e chaves, segunda rodada)
+
+O scrubber só olhava **textos**. Duas formas de dado pessoal passavam: um CPF ou CNPJ enviado como **número JSON**
+(`{"documento": 52998224725}`) e um e-mail usado como **chave de objeto** (tags são um mapa). Agora um número inteiro de 11 ou 14
+dígitos que passa no dígito verificador vira a string `"[cpf]"` ou `"[cnpj]"`, e uma chave com e-mail é renomeada para
+`[email]` (duas chaves que colidem ficam numeradas, `[email] (2)`, para nenhum valor se perder). **Cartão não se aplica a
+número:** 13 a 19 dígitos passam no Luhn uma vez em dez e comeriam carimbos de tempo em milissegundos ou microssegundos, e
+um cartão de 16 dígitos nem cabe num número JSON sem perder precisão. Números sob chave de identificador seguem
+intocados. Custo conhecido: um inteiro qualquer de 11 dígitos tem cerca de 1% de chance de passar no dígito verificador de
+CPF; em campos de métrica isso é raro, e o valor vira texto.
+
