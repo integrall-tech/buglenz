@@ -1,6 +1,6 @@
 # ADR-0021 — Proteção de `main`
 
-**Estado:** proposta (2026-10-08), opção B escolhida pelo Edson; os rulesets ainda não foram aplicados ·
+**Estado:** aceita (2026-10-08), opção B escolhida pelo Edson; **rulesets aplicados em 2026-10-08** (`.github/rulesets/`: `main` e as tags `v*-itl.*`) ·
 **Depende de:** ADR-0020 · **Substitui:** ADR-0019
 
 ## Contexto

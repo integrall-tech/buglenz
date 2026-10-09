@@ -13,4 +13,4 @@ Executado em 2026-10-08 no branch `pkg/007-rebrand-buglenz`. T11 concluída (iss
 - [x] T9. Criar `BUGLENZ.md` na raiz
 - [x] T10. Registrar os arquivos novos no `DELTA-MANIFEST.md`
 - [x] T11. Abrir a proposta de nome configurável no upstream (rustrak/rustrak#387, texto aprovado pelo Edson em 2026-10-08)
-- [x] T12. Conferir cada cenário de `specs/rebrand.md`, com captura de tela de login, lista de issues e e-mail de alerta
+- [x] T12. Conferir cada cenário de `specs/rebrand.md`, com captura de tela de login, lista de issues e e-mail de alerta **Ressalva da auditoria de 2026-10-09:** há captura de tela do login e da página Sobre em `baseline/007-screens/`; **não há** captura da lista de issues nem do e-mail de alerta, e nenhum teste renderiza o e-mail com a marca.
