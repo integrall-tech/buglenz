@@ -436,6 +436,60 @@ async fn seed_event_minutes_ago(pool: &DbPool, project_id: i32, minutes_ago: i64
     .expect("seed_event_minutes_ago failed");
 }
 
+/// An event of an issue at an exact number of minutes ago.
+///
+/// The list grid is anchored at `now` truncated to the second, so an event seeded a whole number of
+/// hours back sits on a bucket edge, and a seeding loop that crosses a second boundary splits one
+/// issue over two buckets. Seed in the middle of a bucket instead (this failed on CI that way).
+async fn seed_issue_event_minutes_ago(
+    pool: &DbPool,
+    project_id: i32,
+    issue_id: Uuid,
+    minutes_ago: i64,
+) {
+    #[cfg(feature = "postgres")]
+    sqlx::query(
+        r#"
+        INSERT INTO events
+            (event_id, project_id, issue_id, data, timestamp, ingested_at, level, event_type)
+        VALUES (
+            $1, $2, $3, '{}'::jsonb,
+            NOW() - ($4::text || ' minutes')::interval,
+            NOW() - ($4::text || ' minutes')::interval,
+            'error', 'error'
+        )
+        "#,
+    )
+    .bind(Uuid::new_v4())
+    .bind(project_id)
+    .bind(issue_id)
+    .bind(minutes_ago.to_string())
+    .execute(pool)
+    .await
+    .expect("seed_issue_event_minutes_ago failed");
+
+    #[cfg(not(feature = "postgres"))]
+    sqlx::query(
+        r#"
+        INSERT INTO events
+            (event_id, project_id, issue_id, data, timestamp, ingested_at, level, event_type)
+        VALUES (
+            ?1, ?2, ?3, '{}',
+            datetime('now', '-' || ?4 || ' minutes'),
+            datetime('now', '-' || ?4 || ' minutes'),
+            'error', 'error'
+        )
+        "#,
+    )
+    .bind(Uuid::new_v4())
+    .bind(project_id)
+    .bind(issue_id)
+    .bind(minutes_ago.to_string())
+    .execute(pool)
+    .await
+    .expect("seed_issue_event_minutes_ago failed");
+}
+
 /// Insert one issue with an explicit `status` and `level`.
 ///
 /// The `seed_issue` helper above hardcodes `unresolved` and leaves `level`
@@ -546,7 +600,8 @@ async fn list_stats_trend_counts_distinct_issues_not_events() {
 
     let noisy = seed_issue(&db.pool, project_id, 1, 2).await;
     for _ in 0..10 {
-        seed_event(&db.pool, project_id, Some(noisy), "error", "error", 2).await;
+        // 150 minutes: the middle of a one-hour bucket, not its edge.
+        seed_issue_event_minutes_ago(&db.pool, project_id, noisy, 150).await;
     }
 
     let stats = StatsService::list_stats(&db.pool, &[project_id], 24)
