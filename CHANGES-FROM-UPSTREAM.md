@@ -17,7 +17,8 @@ alerta gerados pelo servidor continuam em inglês.
 
 Os títulos de página usam Instrument Serif (autohospedada, OFL-1.1); os títulos de cartão passam para frase normal; os
 cartões ganham raio de 1 rem e sombra suave. Tudo por CSS, sem editar componente: cabeçalhos de tabela e rótulos de
-formulário continuam em caixa alta.
+formulário continuam em caixa alta. A Visão geral ganha uma frase de resumo serifada ("calmo" ou quantos problemas novos) e o
+cartão de eventos uma linha de tendência.
 
 ### Paleta quente e tema claro como padrão (ADR-0022)
 

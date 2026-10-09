@@ -7,6 +7,7 @@ import { translator } from '@/shared/i18n/intl';
 import { searchString } from '@/shared/lib/search-params';
 import { LoadFailure } from '@/shared/ui/components/load-failure';
 import { OverviewPeriodFilter } from './-components/overview-period-filter';
+import { OverviewSummary } from './-components/overview-summary';
 import {
   CounterTiles,
   CrashFreeTile,
@@ -66,6 +67,11 @@ function ProjectPage() {
     <div className="flex h-[calc(100vh-64px)] flex-col overflow-auto">
       <div className="w-full shrink-0 border-b px-4 py-4 md:px-8 md:py-6">
         <ProjectHeader project={project} />
+        <OverviewSummary
+          projectId={projectId}
+          projectName={project.name}
+          period={period}
+        />
       </div>
 
       {/*

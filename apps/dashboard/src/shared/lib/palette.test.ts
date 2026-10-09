@@ -53,6 +53,9 @@ describe.each([
     ['--sidebar-foreground', '--sidebar'],
     ['--sidebar-primary-foreground', '--sidebar-primary'],
     ['--sidebar-accent-foreground', '--sidebar-accent'],
+    // The orange as text (the italic word of the overview sentence).
+    ['--brand-text', '--background'],
+    ['--brand-text', '--card'],
   ])('%s on %s', (fg, bg) => {
     expect(ratio(theme, fg, bg)).toBeGreaterThanOrEqual(AA);
   });

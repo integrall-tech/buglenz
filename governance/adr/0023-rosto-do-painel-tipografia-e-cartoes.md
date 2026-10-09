@@ -23,10 +23,17 @@ a divergência do upstream (ADR-0002) e o custo de cada sincronização.
 4. **Cartões** com raio de 1 rem e sombra em duas camadas (contorno de 1 px e sombra suave); no escuro, contorno
    claro e sombra mais escura.
 
+5. **Frase de resumo na Visão geral** (segundo passe). Uma frase serifada abaixo do título responde "há algo errado?"
+   antes de qualquer gráfico: "calmo" quando nenhum problema novo apareceu no período, senão quantos problemas novos
+   e eventos. A expressão em destaque vai em itálico no laranja de texto (`--brand-text`, AA sobre o fundo, o
+   laranja de foco sozinho dá 3:1). Se a consulta falha, a frase some: cada cartão já mostra a sua falha.
+6. **Mini gráfico no cartão de eventos**: uma linha pequena com preenchimento, sem eixos, desenhada em SVG próprio
+   (`sparkline.ts` calcula a geometria e tem teste). É dica de forma ao lado de um número que já basta sozinho.
+
 ## Fora do escopo
 
 - O ícone e o wordmark do topo (D9). O seletor de ambiente e o atalho de busca da referência (não existem no produto).
-- Os mini gráficos dentro dos cartões de estatística: exigem componente novo.
+- Mini gráficos nos demais cartões: só o de eventos tem série temporal no servidor.
 
 ## Consequências
 

@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/ui/components/shadcn/card';
+import { Sparkline } from '@/shared/ui/components/sparkline';
 
 interface StatTileProps {
   label: string;
@@ -17,6 +18,8 @@ interface StatTileProps {
   polarity: Polarity;
   /** Sub-label under the value, e.g. the backlog the rate feeds. */
   footnote?: string;
+  /** Optional shape of the metric over the window, drawn small beside the number. */
+  trend?: readonly number[];
 }
 
 /**
@@ -24,7 +27,13 @@ interface StatTileProps {
  * the overview grid: a single current value plus a trend is a stat tile, not a
  * one-bar bar chart.
  */
-export function StatTile({ label, metric, polarity, footnote }: StatTileProps) {
+export function StatTile({
+  label,
+  metric,
+  polarity,
+  footnote,
+  trend,
+}: StatTileProps) {
   const t = useTranslations('statTile');
   const format = useFormatter();
   const change = percentChange(metric.current, metric.previous);
@@ -42,7 +51,14 @@ export function StatTile({ label, metric, polarity, footnote }: StatTileProps) {
           {label}
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-1.5">
+      <CardContent className="relative flex flex-col gap-1.5">
+        {trend ? (
+          <Sparkline
+            values={trend}
+            label={label}
+            className="absolute right-6 bottom-0 hidden sm:block group-data-[size=sm]/card:right-4"
+          />
+        ) : null}
         {/* Proportional figures, not tabular: at this size tabular digits give
             every glyph the width of a zero and the number reads loose. Tabular
             is for columns that have to align. */}
