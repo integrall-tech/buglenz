@@ -313,4 +313,31 @@ impl RetentionService {
             user_reports,
         })
     }
+
+    /// Deletes a project's standalone spans (those with no parent transaction) older than `days`.
+    /// A span that belongs to a transaction goes with it; one that arrived alone has no cascade to
+    /// follow, so it takes the transactions period. Returns how many were removed.
+    pub async fn purge_standalone_spans(
+        pool: &DbPool,
+        project_id: i32,
+        days: i32,
+    ) -> AppResult<i64> {
+        let cutoff = Utc::now() - chrono::Duration::days(i64::from(days));
+        // SQLite keeps timestamps as text, in the format the writers use.
+        #[cfg(not(feature = "postgres"))]
+        let cutoff = cutoff.to_rfc3339();
+        #[cfg(feature = "postgres")]
+        const SQL: &str =
+            "DELETE FROM spans WHERE project_id = $1 AND transaction_id IS NULL AND timestamp < $2";
+        #[cfg(not(feature = "postgres"))]
+        const SQL: &str = "DELETE FROM spans WHERE project_id = $1 AND transaction_id IS NULL \
+                           AND datetime(timestamp) < datetime($2)";
+        let removed = sqlx::query(SQL)
+            .bind(project_id)
+            .bind(cutoff)
+            .execute(pool)
+            .await?
+            .rows_affected() as i64;
+        Ok(removed)
+    }
 }

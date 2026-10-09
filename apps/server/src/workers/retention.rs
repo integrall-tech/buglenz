@@ -175,6 +175,22 @@ pub async fn run_once(pool: &DbPool, state: &RetentionState) -> RetentionReport 
             }
         }
 
+        // Standalone spans have no transaction to cascade from: they take the transactions period.
+        if let Some(days) = effective.transactions_days {
+            match RetentionService::purge_standalone_spans(pool, policy.project_id, days).await {
+                Ok(n) => removed.spans += n,
+                Err(e) => {
+                    log::error!(
+                        "Retention: project {} standalone spans failed: {e}",
+                        policy.project_id
+                    );
+                    if !failed.contains(&policy.project_id) {
+                        failed.push(policy.project_id);
+                    }
+                }
+            }
+        }
+
         // Release health and alert history follow the events period.
         if let Some(days) = effective.events_days {
             match RetentionService::purge_session_data(pool, policy.project_id, days).await {
