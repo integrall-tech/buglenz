@@ -37,3 +37,10 @@ gh api -X DELETE repos/integrall-tech/buglenz/rulesets/<id>
 ```
 
 (Or Settings → Rules → Rulesets, set the ruleset to *Disabled*.)
+
+## Check `manifest` (a aplicar)
+
+O workflow `manifest.yml` cria o job `manifest`. Depois de mesclado e verde em `main`, acrescente
+`{ "context": "manifest" }` aos checks obrigatórios de `protect-main.json` e reaplique o ruleset
+(`gh api -X PUT repos/integrall-tech/buglenz/rulesets/<id> --input .github/rulesets/protect-main.json`).
+Antes disso o check roda mas não bloqueia.

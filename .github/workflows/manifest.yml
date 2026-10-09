@@ -1,0 +1,32 @@
+# Manifest check (BugLenz; CONSTITUTION I1, ADR-0002).
+#
+# Every file that differs from the upstream tag must be listed in DELTA-MANIFEST.md, and a row
+# must not name a file that no longer differs. governance/tools/check-manifest.py compares the
+# manifest with `git diff <base tag> HEAD`; the base tag is the one the manifest header names.
+name: Manifest
+
+on:
+  pull_request:
+  push:
+    branches: [main, next, "sync/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: manifest-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  manifest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # The whole history and the tags: the base tag has to exist to be diffed against.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: DELTA-MANIFEST.md matches the divergence from the upstream
+        run: python3 governance/tools/check-manifest.py
