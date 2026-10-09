@@ -10490,6 +10490,7 @@
           "removed",
           "sessions_removed",
           "alerts_removed",
+          "user_reports_removed",
           "unprotected",
           "failed"
         ],
@@ -10532,6 +10533,11 @@
             "items": {
               "$ref": "#/components/schemas/Unprotected"
             }
+          },
+          "user_reports_removed": {
+            "type": "integer",
+            "format": "int64",
+            "description": "User feedback reports removed, by the `events` period."
           }
         }
       },

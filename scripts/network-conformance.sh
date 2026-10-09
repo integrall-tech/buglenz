@@ -7,6 +7,7 @@
 #
 #   static   tokens from scripts/egress-denylist.txt must not appear in the
 #            source, in the compiled server binary or in the dashboard bundle
+#            (case-insensitive; the release workflow runs it on the image it ships)
 #   runtime  the server runs as a dedicated user whose outbound traffic is
 #            logged and rejected by iptables; it is exercised over HTTP for a
 #            window and must not have tried a single connection
@@ -51,19 +52,24 @@ static_check() {
   if [ -n "$binary" ]; then
     [ -f "$binary" ] || fail "static: binary not found: $binary"
     log "static: scanning binary $binary"
-    if strings "$binary" | grep -E 'posthog|versions\.json' | head -5; then
-      log "static: binary carries a denylisted host"
-      bad=1
-    fi
+    # The whole denylist, ignoring case: a shipped binary is the artefact that has to be clean.
+    while IFS= read -r token; do
+      if strings "$binary" | grep -iFn -- "$token" | head -3 | grep -q .; then
+        log "static: binary carries denylisted token '$token'"
+        bad=1
+      fi
+    done < <(tokens)
   fi
 
   if [ -n "$dist" ]; then
     [ -d "$dist" ] || fail "static: dashboard dist not found: $dist"
     log "static: scanning dashboard bundle $dist"
-    if grep -rIlE 'posthog|versions\.json' "$dist" | head -5; then
-      log "static: dashboard bundle carries a denylisted host"
-      bad=1
-    fi
+    while IFS= read -r token; do
+      if grep -rIilF -- "$token" "$dist" | head -3 | grep -q .; then
+        log "static: dashboard bundle carries denylisted token '$token'"
+        bad=1
+      fi
+    done < <(tokens)
   fi
 
   [ "$bad" -eq 0 ] || fail "static layer"

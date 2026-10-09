@@ -1218,13 +1218,16 @@ async fn test_trigger_alert_does_not_block_on_slow_webhook_delivery() {
     // The durable delivery record is committed before the caller returns,
     // leased to the in-flight dispatcher so the retry worker cannot
     // double-send it while the dispatch is still running.
-    let (status, leased): (String, bool) = sqlx::query_as(
-        "SELECT status, next_retry_at IS NOT NULL AND datetime(next_retry_at) > datetime('now') FROM alert_history WHERE project_id = $1",
-    )
-    .bind(project_id)
-    .fetch_one(&db.pool)
-    .await
-    .expect("history row must exist before trigger returns");
+    // `datetime()` is SQLite's; PostgreSQL compares the timestamp with NOW() directly.
+    #[cfg(feature = "postgres")]
+    const LEASED: &str = "SELECT status, next_retry_at IS NOT NULL AND next_retry_at > NOW() FROM alert_history WHERE project_id = $1";
+    #[cfg(not(feature = "postgres"))]
+    const LEASED: &str = "SELECT status, next_retry_at IS NOT NULL AND datetime(next_retry_at) > datetime('now') FROM alert_history WHERE project_id = $1";
+    let (status, leased): (String, bool) = sqlx::query_as(LEASED)
+        .bind(project_id)
+        .fetch_one(&db.pool)
+        .await
+        .expect("history row must exist before trigger returns");
     assert_eq!(status, "pending");
     assert!(
         leased,

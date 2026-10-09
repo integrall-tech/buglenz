@@ -58,6 +58,8 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `.github/workflows/network-conformance.yml`, `scripts/network-conformance.sh`, `scripts/egress-denylist.txt` | G | 0004 | Novos. Teste de conformidade de rede: camada estática e servidor sob bloqueio de saída |
 | `apps/server/Dockerfile` | B | 0012 | Alterado (003). `ENV INGEST_DIR=/data/ingest`: spool de ingestão dentro do volume (issue #359 do upstream) |
 | `.github/workflows/manifest.yml` | G | 0002, 0021 | Novo (auditoria de 2026-10-09). Job `manifest`: `governance/tools/check-manifest.py` falha se um arquivo diverge do upstream sem linha neste manifesto, ou se uma linha cita arquivo que já não diverge (CONSTITUTION I1) |
+| `.github/workflows/postgres-integration.yml` | G | 0021 | Novo (auditoria I7, segunda rodada). Job `postgres-integration`: a suíte de integração inteira em PostgreSQL (testcontainers), que o `rust-test` (SQLite) e o `postgres-e2e` (só e2e) não cobrem. Arquivo à parte para o `ci.yml` seguir idêntico ao do upstream |
+| `apps/server/tests/integration/alerts_api_test.rs` | G | 0021 | Alterado de novo (auditoria I7). Uma consulta do teste `test_trigger_alert_does_not_block_on_slow_webhook_delivery` usava `datetime()`, que só existe no SQLite; escolhida por `cfg` conforme o banco |
 | `.github/workflows/licenses.yml` | G | 0003, 0005 | Novo (003). Regenera `THIRD-PARTY-LICENSES.md` em Linux e falha se divergir do commitado |
 | `.github/workflows/release-image.yml` | G | 0012, 0005, 0006 | Novo (003); a partir do 007 constrói a imagem da cópia marcada, depois de verificada. Publica `ghcr.io/integrall-tech/buglenz-server:<tag>` por tag `v*-itl.*`; build sem push em PR |
 | `deploy/swarm/buglenz.stack.yml`, `deploy/swarm/README.md`, `deploy/swarm/provision.sh`, `deploy/swarm/backup.sh` | B | 0012, 0009, 0006 | Novos (003; 005 acrescenta `RUSTRAK_SCRUB_EXTRA_KEYS` e a seção de dados pessoais; 007 acrescenta `SMTP_FROM` no domínio `buglenz.dev`). Stack Swarm parametrizada, provisionamento via API (sem `RUSTRAK_BOOTSTRAP_TOKEN`, #356), backup e restauração |
@@ -81,6 +83,8 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `.changeset/scrub-numbers-and-keys.md` | G | 0009 | Novo (auditoria I4, segunda rodada) |
 | `.changeset/scrub-email-in-id.md` | G | 0009 | Novo (auditoria I4, segunda rodada) |
 | `.changeset/retention-standalone-spans.md` | G | 0009 | Novo (auditoria I5, segunda rodada) |
+| `apps/server/src/services/issue_social.rs` | G | 0009 | Alterado (auditoria I4, segunda rodada). Nome, e-mail e comentário de um relato de usuário passam pelo `scrub_text` ao serem gravados |
+| `.changeset/user-reports-privacy.md` | G | 0009 | Novo (auditoria I4 e I5, segunda rodada) |
 | `.changeset/retention-sessions.md` | G | 0009 | Novo (auditoria I5, 2026-10-09) |
 | `apps/dashboard/src/styles.css`, `apps/dashboard/src/main.tsx`, `apps/dashboard/index.html` | A | 0022, 0023 | Alterados (0023: título serifado, cartões e títulos de cartão em frase normal, fonte Instrument Serif). Paleta quente (papel, tinta e um laranja), barra lateral de tinta nos dois temas e tema claro como padrão; o verde-limão sai |
 | `apps/dashboard/package.json`, `pnpm-lock.yaml` | A | 0023 | Alterados. Dependência `@fontsource/instrument-serif` 5.3.0 (OFL-1.1), a fonte dos títulos de página |

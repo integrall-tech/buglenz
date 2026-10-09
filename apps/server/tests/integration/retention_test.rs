@@ -535,3 +535,50 @@ async fn standalone_spans_stay_when_the_project_has_no_transactions_period() {
         "no period, nothing is removed"
     );
 }
+
+// ── user reports follow the events period (audit of 2026-10-09, invariant I5) ──
+
+async fn seed_user_report(pool: &DbPool, project_id: i32, at: DateTime<Utc>) {
+    sqlx::query(
+        "INSERT INTO user_reports (id, project_id, name, email, comments, created_at) \
+         VALUES ($1, $2, '', '[email]', 'c', $3)",
+    )
+    .bind(Uuid::new_v4())
+    .bind(project_id)
+    .bind(at)
+    .execute(pool)
+    .await
+    .unwrap();
+}
+
+async fn user_reports(pool: &DbPool, project_id: i32) -> i64 {
+    sqlx::query_scalar("SELECT COUNT(*) FROM user_reports WHERE project_id = $1")
+        .bind(project_id)
+        .fetch_one(pool)
+        .await
+        .unwrap()
+}
+
+#[actix_web::test]
+async fn the_pass_removes_old_user_reports() {
+    let db = TestDb::new().await;
+    let p = project(&db.pool, "reports-retention").await;
+    seed_user_report(&db.pool, p, Utc::now() - Duration::days(40)).await;
+    seed_user_report(&db.pool, p, Utc::now() - Duration::days(2)).await;
+
+    RetentionService::set(
+        &db.pool,
+        p,
+        &RetentionUpdate {
+            events_days: Some(Some(30)),
+            transactions_days: Some(Some(30)),
+            logs_days: Some(Some(30)),
+        },
+    )
+    .await
+    .unwrap();
+    let report = run_once(&db.pool, &state(None, None, None)).await;
+
+    assert_eq!(user_reports(&db.pool, p).await, 1);
+    assert_eq!(report.user_reports_removed, 1);
+}

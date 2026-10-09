@@ -271,3 +271,40 @@ async fn erasing_a_subject_also_removes_their_session_rows() {
         .unwrap();
     assert_eq!(other, 1, "the other project is untouched");
 }
+
+// A user report is free text typed about a person: it goes through the same masks as an event
+// (audit of 2026-10-09, invariant I4).
+#[actix_web::test]
+async fn a_user_report_is_scrubbed_before_it_is_stored() {
+    use rustrak::services::IssueSocialService;
+
+    let db = TestDb::new().await;
+    let p = project(&db.pool, "reports").await;
+
+    let report = IssueSocialService::create_user_report(
+        &db.pool,
+        p,
+        None,
+        None,
+        "Ana Souza",
+        "ana@example.com",
+        "meu cpf 529.982.247-25, escrevam para ana@example.com",
+    )
+    .await
+    .unwrap();
+
+    assert_eq!(report.email, "[email]");
+    assert_eq!(report.comments, "meu cpf [cpf], escrevam para [email]");
+    assert_eq!(
+        report.name, "Ana Souza",
+        "a plain name is not a pattern the masks know"
+    );
+    let stored: (String, String) =
+        sqlx::query_as("SELECT email, comments FROM user_reports WHERE id = $1")
+            .bind(report.id)
+            .fetch_one(&db.pool)
+            .await
+            .unwrap();
+    assert_eq!(stored.0, "[email]");
+    assert!(!stored.1.contains("529.982.247-25") && !stored.1.contains("ana@"));
+}

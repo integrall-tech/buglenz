@@ -182,6 +182,38 @@
     "replace": "title = \"BugLenz\""
   },
   {
+    "id": "server-openapi-contact",
+    "type": "replace",
+    "file": "apps/server/Cargo.toml",
+    "expect": 1,
+    "find": "authors = [\"Rustrak Team\"]",
+    "replace": "authors = [\"IntegrAllTech\"]"
+  },
+  {
+    "id": "server-openapi-doc-storage",
+    "type": "replace",
+    "file": "apps/server/src/models/storage.rs",
+    "expect": 1,
+    "find": "what Rustrak is holding right now.",
+    "replace": "what BugLenz is holding right now."
+  },
+  {
+    "id": "server-openapi-doc-sso",
+    "type": "replace",
+    "file": "apps/server/src/routes/auth.rs",
+    "expect": 1,
+    "find": "establish the normal Rustrak session.",
+    "replace": "establish the normal BugLenz session."
+  },
+  {
+    "id": "server-openapi-doc-tag-key",
+    "type": "replace",
+    "file": "apps/server/src/services/issue.rs",
+    "expect": 1,
+    "find": "name table; Rustrak doesn't, so",
+    "replace": "name table; BugLenz doesn't, so"
+  },
+  {
     "id": "server-test-alert",
     "type": "replace",
     "file": "apps/server/src/routes/alerts.rs",

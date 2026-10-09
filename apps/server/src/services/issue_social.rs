@@ -255,6 +255,10 @@ impl IssueSocialService {
         email: &str,
         comments: &str,
     ) -> AppResult<UserReport> {
+        // Free text typed about a person: the same masks as an event (ADR-0009, invariant I4).
+        let name = crate::scrub::scrub_text(name);
+        let email = crate::scrub::scrub_text(email);
+        let comments = crate::scrub::scrub_text(comments);
         let id = Uuid::new_v4();
         let report = sqlx::query_as::<_, UserReport>(
             r#"
@@ -267,9 +271,9 @@ impl IssueSocialService {
         .bind(project_id)
         .bind(issue_id)
         .bind(event_id)
-        .bind(name)
-        .bind(email)
-        .bind(comments)
+        .bind(name.as_ref())
+        .bind(email.as_ref())
+        .bind(comments.as_ref())
         .bind(Utc::now())
         .fetch_one(pool)
         .await?;
