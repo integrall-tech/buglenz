@@ -13,6 +13,12 @@ Novo idioma `pt` (1 328 textos), escolhido sozinho para navegadores `pt-BR` e `p
 **Conta → Idioma** ("Português (Brasil)"). Escrito sem revisão por falante nativo ainda. Os e-mails de
 alerta gerados pelo servidor continuam em inglês.
 
+### Tipografia serifada e cartões (ADR-0023)
+
+Os títulos de página usam Instrument Serif (autohospedada, OFL-1.1); os títulos de cartão passam para frase normal; os
+cartões ganham raio de 1 rem e sombra suave. Tudo por CSS, sem editar componente: cabeçalhos de tabela e rótulos de
+formulário continuam em caixa alta.
+
 ### Paleta quente e tema claro como padrão (ADR-0022)
 
 O painel troca os cinzas neutros e o verde-limão por papel quente, tinta e um laranja, com a barra lateral de tinta nos

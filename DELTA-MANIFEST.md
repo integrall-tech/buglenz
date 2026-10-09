@@ -79,7 +79,9 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `apps/server/tests/integration/bootstrap_test.rs` | G | 0002 | Alterado. Os testes de bootstrap passam a rodar um de cada vez (trava assíncrona): todos mexiam na mesma `CREATE_SUPERUSER` e um apagava a variável de outro (falha esporádica, 1 em 12 localmente). **Temporário**: a propor ao upstream |
 | `apps/server/tests/unit/pseudonym_test.rs`, `.changeset/session-did-pseudonym.md` | G | 0009 | Novos (auditoria I4, 2026-10-09) |
 | `.changeset/retention-sessions.md` | G | 0009 | Novo (auditoria I5, 2026-10-09) |
-| `apps/dashboard/src/styles.css`, `apps/dashboard/src/main.tsx`, `apps/dashboard/index.html` | A | 0022 | Alterados. Paleta quente (papel, tinta e um laranja), barra lateral de tinta nos dois temas e tema claro como padrão; o verde-limão sai |
+| `apps/dashboard/src/styles.css`, `apps/dashboard/src/main.tsx`, `apps/dashboard/index.html` | A | 0022, 0023 | Alterados (0023: título serifado, cartões e títulos de cartão em frase normal, fonte Instrument Serif). Paleta quente (papel, tinta e um laranja), barra lateral de tinta nos dois temas e tema claro como padrão; o verde-limão sai |
+| `apps/dashboard/package.json`, `pnpm-lock.yaml` | A | 0023 | Alterados. Dependência `@fontsource/instrument-serif` 5.3.0 (OFL-1.1), a fonte dos títulos de página |
+| `scripts/seed-demo.py`, `.changeset/display-type-cards.md` | A | 0023 | Novos. Dados de demonstração para uma instância local (recusa instância não local) e o changeset da tipografia |
 | `apps/dashboard/src/shared/lib/palette.test.ts`, `.changeset/warm-palette.md` | A | 0022 | Novos. Teste de contraste AA da paleta nos dois temas e da barra lateral |
 | `.changeset/server-hardening.md` | G | 0018 | Novo (023) |
 | `.changeset/automatic-retention.md` | G | 0009 | Novo (004) |
