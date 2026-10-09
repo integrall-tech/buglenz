@@ -55,3 +55,11 @@ por delegação, como **padrão provisório**: o texto original dizia que precis
 responde por LGPD, e isso continua valendo. O servidor segue sem valor embutido (nada é apagado sem
 variável ou prazo por projeto); o padrão vive em `deploy/swarm/buglenz.stack.yml`. O piso é de 7 dias.
 
+## Nota de 2026-10-09 (sessões)
+
+A auditoria contra a CONSTITUTION (I4 vale para eventos, transações, logs **e sessões**) achou que o `did` da
+sessão era gravado como o SDK o mandava, e o SDK JavaScript o monta de `user.id || user.email || user.username`.
+Agora é gravado como **pseudônimo com chave** (HMAC-SHA256 com a `SESSION_SECRET_KEY`, prefixo `p1:`), e não
+como texto mascarado, porque `[email]` juntaria todos os e-mails num único usuário e quebraria a contagem de
+usuários distintos. Quem faz a exclusão por titular de sessões usa a mesma função (`scrub::pseudonym`).
+

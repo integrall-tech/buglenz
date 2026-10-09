@@ -66,7 +66,7 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `.changeset/sessions-unhandled-status.md` | G | 0002 | Novo (006). Changeset `patch` de `@rustrak/server` que acompanha o PR ao upstream. Temporário, idem |
 | `e2e/react-app/**` | G | 0005, 0011 | Novo (006). App React 19 + `@sentry/react` 11.5.0 fora do workspace pnpm (lockfile próprio), para o teste de ponta a ponta |
 | `scripts/e2e-react-assert.sh`, `.github/workflows/e2e-react.yml` | G | 0005, 0011 | Novos (006). Job `e2e-react`: servidor do PR, source maps, Chromium, asserções pela API; passo 6 do ADR-0005 |
-| `apps/server/src/scrub/mod.rs`, `apps/server/src/scrub/keys.rs`, `apps/server/src/scrub/text.rs` | G | 0009 | Novos (005); proposta ao upstream em [rustrak/rustrak#384](https://github.com/rustrak/rustrak/issues/384). Scrubbing de dados pessoais: chaves negadas → `[Filtered]`, máscaras `[cpf]`/`[cnpj]`/`[cartao]`/`[email]` |
+| `apps/server/src/scrub/mod.rs`, `apps/server/src/scrub/keys.rs`, `apps/server/src/scrub/text.rs`, `apps/server/src/scrub/pseudonym.rs` | G | 0009 | Novos (005; `pseudonym.rs` na auditoria de 2026-10-09: o `did` das sessões é gravado como pseudônimo com chave); proposta ao upstream em [rustrak/rustrak#384](https://github.com/rustrak/rustrak/issues/384). Scrubbing de dados pessoais: chaves negadas → `[Filtered]`, máscaras `[cpf]`/`[cnpj]`/`[cartao]`/`[email]` |
 | `apps/server/src/lib.rs` | G | 0009 | Alterado (005). `pub mod scrub;` |
 | `apps/server/tests/unit/scrub_test.rs`, `apps/server/tests/unit/mod.rs` | G | 0009 | Novo / registro (005) |
 | `apps/server/src/routes/ingest.rs` | G | 0009 | Alterado (005). O IP do cliente não é lido na ingestão |
@@ -76,6 +76,7 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `apps/server/src/services/notification/destination.rs`, `apps/server/src/services/notification/mod.rs`, `apps/server/src/services/notification/webhook.rs`, `apps/server/src/services/notification/custom_webhook.rs` | G | 0018 | Novo / alterados (023). Webhooks não podem apontar para loopback, redes privadas, link-local, CGNAT ou nomes internos, na configuração e no envio; exceção por instância em `RUSTRAK_WEBHOOK_ALLOWED_HOSTS`; o cliente HTTP dos notificadores não segue redirecionamentos. Corrige H-4 do PR #57 |
 | `.github/rulesets/protect-main.json`, `.github/rulesets/protect-release-tags.json`, `.github/rulesets/README.md` | G | 0021 | Novos. Rulesets para `main` (PR e os oito checks obrigatórios) e para as tags `v*-itl.*`; **ainda não aplicados** |
 | `apps/server/tests/integration/bootstrap_test.rs` | G | 0002 | Alterado. Os testes de bootstrap passam a rodar um de cada vez (trava assíncrona): todos mexiam na mesma `CREATE_SUPERUSER` e um apagava a variável de outro (falha esporádica, 1 em 12 localmente). **Temporário**: a propor ao upstream |
+| `apps/server/tests/unit/pseudonym_test.rs`, `.changeset/session-did-pseudonym.md` | G | 0009 | Novos (auditoria I4, 2026-10-09) |
 | `.changeset/server-hardening.md` | G | 0018 | Novo (023) |
 | `.changeset/automatic-retention.md` | G | 0009 | Novo (004) |
 | `.changeset/dashboard-pt-br.md` | G | 0002 | Novo (021) |

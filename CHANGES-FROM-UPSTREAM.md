@@ -13,6 +13,14 @@ Novo idioma `pt` (1 328 textos), escolhido sozinho para navegadores `pt-BR` e `p
 **Conta → Idioma** ("Português (Brasil)"). Escrito sem revisão por falante nativo ainda. Os e-mails de
 alerta gerados pelo servidor continuam em inglês.
 
+### O identificador de usuário das sessões vira pseudônimo (I4)
+
+O SDK monta o `did` da sessão a partir de `user.id` ou, na falta dele, do e-mail, do nome de usuário ou do IP.
+O servidor o gravava como veio, em `session_users`. Agora grava um **pseudônimo com chave** (HMAC-SHA256 com a
+`SESSION_SECRET_KEY`, prefixo `p1:`): a contagem de usuários distintos não muda, o valor original não fica no
+banco. Trocar a `SESSION_SECRET_KEY` muda todos os pseudônimos (os usuários do dia contam de novo). Linhas
+antigas, de antes desta versão, continuam com o valor original.
+
 ### Retenção automática (pacote 004, ADR-0009)
 
 O upstream só limpa dados por ação manual. Aqui um worker aplica os prazos, a cada 24 h:
