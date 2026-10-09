@@ -27,6 +27,11 @@ dois temas, como na tela de referência. **O tema claro é o padrão**; quem já
 passagem, o botão primário claro (texto branco sobre limão, 2,9:1) deixa de ficar abaixo do AA: um teste fixa o
 contraste dos dois temas.
 
+### E-mail em campo de id é mascarado (I4)
+
+Um valor sob chave terminada em `id` (`user.id`, `customer_id`...) passa pela máscara de **e-mail**. Antes era isento de
+tudo, e o SDK JavaScript monta `user.id` do e-mail quando não há id. CPF, CNPJ e cartão seguem sem máscara nesses campos.
+
 ### O identificador de usuário das sessões vira pseudônimo (I4)
 
 O SDK monta o `did` da sessão a partir de `user.id` ou, na falta dele, do e-mail, do nome de usuário ou do IP.

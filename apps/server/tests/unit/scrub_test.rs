@@ -223,3 +223,40 @@ fn scrubbing_is_idempotent_and_leaves_clean_payloads_alone() {
     scrub_with(&mut copy, &denied);
     assert_eq!(copy, clean);
 }
+
+// An SDK may build an id from the user's e-mail (the JavaScript one does when there is no id), so the
+// identifier exemption must not let an e-mail through. Only e-mail is masked in `*id` keys: a number
+// that looks like a CPF or a card is far more likely a real id there (audit of 2026-10-09, I4).
+#[test]
+fn an_email_in_an_id_field_is_masked() {
+    let mut v = json!({
+        "user": { "id": "ana@example.com" },
+        "customer_id": "bia@example.com.br",
+        "contexts": { "trace": { "span_id": "a1b2c3d4e5f60718" } }
+    });
+    scrub_with(&mut v, &denied);
+    assert_eq!(v["user"]["id"], "[email]");
+    assert_eq!(v["customer_id"], "[email]");
+    assert_eq!(v["contexts"]["trace"]["span_id"], "a1b2c3d4e5f60718");
+}
+
+#[test]
+fn an_id_that_is_not_an_email_is_left_alone() {
+    let mut v = json!({
+        "user": { "id": "u-42" }, "trace_id": "52998224725", "span_id": "4111111111111111",
+        "order_id": "no-reply-12", "valid": "ok", "paid": "4111111111111111"
+    });
+    let before = v.clone();
+    scrub_with(&mut v, &denied);
+    assert_eq!(v, before);
+}
+
+#[test]
+fn a_release_is_not_an_id_and_keeps_its_at_sign() {
+    // `release` is an identifier for the number masks, but it is not an `*id` key, and its
+    // name@version shape must survive either way.
+    let mut v = json!({ "release": "vendax-web@1.4.2", "dist": "7" });
+    let before = v.clone();
+    scrub_with(&mut v, &denied);
+    assert_eq!(v, before);
+}

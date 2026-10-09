@@ -12,7 +12,7 @@ pub mod pseudonym;
 pub mod text;
 
 pub use keys::{is_denied, EXTRA_KEYS_VAR};
-pub use text::scrub_text;
+pub use text::{scrub_emails, scrub_text};
 
 use serde_json::Value;
 
@@ -33,7 +33,16 @@ pub fn scrub_with(value: &mut Value, denied: &dyn Fn(&str) -> bool) {
                 if denied(key) {
                     *child = Value::String(FILTERED.to_string());
                 } else if child.is_string() && keys::is_identifier(key) {
-                    // Identifiers and timestamps are not free text: no mask.
+                    // Identifiers and timestamps are not free text: no number mask (a Luhn-valid
+                    // span id would turn into `[cartao]`). An `*id` value is still checked for an
+                    // e-mail, because an SDK builds `user.id` from the e-mail when it has no id.
+                    if keys::is_id_key(key) {
+                        if let Value::String(s) = child {
+                            if let std::borrow::Cow::Owned(masked) = scrub_emails(s) {
+                                *s = masked;
+                            }
+                        }
+                    }
                 } else {
                     scrub_with(child, denied);
                 }

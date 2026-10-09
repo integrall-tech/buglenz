@@ -67,3 +67,17 @@ Na mesma auditoria, a retenção (I5) passou a cobrir também `session_counts`, 
 seguem o prazo de eventos do projeto, e a exclusão por titular passou a apagar as linhas de `session_users` do
 titular.
 
+## Nota de 2026-10-09 (campos de id, segunda rodada da auditoria)
+
+O scrubber tratava toda chave terminada em `id` como identificador e não mascarava o valor. O motivo é válido (um id de
+span só de dígitos que passe no Luhn viraria `[cartao]` e colidiria com os vizinhos), mas o SDK JavaScript monta
+`user.id` a partir do **e-mail** quando não há id, e o e-mail era gravado em claro, também em `customer_id` e afins.
+Agora o valor de uma chave `*id` passa **só pela máscara de e-mail**; CPF, CNPJ e cartão continuam sem máscara ali, porque
+um número em campo de id é quase sempre um id (e a máscara por dígito verificador colidiria). `release`, `dist` e os
+carimbos de tempo seguem isentos de tudo.
+
+Consequência: o pedido de exclusão por titular casa por `user.id` exato. Para quem foi gravado como `[email]`, o valor
+original não existe mais no banco; a exclusão desses eventos não é possível por esse caminho (e o dado pessoal já não
+está lá). Um CPF enviado como `user.id` continua gravado: a alternativa é um pseudônimo com chave, como no `did` das
+sessões, e fica como decisão em aberto.
+
