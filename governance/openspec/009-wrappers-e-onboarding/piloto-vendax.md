@@ -56,13 +56,35 @@ O painel já tem canal por integração. O **Mattermost** recebe webhook de entr
   transações, não logs nem spans (limite registrado no roteiro de revisão).
 - Login do piloto na instância: senha local até o SSO (pacote 008).
 
+## Respostas do Edson (2026-10-08) e decisão que elas abrem
+
+| Pergunta | Resposta |
+|---|---|
+| Licenças do Android e app de teste no aparelho | pode (feito; app desinstalado depois) |
+| Ofuscação / crash nativo | **sim** (o app é ofuscado; crash nativo importa) |
+| Onde está o Mattermost | **configuração pelo painel de administração**, sem host fixo agora |
+| Versão de cada app | `package.json` (web), `pubspec.yaml` (Flutter); a tag do git também |
+| Admin web | **React**; não há backend a monitorar |
+| Instância de produção | **sem resposta** (D4, host do DSN, credencial do GHCR nos nós) |
+
+### O que o ensaio no aparelho mostrou (`governance/baseline/009-flutter.md`)
+
+- **Release ofuscado chega ilegível**: tipo `nz`, frames só com endereço. O **release sem ofuscação chega
+  legível** e agrupa entre versões. Hoje a instância não traduz símbolos.
+- **A ofuscação é escolha de quem cria cada app (decisão do Edson em 2026-10-08), não uma regra da instância.**
+  O BugLenz precisa suportar os dois caminhos; o guia de onboarding explica a escolha e o que cada uma mostra:
+
+| Caminho | Custo | Efeito |
+|---|---|---|
+| **Sem `--obfuscate` e sem `--split-debug-info`** | zero no servidor; pacote poucos MB maior e mais fácil de engenharia reversa | stack trace legível desde o primeiro dia; **o que o piloto usa agora** (pelo menos em `homolog`) |
+| **Com ofuscação** | exige a symbolication no servidor (pacote 016): receber os `.symbols` por `debug_id`, traduzir endereços e nomes ofuscados e, no Android, o `mapping.txt` do R8 | tudo legível com o app protegido; **capacidade futura**, para os apps que a exigirem |
+
+  Quem ofusca deve **guardar os símbolos de cada build** (CI), porque serão eles a traduzir os erros antigos
+  quando a symbolication existir. Por ambiente também vale: `homolog` sem ofuscação, `production` à escolha do app.
+
 ## O que ainda falta de você
 
-1. **Aceitar licenças do Android SDK** (`flutter doctor --android-licenses`) e dizer se posso instalar um app de
-   teste no aparelho Android conectado, para verificar o `sentry_flutter` de verdade. Sem isso, o Flutter
-   fica "SDK Dart verificado, `sentry_flutter` não".
-2. O app Flutter é compilado com **`--obfuscate`/`--split-debug-info`**? Importam **crashes nativos**?
-3. **Onde está o Mattermost** (host)? É interno?
-4. De onde vem a **versão** de cada app?
-5. O admin web é **React**? Há **backend** a monitorar?
-6. **Instância de produção:** D4 (onde), host do DSN (`errors.buglenz.dev` proposto), credencial do GHCR nos nós.
+1. **Instância de produção:** D4 (onde roda), host do DSN (`errors.buglenz.dev` proposto) e a credencial do GHCR
+   nos nós. É o que ainda impede o piloto de ir ao ar.
+2. Confirmar que **a versão também vem da tag do git** (interpretei assim a resposta "tag").
+3. O Mattermost entra pelo painel: quando houver o host, se for **interno** liste-o em `RUSTRAK_WEBHOOK_ALLOWED_HOSTS`.
