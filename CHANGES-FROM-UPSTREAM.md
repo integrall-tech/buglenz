@@ -27,6 +27,11 @@ dois temas, como na tela de referência. **O tema claro é o padrão**; quem já
 passagem, o botão primário claro (texto branco sobre limão, 2,9:1) deixa de ficar abaixo do AA: um teste fixa o
 contraste dos dois temas.
 
+### CPF/CNPJ como número e e-mail como chave são mascarados (I4)
+
+Um inteiro de 11 ou 14 dígitos com dígito verificador de CPF/CNPJ vira `"[cpf]"`/`"[cnpj]"`; uma chave de objeto com e-mail vira
+`[email]`. Antes o scrubber só olhava valores de texto.
+
 ### E-mail em campo de id é mascarado (I4)
 
 Um valor sob chave terminada em `id` (`user.id`, `customer_id`...) passa pela máscara de **e-mail**. Antes era isento de

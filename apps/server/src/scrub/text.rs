@@ -25,6 +25,18 @@ pub fn scrub_text(text: &str) -> Cow<'_, str> {
     }
 }
 
+/// The mask for a number sent as a JSON number, or `None`. Only CPF and CNPJ: a card number does
+/// not survive a JSON number (16 digits exceed what a double holds) and any 13 to 19 digit integer
+/// passes the Luhn check one time in ten, which would eat epoch timestamps.
+pub fn mask_document_number(n: u64) -> Option<&'static str> {
+    let digits: Vec<u8> = n.to_string().bytes().map(|b| b - b'0').collect();
+    match digits.len() {
+        11 if valid_cpf(&digits) => Some(CPF),
+        14 if valid_cnpj(&digits) => Some(CNPJ),
+        _ => None,
+    }
+}
+
 /// Masks only e-mail addresses. For values under an `*id` key: an SDK may build an id from the
 /// user's e-mail, but a number there is an id, not a CPF or a card, so the number masks stay off.
 pub fn scrub_emails(text: &str) -> Cow<'_, str> {
