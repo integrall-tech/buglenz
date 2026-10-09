@@ -101,7 +101,7 @@ export function ReleasesList({
             <span className="hidden sm:block w-40 text-right">
               {t('crashFree')}
             </span>
-            <span className="hidden md:block w-40 text-right">
+            <span className="hidden md:block w-60 text-right">
               {t('crashFreeUsers')}
             </span>
             <span className="w-20 text-right">{t('crashed')}</span>
@@ -134,7 +134,7 @@ export function ReleasesList({
                 </span>
                 <span
                   className={cn(
-                    'hidden md:block w-40 text-right font-mono tabular-nums',
+                    'hidden md:block w-60 text-right font-mono tabular-nums',
                     crashFreeClass(row.crash_free_users_rate),
                   )}
                 >
