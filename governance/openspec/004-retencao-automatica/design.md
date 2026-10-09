@@ -11,6 +11,10 @@ vale o padrão. Valor aceito: **7 a 3650 dias**. O piso de 7 é deliberado: a pr
 `efetivo(tipo) = prazo do projeto (se houver) senão padrão da instância (se houver) senão nenhum`.
 Spans seguem as transações (cascata). Logs e eventos são independentes.
 
+**Spans avulsos** (auditoria de 2026-10-09, segunda rodada): um span que chega sem transação (`transaction_id` nulo, migração
+`20260714000000_standalone_spans`) não tem cascata a seguir e nunca expirava. Agora a passada o apaga pelo prazo de
+**transações** do projeto, e a contagem entra em `removed.spans`.
+
 **Sessões e histórico de alertas** (auditoria de 2026-10-09, invariante I5): `session_counts`, `session_users` e
 `alert_history` de um projeto seguem o prazo de **eventos** dele e saem na mesma passada; sem prazo de eventos,
 não se apaga nada. A exclusão por titular também apaga as linhas de `session_users` do titular (o pseudônimo

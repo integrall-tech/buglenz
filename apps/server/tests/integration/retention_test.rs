@@ -462,3 +462,76 @@ async fn a_project_without_an_events_period_keeps_its_session_data() {
         );
     }
 }
+
+// ── standalone spans follow the transactions period (audit of 2026-10-09, invariant I5) ──
+// A span that arrives without a parent transaction has `transaction_id` NULL, so the cascade that
+// removes a transaction's spans never reaches it.
+
+async fn seed_standalone_span(pool: &DbPool, project_id: i32, at: DateTime<Utc>) {
+    sqlx::query(
+        "INSERT INTO spans (id, transaction_id, project_id, span_id, trace_id, op, timestamp, data) \
+         VALUES ($1, NULL, $2, $5, $6, 'http.client', $3, $4)",
+    )
+    .bind(Uuid::new_v4())
+    .bind(project_id)
+    .bind(at)
+    .bind(serde_json::json!({}))
+    .bind(Uuid::new_v4().simple().to_string()[..16].to_string())
+    .bind(Uuid::new_v4().simple().to_string())
+    .execute(pool)
+    .await
+    .unwrap();
+}
+
+async fn standalone_spans(pool: &DbPool, project_id: i32) -> i64 {
+    sqlx::query_scalar(
+        "SELECT COUNT(*) FROM spans WHERE project_id = $1 AND transaction_id IS NULL",
+    )
+    .bind(project_id)
+    .fetch_one(pool)
+    .await
+    .unwrap()
+}
+
+#[actix_web::test]
+async fn the_pass_removes_old_standalone_spans() {
+    let db = TestDb::new().await;
+    let p = project(&db.pool, "standalone-spans").await;
+    seed_standalone_span(&db.pool, p, Utc::now() - Duration::days(40)).await;
+    seed_standalone_span(&db.pool, p, Utc::now() - Duration::days(3)).await;
+
+    RetentionService::set(
+        &db.pool,
+        p,
+        &RetentionUpdate {
+            events_days: Some(Some(90)),
+            transactions_days: Some(Some(30)),
+            logs_days: Some(Some(90)),
+        },
+    )
+    .await
+    .unwrap();
+    let report = run_once(&db.pool, &state(None, None, None)).await;
+
+    assert_eq!(
+        standalone_spans(&db.pool, p).await,
+        1,
+        "the old one goes, the recent one stays"
+    );
+    assert_eq!(report.removed.spans, 1);
+}
+
+#[actix_web::test]
+async fn standalone_spans_stay_when_the_project_has_no_transactions_period() {
+    let db = TestDb::new().await;
+    let p = project(&db.pool, "standalone-spans-unprotected").await;
+    seed_standalone_span(&db.pool, p, Utc::now() - Duration::days(400)).await;
+
+    run_once(&db.pool, &state(Some("90"), None, Some("90"))).await;
+
+    assert_eq!(
+        standalone_spans(&db.pool, p).await,
+        1,
+        "no period, nothing is removed"
+    );
+}
