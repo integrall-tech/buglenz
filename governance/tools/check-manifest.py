@@ -13,8 +13,11 @@ import sys
 base = sys.argv[1] if len(sys.argv) > 1 else None
 manifest = open('DELTA-MANIFEST.md', encoding='utf-8').read()
 if base is None:
-    m = re.search(r'`(v\d+\.\d+\.\d+)`', manifest)
-    base = m.group(1) if m else 'v0.16.0'
+    # "Base atual: tag `vX.Y.Z`" in the manifest header: the tag the divergence is measured from.
+    m = re.search(r'Base atual: tag `(v\d+\.\d+\.\d+)`', manifest)
+    if not m:
+        sys.exit('check-manifest: could not read the base tag from the manifest header ("Base atual: tag `vX.Y.Z`")')
+    base = m.group(1)
 
 changed = {}
 for line in subprocess.check_output(['git', 'diff', '--name-status', base, 'HEAD'], text=True).splitlines():
