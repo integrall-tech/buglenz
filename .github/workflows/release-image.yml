@@ -63,6 +63,8 @@ jobs:
           EVENT: ${{ github.event_name }}
           TAG: ${{ inputs.tag || github.ref_name }}
         run: |
+          # The commit that is actually built: `github.sha` is the dispatching ref's head, not the tag's.
+          echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           if [ "$EVENT" = "pull_request" ]; then
             echo "push=false" >> "$GITHUB_OUTPUT"
             echo "tags=$IMAGE:pr-${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
@@ -107,6 +109,31 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # The shipped artefact is scanned before anything is pushed (CONSTITUTION I3, spec 002 and 003):
+      # the server binary and the dashboard inside the image must carry no token of the egress
+      # denylist. Single-platform only (`load` cannot take a manifest list); the build is reused
+      # by the next step from the same builder's cache.
+      - name: Build the image for inspection
+        if: ${{ (inputs.platforms || 'linux/amd64') == 'linux/amd64' }}
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: ${{ runner.temp }}/branded/apps/server
+          file: ${{ runner.temp }}/branded/apps/server/Dockerfile
+          platforms: linux/amd64
+          build-args: FEATURES=postgres
+          load: true
+          push: false
+          tags: buglenz-inspect:local
+
+      - name: Scan the shipped binary and dashboard
+        if: ${{ (inputs.platforms || 'linux/amd64') == 'linux/amd64' }}
+        run: |
+          id=$(docker create buglenz-inspect:local)
+          docker cp "$id:/app/rustrak" "$RUNNER_TEMP/rustrak"
+          docker cp "$id:/app/static" "$RUNNER_TEMP/static"
+          docker rm "$id" >/dev/null
+          scripts/network-conformance.sh static "$RUNNER_TEMP/rustrak" "$RUNNER_TEMP/static"
+
       - name: Build (and push, on a tag)
         id: build
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
@@ -121,7 +148,7 @@ jobs:
             org.opencontainers.image.title=BugLenz
             org.opencontainers.image.description=BugLenz error tracking server, a GPL-3.0 fork of Rustrak (github.com/rustrak/rustrak)
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.revision=${{ steps.meta.outputs.revision }}
             org.opencontainers.image.version=${{ steps.meta.outputs.version }}
             org.opencontainers.image.licenses=GPL-3.0-only
             org.opencontainers.image.vendor=IntegrAllTech
@@ -141,8 +168,9 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   prune:
-    # The private package counts against the plan's storage quota: keep the
-    # ten most recent versions.
+    # The private package counts against the plan's storage quota. The registry counts versions, not
+    # releases: each release is three of them (the tagged index and two untagged manifests), so 30
+    # keeps about ten releases to roll back to. Counting 10 kept only the last three.
     needs: image
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -151,4 +179,4 @@ jobs:
         with:
           package-name: buglenz-server
           package-type: container
-          min-versions-to-keep: 10
+          min-versions-to-keep: 30
