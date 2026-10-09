@@ -99,3 +99,70 @@ async fn a_correction_after_a_flush_moves_the_session_between_counters() {
         "errored became crashed, the session was not counted twice"
     );
 }
+
+// I4: the distinct-user id of a session is stored as a pseudonym, never as the SDK sent it.
+
+fn update_for(sid: &str, did: &str, status: &str) -> SessionUpdate {
+    serde_json::from_value(json!({
+        "sid": sid, "did": did, "init": status == "ok",
+        "started": "2026-10-08T14:35:00.984Z", "status": status, "errors": 0,
+        "attrs": { "release": "app@1.0.0", "environment": "production" }
+    }))
+    .unwrap()
+}
+
+async fn stored_dids(pool: &rustrak::db::DbPool, project_id: i32) -> Vec<String> {
+    sqlx::query_scalar("SELECT did FROM session_users WHERE project_id = $1 ORDER BY did")
+        .bind(project_id)
+        .fetch_all(pool)
+        .await
+        .unwrap()
+}
+
+#[actix_web::test]
+async fn an_email_sent_as_the_distinct_user_id_is_stored_as_a_pseudonym() {
+    use rustrak::scrub::pseudonym::pseudonym;
+
+    let db = TestDb::new().await;
+    let project = ProjectService::create(
+        &db.pool,
+        CreateProject {
+            name: "did".into(),
+            slug: None,
+            platform: None,
+        },
+    )
+    .await
+    .unwrap();
+    let aggregator = SessionAggregator::new(db.pool.clone(), 30, 10_000);
+
+    // Two users (one of them twice) and an IP address used as the id, as an SDK may do.
+    for (sid, did) in [
+        ("s1", "ana@example.com"),
+        ("s2", "bia@example.com"),
+        ("s3", "ana@example.com"),
+        ("s4", "10.1.2.3"),
+    ] {
+        aggregator
+            .ingest_session(project.id, &update_for(sid, did, "ok"))
+            .await;
+    }
+    aggregator.flush().await.unwrap();
+
+    let stored = stored_dids(&db.pool, project.id).await;
+    assert_eq!(
+        stored.len(),
+        3,
+        "ana once, bia once, the IP once: {stored:?}"
+    );
+    for original in ["ana@example.com", "bia@example.com", "10.1.2.3"] {
+        assert!(
+            stored.contains(&pseudonym(original)),
+            "{original} is stored as its pseudonym"
+        );
+        assert!(
+            stored.iter().all(|d| !d.contains(original)),
+            "{original} must not be stored"
+        );
+    }
+}

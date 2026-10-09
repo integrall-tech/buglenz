@@ -379,7 +379,14 @@ pub fn apply_session(
         day: bucket.date_naive(),
         did: did.to_string(),
     };
-    let did = update.did.as_deref().filter(|d| !d.is_empty());
+    // The SDK's distinct-user id may be an e-mail, a username or an IP address; only the keyed
+    // pseudonym is counted and stored (ADR-0009, invariant I4).
+    let pseudonymous = update
+        .did
+        .as_deref()
+        .filter(|d| !d.is_empty())
+        .map(crate::scrub::pseudonym::pseudonym);
+    let did = pseudonymous.as_deref();
 
     let sid = update
         .sid
@@ -933,5 +940,41 @@ mod tests {
             );
         }
         assert!(state.seen.len() <= SEEN_CAP, "{} entries", state.seen.len());
+    }
+
+    // --- I4: the distinct-user id never reaches the database as the SDK sent it -------------
+
+    #[test]
+    fn the_distinct_user_id_is_stored_as_a_pseudonym() {
+        let mut state = AggregatorState::default();
+        for did in ["ana@example.com", "bia@example.com", "ana@example.com"] {
+            apply_update(
+                &mut state,
+                1,
+                &make_update(true, SessionStatus::Ok, 0, Some(did)),
+            );
+        }
+        // Different sessions would be needed to count two users; the point here is the key.
+        let dids: Vec<&str> = state.users.keys().map(|k| k.did.as_str()).collect();
+        assert!(
+            dids.iter()
+                .all(|d| d.starts_with("p1:") && !d.contains('@')),
+            "{dids:?}"
+        );
+    }
+
+    #[test]
+    fn two_users_stay_two_and_one_user_stays_one() {
+        let mut state = AggregatorState::default();
+        for (sid, did) in [
+            ("s1", "ana@example.com"),
+            ("s2", "bia@example.com"),
+            ("s3", "ana@example.com"),
+        ] {
+            let mut u = make_update(true, SessionStatus::Ok, 0, Some(did));
+            u.sid = Some(sid.to_string());
+            apply_update(&mut state, 1, &u);
+        }
+        assert_eq!(state.users.len(), 2, "ana counted once, bia once");
     }
 }

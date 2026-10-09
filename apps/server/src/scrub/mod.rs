@@ -8,6 +8,7 @@
 //! (`sendDefaultPii`, `beforeSend`) is the first layer, this is the second.
 
 pub mod keys;
+pub mod pseudonym;
 pub mod text;
 
 pub use keys::{is_denied, EXTRA_KEYS_VAR};
