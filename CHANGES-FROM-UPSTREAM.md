@@ -30,6 +30,7 @@ O upstream só limpa dados por ação manual. Aqui um worker aplica os prazos, a
   `RUSTRAK_RETENTION_LOGS_DAYS`; sem valor embutido) e por projeto (`PUT /api/projects/{id}/retention`).
 - Projeto sem prazo para um tipo não perde esse tipo; a passada avisa em `WARN` e
   `GET /api/retention` o lista como desprotegido.
+- As **linhas de sessão** (`session_counts`, `session_users`) e o **histórico de alertas** de um projeto seguem o prazo de eventos dele; a exclusão por titular apaga também as linhas de sessão do titular.
 - A stack Swarm do BugLenz traz padrão provisório de 90 dias (erros e logs) e 30 (transações), que se muda por variável.
 - A limpeza manual e a tela de Storage continuam como estavam.
 - O dashboard ganha **Configurações → Retention** (só administradores): padrões da instância, última

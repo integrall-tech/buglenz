@@ -9259,12 +9259,18 @@
         "description": "What one erasure removed.",
         "required": [
           "events",
-          "transactions"
+          "transactions",
+          "sessions"
         ],
         "properties": {
           "events": {
             "type": "integer",
             "format": "int64"
+          },
+          "sessions": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Rows of `session_users` (the user's distinct-user id, as a pseudonym or, in rows written\nbefore the pseudonym, as the raw id)."
           },
           "transactions": {
             "type": "integer",
@@ -10482,10 +10488,17 @@
           "finished_at",
           "projects",
           "removed",
+          "sessions_removed",
+          "alerts_removed",
           "unprotected",
           "failed"
         ],
         "properties": {
+          "alerts_removed": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Alert-history rows removed, by the `events` period."
+          },
           "failed": {
             "type": "array",
             "items": {
@@ -10504,6 +10517,11 @@
           },
           "removed": {
             "$ref": "#/components/schemas/CleanupCounts"
+          },
+          "sessions_removed": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Release-health rows removed (`session_counts` and `session_users`), by the `events` period."
           },
           "started_at": {
             "type": "string",

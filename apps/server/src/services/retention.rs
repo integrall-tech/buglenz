@@ -165,6 +165,15 @@ impl ProjectPolicy {
     }
 }
 
+/// What a pass removed besides the three data types: the release-health rows and the alert history
+/// of a project, which follow its `events` period (audit of 2026-10-09, invariant I5).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct SessionPurge {
+    pub session_counts: i64,
+    pub session_users: i64,
+    pub alert_history: i64,
+}
+
 pub struct RetentionService;
 
 impl RetentionService {
@@ -237,5 +246,56 @@ impl RetentionService {
         )
         .fetch_all(pool)
         .await?)
+    }
+
+    /// Deletes a project's release-health rows (`session_counts`, `session_users`) and alert history
+    /// older than `days`. They carry no period of their own: they follow `events_days`.
+    pub async fn purge_session_data(
+        pool: &DbPool,
+        project_id: i32,
+        days: i32,
+    ) -> AppResult<SessionPurge> {
+        let cutoff = Utc::now() - chrono::Duration::days(i64::from(days));
+
+        #[cfg(feature = "postgres")]
+        let (bucket, day, created) = (cutoff, cutoff.date_naive(), cutoff);
+        // SQLite keeps these as text, in the formats the writers use.
+        #[cfg(not(feature = "postgres"))]
+        let (bucket, day, created) = (
+            cutoff.naive_utc().format("%Y-%m-%d %H:%M:%S").to_string(),
+            cutoff.date_naive().to_string(),
+            cutoff.naive_utc().format("%Y-%m-%d %H:%M:%S").to_string(),
+        );
+
+        let session_counts =
+            sqlx::query("DELETE FROM session_counts WHERE project_id = $1 AND bucket < $2")
+                .bind(project_id)
+                .bind(bucket)
+                .execute(pool)
+                .await?
+                .rows_affected() as i64;
+        let session_users =
+            sqlx::query("DELETE FROM session_users WHERE project_id = $1 AND day < $2")
+                .bind(project_id)
+                .bind(day)
+                .execute(pool)
+                .await?
+                .rows_affected() as i64;
+        #[cfg(feature = "postgres")]
+        const ALERTS: &str = "DELETE FROM alert_history WHERE project_id = $1 AND created_at < $2";
+        #[cfg(not(feature = "postgres"))]
+        const ALERTS: &str =
+            "DELETE FROM alert_history WHERE project_id = $1 AND datetime(created_at) < datetime($2)";
+        let alert_history = sqlx::query(ALERTS)
+            .bind(project_id)
+            .bind(created)
+            .execute(pool)
+            .await?
+            .rows_affected() as i64;
+        Ok(SessionPurge {
+            session_counts,
+            session_users,
+            alert_history,
+        })
     }
 }

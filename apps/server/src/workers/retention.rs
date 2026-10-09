@@ -35,6 +35,10 @@ pub struct RetentionReport {
     pub finished_at: DateTime<Utc>,
     pub projects: usize,
     pub removed: CleanupCounts,
+    /// Release-health rows removed (`session_counts` and `session_users`), by the `events` period.
+    pub sessions_removed: i64,
+    /// Alert-history rows removed, by the `events` period.
+    pub alerts_removed: i64,
     pub unprotected: Vec<Unprotected>,
     /// Projects where a cleanup failed; the pass went on to the next one.
     pub failed: Vec<i32>,
@@ -93,6 +97,8 @@ fn add(total: &mut CleanupCounts, part: &CleanupCounts) {
 pub async fn run_once(pool: &DbPool, state: &RetentionState) -> RetentionReport {
     let started_at = Utc::now();
     let mut removed = CleanupCounts::default();
+    let mut sessions_removed = 0_i64;
+    let mut alerts_removed = 0_i64;
     let mut unprotected = Vec::new();
     let mut failed = Vec::new();
 
@@ -165,6 +171,25 @@ pub async fn run_once(pool: &DbPool, state: &RetentionState) -> RetentionReport 
                 }
             }
         }
+
+        // Release health and alert history follow the events period.
+        if let Some(days) = effective.events_days {
+            match RetentionService::purge_session_data(pool, policy.project_id, days).await {
+                Ok(purge) => {
+                    sessions_removed += purge.session_counts + purge.session_users;
+                    alerts_removed += purge.alert_history;
+                }
+                Err(e) => {
+                    log::error!(
+                        "Retention: project {} sessions failed: {e}",
+                        policy.project_id
+                    );
+                    if !failed.contains(&policy.project_id) {
+                        failed.push(policy.project_id);
+                    }
+                }
+            }
+        }
     }
 
     let report = RetentionReport {
@@ -172,6 +197,8 @@ pub async fn run_once(pool: &DbPool, state: &RetentionState) -> RetentionReport 
         finished_at: Utc::now(),
         projects: policies.len(),
         removed,
+        sessions_removed,
+        alerts_removed,
         unprotected,
         failed,
     };

@@ -207,11 +207,67 @@ async fn the_route_is_for_admins_and_answers_the_erasure() {
     let resp = test::call_service(&app, req).await;
     assert_eq!(resp.status(), 200);
     let body: Value = test::read_body_json(resp).await;
-    assert_eq!(body, json!({ "events": 1, "transactions": 0 }));
+    assert_eq!(
+        body,
+        json!({ "events": 1, "transactions": 0, "sessions": 0 })
+    );
 
     let req = test::TestRequest::delete()
         .uri("/api/projects/999999/privacy/users/u-1")
         .insert_header(("Authorization", format!("Bearer {admin}")))
         .to_request();
     assert_eq!(test::call_service(&app, req).await.status(), 404);
+}
+
+// `day` is a `NaiveDate` (Copy) on PostgreSQL and a `String` on SQLite: the clone is needed on one.
+#[allow(clippy::clone_on_copy)]
+#[actix_web::test]
+async fn erasing_a_subject_also_removes_their_session_rows() {
+    use rustrak::scrub::pseudonym::pseudonym;
+
+    let db = TestDb::new().await;
+    let p = project(&db.pool, "erase-sessions").await;
+    let q = project(&db.pool, "other-project").await;
+    let today = Utc::now();
+    #[cfg(feature = "postgres")]
+    let day = today.date_naive();
+    #[cfg(not(feature = "postgres"))]
+    let day = today.date_naive().to_string();
+    // The subject as a pseudonym (what the server writes now), as the raw id (rows from before
+    // the pseudonym), someone else, and the same subject in another project.
+    for (project_id, did) in [
+        (p, pseudonym("u-42")),
+        (p, "u-42".to_string()),
+        (p, pseudonym("u-43")),
+        (q, pseudonym("u-42")),
+    ] {
+        sqlx::query("INSERT INTO session_users (project_id, release, environment, day, did) VALUES ($1, 'r@1', 'e', $2, $3)")
+            .bind(project_id).bind(day.clone()).bind(did).execute(&db.pool).await.unwrap();
+    }
+
+    let erasure = PrivacyService::erase_user(&db.pool, p, "u-42")
+        .await
+        .unwrap();
+
+    assert_eq!(
+        erasure.sessions, 2,
+        "the pseudonym and the raw id of the subject"
+    );
+    let left: Vec<String> =
+        sqlx::query_scalar("SELECT did FROM session_users WHERE project_id = $1")
+            .bind(p)
+            .fetch_all(&db.pool)
+            .await
+            .unwrap();
+    assert_eq!(
+        left,
+        vec![pseudonym("u-43")],
+        "only the other user remains in the project"
+    );
+    let other: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM session_users WHERE project_id = $1")
+        .bind(q)
+        .fetch_one(&db.pool)
+        .await
+        .unwrap();
+    assert_eq!(other, 1, "the other project is untouched");
 }

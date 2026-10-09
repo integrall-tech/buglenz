@@ -23,6 +23,8 @@ describe('RetentionResource', () => {
       expect(overview.projects[0].missing).toEqual(['logs']);
       expect(overview.projects[1].protected).toBe(true);
       expect(overview.last_run?.removed.events).toBe(3);
+      expect(overview.last_run?.sessions_removed).toBe(12);
+      expect(overview.last_run?.alerts_removed).toBe(3);
       expect(overview.last_run?.unprotected).toEqual([
         { project_id: 1, missing: ['logs'] },
       ]);

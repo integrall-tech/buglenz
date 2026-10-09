@@ -363,3 +363,102 @@ async fn an_administrator_reads_the_policy_and_edits_a_project() {
     assert_eq!(row(q)["missing"], json!(["logs"]));
     assert_eq!(body["last_run"], Value::Null);
 }
+
+// ── sessions and alert history follow the events period (audit of 2026-10-09, invariant I5) ──
+
+async fn seed_session_count(pool: &DbPool, project_id: i32, at: DateTime<Utc>) {
+    #[cfg(feature = "postgres")]
+    let (bucket,) = (at,);
+    #[cfg(not(feature = "postgres"))]
+    let (bucket,) = (at.naive_utc().format("%Y-%m-%d %H:%M:%S").to_string(),);
+    sqlx::query("INSERT INTO session_counts (project_id, release, environment, bucket, total) VALUES ($1, 'r@1', 'e', $2, 1)")
+        .bind(project_id).bind(bucket).execute(pool).await.unwrap();
+}
+
+async fn seed_session_user(pool: &DbPool, project_id: i32, at: DateTime<Utc>, did: &str) {
+    #[cfg(feature = "postgres")]
+    let day = at.date_naive();
+    #[cfg(not(feature = "postgres"))]
+    let day = at.date_naive().to_string();
+    sqlx::query("INSERT INTO session_users (project_id, release, environment, day, did) VALUES ($1, 'r@1', 'e', $2, $3)")
+        .bind(project_id).bind(day).bind(did).execute(pool).await.unwrap();
+}
+
+async fn seed_alert(pool: &DbPool, project_id: i32, at: DateTime<Utc>) {
+    sqlx::query(
+        "INSERT INTO alert_history (project_id, alert_type, channel_type, channel_name, status, idempotency_key, created_at) \
+         VALUES ($1, 'new_issue', 'webhook', 'w', 'sent', $2, $3)",
+    )
+    .bind(project_id).bind(Uuid::new_v4().to_string()).bind(at).execute(pool).await.unwrap();
+}
+
+async fn rows(pool: &DbPool, table: &str, project_id: i32) -> i64 {
+    let sql = match table {
+        "session_counts" => "SELECT COUNT(*) FROM session_counts WHERE project_id = $1",
+        "session_users" => "SELECT COUNT(*) FROM session_users WHERE project_id = $1",
+        "alert_history" => "SELECT COUNT(*) FROM alert_history WHERE project_id = $1",
+        other => panic!("unknown table {other}"),
+    };
+    sqlx::query_scalar(sql)
+        .bind(project_id)
+        .fetch_one(pool)
+        .await
+        .unwrap()
+}
+
+#[actix_web::test]
+async fn the_pass_also_removes_old_session_data_and_alert_history() {
+    let db = TestDb::new().await;
+    let p = project(&db.pool, "sessions-retention").await;
+    let (old, recent) = (
+        Utc::now() - Duration::days(40),
+        Utc::now() - Duration::days(5),
+    );
+    for at in [old, recent] {
+        seed_session_count(&db.pool, p, at).await;
+        seed_session_user(&db.pool, p, at, &format!("p1:{}", at.timestamp())).await;
+        seed_alert(&db.pool, p, at).await;
+    }
+
+    RetentionService::set(
+        &db.pool,
+        p,
+        &RetentionUpdate {
+            events_days: Some(Some(30)),
+            transactions_days: Some(Some(30)),
+            logs_days: Some(Some(30)),
+        },
+    )
+    .await
+    .unwrap();
+    let report = run_once(&db.pool, &state(None, None, None)).await;
+
+    for table in ["session_counts", "session_users", "alert_history"] {
+        assert_eq!(
+            rows(&db.pool, table, p).await,
+            1,
+            "{table}: the old row goes, the recent one stays"
+        );
+    }
+    assert_eq!((report.sessions_removed, report.alerts_removed), (2, 1));
+}
+
+#[actix_web::test]
+async fn a_project_without_an_events_period_keeps_its_session_data() {
+    let db = TestDb::new().await;
+    let p = project(&db.pool, "sessions-unprotected").await;
+    let ancient = Utc::now() - Duration::days(400);
+    seed_session_count(&db.pool, p, ancient).await;
+    seed_session_user(&db.pool, p, ancient, "p1:x").await;
+    seed_alert(&db.pool, p, ancient).await;
+
+    run_once(&db.pool, &state(None, Some("30"), Some("30"))).await;
+
+    for table in ["session_counts", "session_users", "alert_history"] {
+        assert_eq!(
+            rows(&db.pool, table, p).await,
+            1,
+            "{table}: no period for events, nothing is removed"
+        );
+    }
+}
