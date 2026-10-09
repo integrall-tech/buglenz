@@ -65,32 +65,34 @@
     Consolas, "Liberation Mono", monospace;
 
   --radius: 0.625rem;
-  /* Brand colors - Light mode */
-  --primary: oklch(0.65 0.18 127); /* #84C800 darker lime */
-  --primary-foreground: oklch(0.98 0 0); /* White text on lime */
+  /* BugLenz palette (ADR-0022): warm paper, warm ink, one orange. The primary action is ink, like
+     the reference; the orange is the brand and the focus ring, never a text-bearing fill in light
+     (white on it is 3:1). */
+  --primary: oklch(0.2 0.004 85); /* ink */
+  --primary-foreground: oklch(0.99 0.003 85);
 
   /* Backgrounds - Light mode */
-  --background: oklch(1 0 0); /* #FFFFFF white */
-  --foreground: oklch(0.15 0 0); /* #111827 dark text */
+  --background: oklch(0.965 0.005 85); /* warm paper */
+  --foreground: oklch(0.2 0.004 85); /* warm ink */
 
   /* Surfaces - Light mode */
-  --card: oklch(0.98 0 0); /* #F8F9FA light gray */
-  --card-foreground: oklch(0.15 0 0);
+  --card: oklch(1 0 0); /* white card on warm paper */
+  --card-foreground: oklch(0.2 0.004 85);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0 0);
+  --popover-foreground: oklch(0.2 0.004 85);
 
   /* Neutral elements - Light mode */
-  --secondary: oklch(0.96 0 0); /* #F1F3F5 */
-  --secondary-foreground: oklch(0.15 0 0);
-  --muted: oklch(0.96 0 0);
-  --muted-foreground: oklch(0.48 0 0); /* #6B7280 gray */
-  --accent: oklch(0.96 0 0);
-  --accent-foreground: oklch(0.15 0 0);
+  --secondary: oklch(0.94 0.007 85);
+  --secondary-foreground: oklch(0.2 0.004 85);
+  --muted: oklch(0.94 0.007 85);
+  --muted-foreground: oklch(0.5 0.01 80);
+  --accent: oklch(0.94 0.007 85);
+  --accent-foreground: oklch(0.2 0.004 85);
 
   /* Borders and inputs - Light mode */
-  --border: oklch(0.91 0 0); /* #E5E7EB */
-  --input: oklch(0.91 0 0);
-  --ring: oklch(0.65 0.18 127); /* Lime focus ring */
+  --border: oklch(0.91 0.01 85); /* warm hairline */
+  --input: oklch(0.87 0.012 85);
+  --ring: oklch(0.68 0.19 45); /* orange focus ring */
 
   /* Status colors */
   --destructive: oklch(0.58 0.24 29); /* Red */
@@ -117,44 +119,44 @@
   --sev-warning: oklch(0.764 0.161 75.1);
   --sev-info: oklch(0.77 0 0);
 
-  /* Sidebar - Light mode */
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.65 0.18 127);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.96 0 0);
-  --sidebar-accent-foreground: oklch(0.15 0 0);
-  --sidebar-border: oklch(0.91 0 0);
-  --sidebar-ring: oklch(0.65 0.18 127);
+  /* Sidebar - the rail is ink in both themes, as in the reference */
+  --sidebar: oklch(0.17 0.003 85);
+  --sidebar-foreground: oklch(0.92 0.005 85);
+  --sidebar-primary: oklch(0.68 0.19 45); /* orange */
+  --sidebar-primary-foreground: oklch(0.16 0.004 85);
+  --sidebar-accent: oklch(0.25 0.004 85);
+  --sidebar-accent-foreground: oklch(0.96 0.004 85);
+  --sidebar-border: oklch(0.27 0.004 85);
+  --sidebar-ring: oklch(0.68 0.19 45);
 }
 
 .dark {
-  /* Brand colors - Dark mode */
-  --primary: oklch(0.91 0.18 127); /* #C5F11E lime green */
-  --primary-foreground: oklch(0.2 0 0); /* Dark text on lime */
+  /* Brand colors - Dark mode: the orange carries ink text */
+  --primary: oklch(0.68 0.19 45);
+  --primary-foreground: oklch(0.16 0.004 70);
 
   /* Backgrounds - Dark mode */
-  --background: oklch(0.14 0 0); /* #121212 almost black */
-  --foreground: oklch(0.98 0 0); /* #FAFAFA white text */
+  --background: oklch(0.17 0.004 70); /* warm ink */
+  --foreground: oklch(0.96 0.005 85);
 
   /* Surfaces - Dark mode */
-  --card: oklch(0.18 0 0); /* #1A1A1A surface */
-  --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.18 0 0);
-  --popover-foreground: oklch(0.98 0 0);
+  --card: oklch(0.21 0.005 70);
+  --card-foreground: oklch(0.96 0.005 85);
+  --popover: oklch(0.21 0.005 70);
+  --popover-foreground: oklch(0.96 0.005 85);
 
   /* Neutral elements - Dark mode */
-  --secondary: oklch(0.22 0 0); /* #2A2A2A elevated */
-  --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.22 0 0);
-  --muted-foreground: oklch(0.58 0 0); /* #888888 muted text */
-  --accent: oklch(0.22 0 0);
-  --accent-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.26 0.006 70);
+  --secondary-foreground: oklch(0.96 0.005 85);
+  --muted: oklch(0.26 0.006 70);
+  --muted-foreground: oklch(0.72 0.01 80);
+  --accent: oklch(0.26 0.006 70);
+  --accent-foreground: oklch(0.96 0.005 85);
 
   /* Borders and inputs - Dark mode */
-  --border: oklch(0.22 0 0); /* #2A2A2A */
-  --input: oklch(0.22 0 0);
-  --ring: oklch(0.91 0.18 127); /* Lime focus ring */
+  --border: oklch(0.29 0.006 70);
+  --input: oklch(0.29 0.006 70);
+  --ring: oklch(0.68 0.19 45);
 
   /* Status colors */
   --destructive: oklch(0.63 0.24 29); /* Red */
@@ -175,14 +177,27 @@
   --sev-info: oklch(0.468 0 0);
 
   /* Sidebar - Dark mode */
-  --sidebar: oklch(0.18 0 0);
-  --sidebar-foreground: oklch(0.98 0 0);
-  --sidebar-primary: oklch(0.91 0.18 127);
-  --sidebar-primary-foreground: oklch(0.2 0 0);
-  --sidebar-accent: oklch(0.22 0 0);
-  --sidebar-accent-foreground: oklch(0.98 0 0);
-  --sidebar-border: oklch(0.22 0 0);
-  --sidebar-ring: oklch(0.91 0.18 127);
+  --sidebar: oklch(0.14 0.003 70);
+  --sidebar-foreground: oklch(0.92 0.005 85);
+  --sidebar-primary: oklch(0.68 0.19 45);
+  --sidebar-primary-foreground: oklch(0.16 0.004 70);
+  --sidebar-accent: oklch(0.23 0.005 70);
+  --sidebar-accent-foreground: oklch(0.96 0.004 85);
+  --sidebar-border: oklch(0.25 0.005 70);
+  --sidebar-ring: oklch(0.68 0.19 45);
+}
+
+/* The rail is ink in both themes. Its components write the page tokens (`text-muted-foreground`,
+   `hover:text-foreground`, `bg-primary` for the active row, `border`), which in light are dark on
+   dark; inside the rail they take the dark theme's values instead. Popups are portalled out of it
+   and keep the page theme. */
+[data-sidebar="sidebar"] {
+  --foreground: oklch(0.96 0.005 85);
+  --muted-foreground: oklch(0.72 0.01 80);
+  --primary: oklch(0.68 0.19 45);
+  --primary-foreground: oklch(0.16 0.004 70);
+  --border: oklch(0.29 0.006 70);
+  --ring: oklch(0.68 0.19 45);
 }
 
 @layer base {

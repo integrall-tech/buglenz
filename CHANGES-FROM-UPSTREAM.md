@@ -13,6 +13,13 @@ Novo idioma `pt` (1 328 textos), escolhido sozinho para navegadores `pt-BR` e `p
 **Conta → Idioma** ("Português (Brasil)"). Escrito sem revisão por falante nativo ainda. Os e-mails de
 alerta gerados pelo servidor continuam em inglês.
 
+### Paleta quente e tema claro como padrão (ADR-0022)
+
+O painel troca os cinzas neutros e o verde-limão por papel quente, tinta e um laranja, com a barra lateral de tinta nos
+dois temas, como na tela de referência. **O tema claro é o padrão**; quem já escolheu um tema mantém a escolha. De
+passagem, o botão primário claro (texto branco sobre limão, 2,9:1) deixa de ficar abaixo do AA: um teste fixa o
+contraste dos dois temas.
+
 ### O identificador de usuário das sessões vira pseudônimo (I4)
 
 O SDK monta o `did` da sessão a partir de `user.id` ou, na falta dele, do e-mail, do nome de usuário ou do IP.
