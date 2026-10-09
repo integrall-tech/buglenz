@@ -260,3 +260,66 @@ fn a_release_is_not_an_id_and_keeps_its_at_sign() {
     scrub_with(&mut v, &denied);
     assert_eq!(v, before);
 }
+
+// The scrubber used to look only at strings: a document sent as a JSON number, or an e-mail used as an
+// object key (tags are a map), went through (audit of 2026-10-09, invariant I4).
+
+#[test]
+fn a_cpf_or_cnpj_sent_as_a_number_is_masked() {
+    let mut v =
+        json!({ "documento": 52998224725_u64, "empresa": { "cnpj_raiz": 11444777000161_u64 } });
+    scrub_with(&mut v, &denied);
+    assert_eq!(v["documento"], "[cpf]");
+    assert_eq!(v["empresa"]["cnpj_raiz"], "[cnpj]");
+}
+
+#[test]
+fn ordinary_numbers_are_left_alone() {
+    // 11 digits that are not a valid CPF, an epoch in milliseconds, a line number, a float.
+    let mut v = json!({
+        "n": 12345678901_u64, "now_ms": 1791354058387_u64, "lineno": 44,
+        "duration": 12.5, "negative": -52998224725_i64, "ok": true, "none": null,
+        "ids": [1, 2, 3]
+    });
+    let before = v.clone();
+    scrub_with(&mut v, &denied);
+    assert_eq!(v, before);
+}
+
+#[test]
+fn a_number_under_an_identifier_key_is_never_masked() {
+    // A numeric id that happens to pass the CPF check digits stays an id.
+    let mut v = json!({ "user": { "id": 52998224725_u64 }, "span_id": 52998224725_u64, "timestamp": 52998224725_u64 });
+    let before = v.clone();
+    scrub_with(&mut v, &denied);
+    assert_eq!(v, before);
+}
+
+#[test]
+fn an_email_used_as_an_object_key_is_masked() {
+    let mut v = json!({ "tags": { "ana@example.com": "vip", "plan": "pro" } });
+    scrub_with(&mut v, &denied);
+    assert_eq!(v["tags"]["[email]"], "vip");
+    assert_eq!(v["tags"]["plan"], "pro");
+    assert!(v["tags"].get("ana@example.com").is_none());
+}
+
+#[test]
+fn two_email_keys_do_not_overwrite_each_other() {
+    let mut v = json!({ "tags": { "ana@example.com": "a", "bia@example.com": "b" } });
+    scrub_with(&mut v, &denied);
+    let tags = v["tags"].as_object().unwrap();
+    assert_eq!(tags.len(), 2, "{tags:?}");
+    let mut values: Vec<&str> = tags.values().map(|x| x.as_str().unwrap()).collect();
+    values.sort();
+    assert_eq!(values, ["a", "b"]);
+}
+
+#[test]
+fn the_new_masks_are_idempotent() {
+    let mut v = json!({ "documento": 52998224725_u64, "tags": { "ana@example.com": "x", "bia@example.com": "y" } });
+    scrub_with(&mut v, &denied);
+    let once = v.clone();
+    scrub_with(&mut v, &denied);
+    assert_eq!(v, once);
+}
