@@ -78,6 +78,12 @@ pub fn is_identifier(key: &str) -> bool {
         )
 }
 
+/// Whether `key` names an id (`id`, `user_id`, `spanId`...), as opposed to the other identifier
+/// fields (timestamps, release, dist).
+pub fn is_id_key(key: &str) -> bool {
+    normalise(key).ends_with("id")
+}
+
 /// The environment variable that extends the exact list per instance.
 pub const EXTRA_KEYS_VAR: &str = "RUSTRAK_SCRUB_EXTRA_KEYS";
 

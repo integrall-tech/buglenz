@@ -25,6 +25,12 @@ pub fn scrub_text(text: &str) -> Cow<'_, str> {
     }
 }
 
+/// Masks only e-mail addresses. For values under an `*id` key: an SDK may build an id from the
+/// user's e-mail, but a number there is an id, not a CPF or a card, so the number masks stay off.
+pub fn scrub_emails(text: &str) -> Cow<'_, str> {
+    mask_emails(text)
+}
+
 // ---------------------------------------------------------------------------
 // numbers
 // ---------------------------------------------------------------------------
