@@ -28,5 +28,13 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      # The base tag belongs to the upstream; this repository has no such tag. Fetch it from the
+      # upstream's public repository, naming the tag the manifest header declares.
+      - name: Fetch the upstream base tag
+        run: |
+          tag=$(grep -oP 'Base atual: tag `\Kv[0-9]+\.[0-9]+\.[0-9]+' DELTA-MANIFEST.md | head -1)
+          test -n "$tag" || { echo "could not read the base tag from the manifest header"; exit 1; }
+          git fetch --no-tags --quiet https://github.com/rustrak/rustrak.git "refs/tags/${tag}:refs/tags/${tag}"
+          git rev-parse --verify "refs/tags/${tag}"
       - name: DELTA-MANIFEST.md matches the divergence from the upstream
         run: python3 governance/tools/check-manifest.py
