@@ -1370,7 +1370,11 @@
       "latencySubtitle": "Transações mais lentas por p95, em todo o período",
       "topIssues": "Principais problemas",
       "topIssuesSubtitle": "Problemas em aberto por total de eventos, em todo o período",
-      "noIssuesYet": "Ainda não há problemas"
+      "noIssuesYet": "Ainda não há problemas",
+      "summary": {
+        "calm": "{project} está <accent>calmo</accent>: nenhum problema novo no período.",
+        "busy": "{project} tem <accent>{count, plural, one {# problema novo} other {# problemas novos}}</accent> para olhar, entre {events} eventos."
+      }
     },
     "issues": {
       "meta": {

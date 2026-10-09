@@ -1370,7 +1370,11 @@
       "latencySubtitle": "按 p95 统计的最慢事务（全部时间）",
       "topIssues": "热门问题",
       "topIssuesSubtitle": "按事件总数统计的未解决问题（全部时间）",
-      "noIssuesYet": "暂无问题"
+      "noIssuesYet": "暂无问题",
+      "summary": {
+        "calm": "{project} <accent>运行平稳</accent>：此期间没有新问题。",
+        "busy": "{project} 有 <accent>{count, plural, other {# 个新问题}}</accent>需要查看，共 {events} 个事件。"
+      }
     },
     "issues": {
       "meta": {

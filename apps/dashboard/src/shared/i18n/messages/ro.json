@@ -1370,7 +1370,11 @@
       "latencySubtitle": "Cele mai lente tranzacții după p95, tot intervalul",
       "topIssues": "Top probleme",
       "topIssuesSubtitle": "Problemele deschise după totalul de evenimente, tot intervalul",
-      "noIssuesYet": "Încă nu există probleme"
+      "noIssuesYet": "Încă nu există probleme",
+      "summary": {
+        "calm": "{project} este <accent>liniștit</accent>: nicio problemă nouă în această perioadă.",
+        "busy": "{project} are <accent>{count, plural, one {# problemă nouă} few {# probleme noi} other {# de probleme noi}}</accent> de verificat, din {events} evenimente."
+      }
     },
     "issues": {
       "meta": {
