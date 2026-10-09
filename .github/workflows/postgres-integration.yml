@@ -1,0 +1,40 @@
+# The integration suite on a real PostgreSQL (BugLenz; CONSTITUTION I7, ADR-0021).
+#
+# The image the fork ships is PostgreSQL-only, but `rust-test` runs the integration suites on
+# SQLite, and `postgres-e2e` (upstream's job, in ci.yml) runs only the e2e suite. The retention,
+# privacy, scrub, session and storage code has per-backend SQL, so a break there showed only when a
+# person ran the suite against PostgreSQL by hand. This job does it on every PR, in parallel with
+# the others. It is a separate workflow because ci.yml stays identical to the upstream's.
+name: Postgres integration
+
+on:
+  pull_request:
+  push:
+    branches: [main, next, "sync/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: postgres-integration-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  postgres-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: apps/server
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions-rust-lang/setup-rust-toolchain@ecabd13d1c56bd1345c230e542e9144811ad706f # v2.0.0
+        with:
+          cache-save-if: ${{ github.event_name == 'push' }}
+          cache-workspaces: apps/server -> target
+
+      - run: cargo test --no-default-features --features postgres --locked --test integration_tests
