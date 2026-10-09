@@ -172,6 +172,7 @@ pub struct SessionPurge {
     pub session_counts: i64,
     pub session_users: i64,
     pub alert_history: i64,
+    pub user_reports: i64,
 }
 
 pub struct RetentionService;
@@ -250,6 +251,8 @@ impl RetentionService {
 
     /// Deletes a project's release-health rows (`session_counts`, `session_users`) and alert history
     /// older than `days`. They carry no period of their own: they follow `events_days`.
+    // `created` is a `String` on SQLite (cloned for its second bind) and `Copy` on PostgreSQL.
+    #[cfg_attr(feature = "postgres", allow(clippy::clone_on_copy))]
     pub async fn purge_session_data(
         pool: &DbPool,
         project_id: i32,
@@ -288,6 +291,17 @@ impl RetentionService {
             "DELETE FROM alert_history WHERE project_id = $1 AND datetime(created_at) < datetime($2)";
         let alert_history = sqlx::query(ALERTS)
             .bind(project_id)
+            .bind(created.clone())
+            .execute(pool)
+            .await?
+            .rows_affected() as i64;
+        #[cfg(feature = "postgres")]
+        const REPORTS: &str = "DELETE FROM user_reports WHERE project_id = $1 AND created_at < $2";
+        #[cfg(not(feature = "postgres"))]
+        const REPORTS: &str = "DELETE FROM user_reports WHERE project_id = $1 \
+                               AND datetime(created_at) < datetime($2)";
+        let user_reports = sqlx::query(REPORTS)
+            .bind(project_id)
             .bind(created)
             .execute(pool)
             .await?
@@ -296,6 +310,7 @@ impl RetentionService {
             session_counts,
             session_users,
             alert_history,
+            user_reports,
         })
     }
 }

@@ -39,6 +39,8 @@ pub struct RetentionReport {
     pub sessions_removed: i64,
     /// Alert-history rows removed, by the `events` period.
     pub alerts_removed: i64,
+    /// User feedback reports removed, by the `events` period.
+    pub user_reports_removed: i64,
     pub unprotected: Vec<Unprotected>,
     /// Projects where a cleanup failed; the pass went on to the next one.
     pub failed: Vec<i32>,
@@ -99,6 +101,7 @@ pub async fn run_once(pool: &DbPool, state: &RetentionState) -> RetentionReport 
     let mut removed = CleanupCounts::default();
     let mut sessions_removed = 0_i64;
     let mut alerts_removed = 0_i64;
+    let mut user_reports_removed = 0_i64;
     let mut unprotected = Vec::new();
     let mut failed = Vec::new();
 
@@ -178,6 +181,7 @@ pub async fn run_once(pool: &DbPool, state: &RetentionState) -> RetentionReport 
                 Ok(purge) => {
                     sessions_removed += purge.session_counts + purge.session_users;
                     alerts_removed += purge.alert_history;
+                    user_reports_removed += purge.user_reports;
                 }
                 Err(e) => {
                     log::error!(
@@ -199,6 +203,7 @@ pub async fn run_once(pool: &DbPool, state: &RetentionState) -> RetentionReport 
         removed,
         sessions_removed,
         alerts_removed,
+        user_reports_removed,
         unprotected,
         failed,
     };
