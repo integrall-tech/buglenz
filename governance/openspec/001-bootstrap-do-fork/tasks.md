@@ -5,7 +5,7 @@ tarefa. Evidência dos cenários no relatório do pacote e em `governance/baseli
 
 - [x] T1. Criar o repositório privado e configurar os remotes conforme `design.md`
 - [x] T2. Criar `main` a partir de `v0.15.2` e conferir o hash `ff75852c`
-- [ ] T3. Proteger `main`: PR obrigatório, CI obrigatória, sem force-push — **bloqueada pelo plano do GitHub (D10)**
+- [x] T3. Proteger `main`: PR obrigatório, CI obrigatória, sem force-push — **feito em 2026-10-08** com os rulesets de `.github/rulesets/` (ADR-0020 e ADR-0021): PR, oito checks obrigatórios, sem force-push nem exclusão, e as tags `v*-itl.*` protegidas
 - [x] T4. Adicionar `NOTICE.md`
 - [x] T5. Adicionar `DELTA-MANIFEST.md` e `CHANGES-FROM-UPSTREAM.md`
 - [x] T6. Copiar o corpus para `governance/`
