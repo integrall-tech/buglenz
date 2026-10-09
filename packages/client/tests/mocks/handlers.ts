@@ -2518,6 +2518,8 @@ export const handlers = [
           logs: 0,
           issues_removed: 1,
         },
+        sessions_removed: 12,
+        alerts_removed: 3,
         unprotected: [{ project_id: 1, missing: ['logs'] }],
         failed: [],
       },

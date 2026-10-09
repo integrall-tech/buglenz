@@ -63,3 +63,7 @@ Agora é gravado como **pseudônimo com chave** (HMAC-SHA256 com a `SESSION_SECR
 como texto mascarado, porque `[email]` juntaria todos os e-mails num único usuário e quebraria a contagem de
 usuários distintos. Quem faz a exclusão por titular de sessões usa a mesma função (`scrub::pseudonym`).
 
+Na mesma auditoria, a retenção (I5) passou a cobrir também `session_counts`, `session_users` e `alert_history`, que
+seguem o prazo de eventos do projeto, e a exclusão por titular passou a apagar as linhas de `session_users` do
+titular.
+

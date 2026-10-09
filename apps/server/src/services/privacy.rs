@@ -25,6 +25,9 @@ const USER_ID: &str = "json_extract(data, '$.user.id')";
 pub struct Erasure {
     pub events: i64,
     pub transactions: i64,
+    /// Rows of `session_users` (the user's distinct-user id, as a pseudonym or, in rows written
+    /// before the pseudonym, as the raw id).
+    pub sessions: i64,
 }
 
 pub struct PrivacyService;
@@ -39,10 +42,12 @@ impl PrivacyService {
             erasure.events += n;
         }
         erasure.transactions = Self::delete_transactions(pool, project_id, user_id).await?;
+        erasure.sessions = Self::delete_session_users(pool, project_id, user_id).await?;
         log::info!(
-            "privacy: erased {} events and {} transactions of one user in project {}",
+            "privacy: erased {} events, {} transactions and {} session rows of one user in project {}",
             erasure.events,
             erasure.transactions,
+            erasure.sessions,
             project_id
         );
         Ok(erasure)
@@ -145,6 +150,20 @@ impl PrivacyService {
             .execute(&mut *tx)
             .await?;
         tx.commit().await?;
+        Ok(deleted)
+    }
+
+    /// The user's rows in `session_users`: stored as the keyed pseudonym of the id, or as the raw id
+    /// in rows from before that. `session_counts` holds no per-user data.
+    async fn delete_session_users(pool: &DbPool, project_id: i32, user_id: &str) -> AppResult<i64> {
+        let deleted =
+            sqlx::query("DELETE FROM session_users WHERE project_id = $1 AND did IN ($2, $3)")
+                .bind(project_id)
+                .bind(user_id)
+                .bind(crate::scrub::pseudonym::pseudonym(user_id))
+                .execute(pool)
+                .await?
+                .rows_affected() as i64;
         Ok(deleted)
     }
 }

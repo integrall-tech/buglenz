@@ -24,6 +24,10 @@ export const retentionReportSchema = z.object({
   finished_at: z.string(),
   projects: z.number(),
   removed: cleanupCountsSchema,
+  /** Release-health rows removed by the `events` period (absent on servers before 2026-10-09). */
+  sessions_removed: z.number().optional(),
+  /** Alert-history rows removed by the `events` period (absent on servers before 2026-10-09). */
+  alerts_removed: z.number().optional(),
   unprotected: z.array(
     z.object({ project_id: z.number(), missing: z.array(z.string()) }),
   ),

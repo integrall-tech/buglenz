@@ -77,6 +77,7 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `.github/rulesets/protect-main.json`, `.github/rulesets/protect-release-tags.json`, `.github/rulesets/README.md` | G | 0021 | Novos. Rulesets para `main` (PR e os oito checks obrigatórios) e para as tags `v*-itl.*`; **ainda não aplicados** |
 | `apps/server/tests/integration/bootstrap_test.rs` | G | 0002 | Alterado. Os testes de bootstrap passam a rodar um de cada vez (trava assíncrona): todos mexiam na mesma `CREATE_SUPERUSER` e um apagava a variável de outro (falha esporádica, 1 em 12 localmente). **Temporário**: a propor ao upstream |
 | `apps/server/tests/unit/pseudonym_test.rs`, `.changeset/session-did-pseudonym.md` | G | 0009 | Novos (auditoria I4, 2026-10-09) |
+| `.changeset/retention-sessions.md` | G | 0009 | Novo (auditoria I5, 2026-10-09) |
 | `.changeset/server-hardening.md` | G | 0018 | Novo (023) |
 | `.changeset/automatic-retention.md` | G | 0009 | Novo (004) |
 | `.changeset/dashboard-pt-br.md` | G | 0002 | Novo (021) |
