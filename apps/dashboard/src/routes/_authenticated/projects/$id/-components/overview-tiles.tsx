@@ -132,6 +132,17 @@ export function CounterTiles({ projectId, period }: TileProps) {
     () => getProjectStatsSummary(projectId, period),
     [projectId, period],
   );
+  // The shape beside the events number. Decoration over a figure that already stands alone, so a
+  // failed or slow read draws no line instead of failing the tile.
+  const shape = useAsync(
+    () =>
+      getProjectEventTimeseries(projectId, period, overviewInterval(period)),
+    [projectId, period],
+  );
+  const trend =
+    shape.state === 'ready' && shape.data.success
+      ? shape.data.data.map((point) => point.total)
+      : undefined;
 
   if (read.state === 'pending') {
     return (
@@ -163,6 +174,7 @@ export function CounterTiles({ projectId, period }: TileProps) {
         label={t('overview.events')}
         metric={summary.events}
         polarity="up-is-bad"
+        trend={trend}
       />
       <StatTile
         label={t('overview.newIssues')}

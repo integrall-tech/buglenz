@@ -1370,7 +1370,11 @@
       "latencySubtitle": "Slowest transactions by p95, all time",
       "topIssues": "Top issues",
       "topIssuesSubtitle": "Open issues by total events, all time",
-      "noIssuesYet": "No issues yet"
+      "noIssuesYet": "No issues yet",
+      "summary": {
+        "calm": "{project} is <accent>calm</accent>: no new issues in this period.",
+        "busy": "{project} has <accent>{count, plural, one {# new issue} other {# new issues}}</accent> to look at, out of {events} events."
+      }
     },
     "issues": {
       "meta": {
