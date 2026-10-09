@@ -80,6 +80,8 @@ As zonas A, B e C são as do ADR-0006 (marca). A zona G não existe no ADR-0006 
 | `apps/server/tests/unit/pseudonym_test.rs`, `.changeset/session-did-pseudonym.md` | G | 0009 | Novos (auditoria I4, 2026-10-09) |
 | `.changeset/scrub-email-in-id.md` | G | 0009 | Novo (auditoria I4, segunda rodada) |
 | `.changeset/retention-standalone-spans.md` | G | 0009 | Novo (auditoria I5, segunda rodada) |
+| `apps/server/src/services/issue_social.rs` | G | 0009 | Alterado (auditoria I4, segunda rodada). Nome, e-mail e comentário de um relato de usuário passam pelo `scrub_text` ao serem gravados |
+| `.changeset/user-reports-privacy.md` | G | 0009 | Novo (auditoria I4 e I5, segunda rodada) |
 | `.changeset/retention-sessions.md` | G | 0009 | Novo (auditoria I5, 2026-10-09) |
 | `apps/dashboard/src/styles.css`, `apps/dashboard/src/main.tsx`, `apps/dashboard/index.html` | A | 0022, 0023 | Alterados (0023: título serifado, cartões e títulos de cartão em frase normal, fonte Instrument Serif). Paleta quente (papel, tinta e um laranja), barra lateral de tinta nos dois temas e tema claro como padrão; o verde-limão sai |
 | `apps/dashboard/package.json`, `pnpm-lock.yaml` | A | 0023 | Alterados. Dependência `@fontsource/instrument-serif` 5.3.0 (OFL-1.1), a fonte dos títulos de página |

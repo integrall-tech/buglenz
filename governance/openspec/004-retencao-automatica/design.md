@@ -15,6 +15,9 @@ Spans seguem as transações (cascata). Logs e eventos são independentes.
 `20260714000000_standalone_spans`) não tem cascata a seguir e nunca expirava. Agora a passada o apaga pelo prazo de
 **transações** do projeto, e a contagem entra em `removed.spans`.
 
+**Relatos de usuário** (`user_reports`, segunda rodada): seguem o prazo de eventos; o texto passa pelo scrub ao ser gravado
+(e-mail vira `[email]`, CPF vira `[cpf]`). Ficam fora da exclusão por titular, que casa por `user.id`.
+
 **Sessões e histórico de alertas** (auditoria de 2026-10-09, invariante I5): `session_counts`, `session_users` e
 `alert_history` de um projeto seguem o prazo de **eventos** dele e saem na mesma passada; sem prazo de eventos,
 não se apaga nada. A exclusão por titular também apaga as linhas de `session_users` do titular (o pseudônimo
